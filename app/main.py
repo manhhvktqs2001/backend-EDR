@@ -1,4 +1,4 @@
-# Fix cho app/main.py - Complete file
+# app/main.py - Fixed Unicode encoding issues
 """
 EDR System - Main FastAPI Application
 Agent Communication Server running on 192.168.20.85:5000
@@ -19,38 +19,38 @@ from .database import init_database, get_database_status
 from .api.v1 import agents, events, alerts, dashboard, threats
 from .utils.network_utils import is_internal_ip
 
-# Configure logging
+# Configure logging with Unicode support
 logging.config.dictConfig(config['logging'])
 logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan management"""
-    # Startup
-    logger.info("🚀 Starting EDR Agent Communication Server...")
+    # Startup - Use ASCII-safe logging
+    logger.info("Starting EDR Agent Communication Server...")
     
     try:
         # Initialize database
         if not init_database():
             raise RuntimeError("Database initialization failed")
         
-        logger.info("✅ Database initialized successfully")
+        logger.info("Database initialized successfully")
         
         # Log server configuration
         server_config = config['server']
-        logger.info(f"🌐 Server binding to: {server_config['bind_host']}:{server_config['bind_port']}")
-        logger.info(f"🔒 Network access: {config['network']['allowed_agent_network']}")
-        logger.info(f"🛡️  Detection engine: {'Enabled' if config['detection']['rules_enabled'] else 'Disabled'}")
-        logger.info(f"📊 Threat intelligence: {'Enabled' if config['detection']['threat_intel_enabled'] else 'Disabled'}")
+        logger.info(f"Server binding to: {server_config['bind_host']}:{server_config['bind_port']}")
+        logger.info(f"Network access: {config['network']['allowed_agent_network']}")
+        logger.info(f"Detection engine: {'Enabled' if config['detection']['rules_enabled'] else 'Disabled'}")
+        logger.info(f"Threat intelligence: {'Enabled' if config['detection']['threat_intel_enabled'] else 'Disabled'}")
         
         yield
         
     except Exception as e:
-        logger.error(f"❌ Startup failed: {e}")
+        logger.error(f"Startup failed: {e}")
         raise
     
     # Shutdown
-    logger.info("🛑 Shutting down EDR Agent Communication Server...")
+    logger.info("Shutting down EDR Agent Communication Server...")
 
 # Create FastAPI application
 app = FastAPI(
@@ -87,7 +87,7 @@ async def security_and_logging_middleware(request: Request, call_next):
     # Network access validation for agent endpoints
     if request.url.path.startswith("/api/v1/agents") or request.url.path.startswith("/api/v1/events"):
         if not is_internal_ip(client_ip, config['network']['allowed_agent_network']):
-            logger.warning(f"🚫 Unauthorized access attempt from: {client_ip} to {request.url.path}")
+            logger.warning(f"Unauthorized access attempt from: {client_ip} to {request.url.path}")
             return JSONResponse(
                 status_code=status.HTTP_403_FORBIDDEN,
                 content={"error": "Access denied from this network", "client_ip": client_ip}
@@ -99,7 +99,7 @@ async def security_and_logging_middleware(request: Request, call_next):
     # Log request
     process_time = time.time() - start_time
     logger.info(
-        f"📊 {request.method} {request.url.path} - "
+        f"REQUEST {request.method} {request.url.path} - "
         f"Status: {response.status_code} - "
         f"Time: {process_time:.3f}s - "
         f"Client: {client_ip}"
@@ -235,7 +235,7 @@ app.include_router(
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     """Global exception handler"""
-    logger.error(f"🚨 Unhandled exception: {exc}")
+    logger.error(f"Unhandled exception: {exc}")
     logger.error(f"Request: {request.method} {request.url}")
     
     return JSONResponse(
@@ -282,14 +282,14 @@ async def value_error_handler(request: Request, exc: ValueError):
 @app.on_event("startup") 
 async def startup_event():
     """Additional startup tasks"""
-    logger.info("🔧 Running additional startup tasks...")
+    logger.info("Running additional startup tasks...")
     
     # Ensure required directories exist
     import os
     for path_name, path in config['paths'].items():
         if not os.path.exists(path):
             os.makedirs(path, exist_ok=True)
-            logger.info(f"📁 Created directory: {path}")
+            logger.info(f"Created directory: {path}")
 
 # Development server runner
 if __name__ == "__main__":

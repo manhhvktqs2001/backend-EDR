@@ -1,9 +1,10 @@
 """
 EDR Server Configuration
-Complete configuration for Agent Communication Server
+Complete configuration for Agent Communication Server with Unicode-safe logging
 """
 
 import os
+import sys
 from pathlib import Path
 from typing import List
 
@@ -12,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Database Configuration - EDR_System database
 DATABASE_CONFIG = {
-    'server': os.getenv('DB_SERVER', 'MANH'),  # SQL Server instance
+    'server': os.getenv('DB_SERVER', 'MANH'),
     'database': os.getenv('DB_DATABASE', 'EDR_System'),
     'driver': os.getenv('DB_DRIVER', 'ODBC Driver 17 for SQL Server'),
     'timeout': int(os.getenv('DB_TIMEOUT', '30')),
@@ -22,8 +23,8 @@ DATABASE_CONFIG = {
 
 # Server Configuration - Agent Communication Server
 SERVER_CONFIG = {
-    'bind_host': os.getenv('SERVER_HOST', '192.168.20.85'),  # Server binds to this IP
-    'bind_port': int(os.getenv('SERVER_PORT', '5000')),      # Server listens on this port
+    'bind_host': os.getenv('SERVER_HOST', '192.168.20.85'),
+    'bind_port': int(os.getenv('SERVER_PORT', '5000')),
     'debug': os.getenv('SERVER_DEBUG', 'true').lower() == 'true',
     'reload': os.getenv('SERVER_RELOAD', 'true').lower() == 'true',
     'workers': int(os.getenv('SERVER_WORKERS', '1')),
@@ -34,11 +35,11 @@ SERVER_CONFIG = {
 
 # Network Security Configuration
 NETWORK_CONFIG = {
-    'allowed_agent_network': os.getenv('ALLOWED_AGENT_NETWORK', '192.168.20.0/24'),  # Accept agents from this network
-    'server_endpoint': f"{SERVER_CONFIG['bind_host']}:{SERVER_CONFIG['bind_port']}",  # What agents connect to
-    'max_agents': int(os.getenv('MAX_AGENTS', '1000')),                              # Maximum number of agents
-    'connection_timeout': int(os.getenv('CONNECTION_TIMEOUT', '30')),                # Connection timeout seconds
-    'heartbeat_timeout': int(os.getenv('HEARTBEAT_TIMEOUT', '300'))                  # 5 minutes agent timeout
+    'allowed_agent_network': os.getenv('ALLOWED_AGENT_NETWORK', '192.168.20.0/24'),
+    'server_endpoint': f"{SERVER_CONFIG['bind_host']}:{SERVER_CONFIG['bind_port']}",
+    'max_agents': int(os.getenv('MAX_AGENTS', '1000')),
+    'connection_timeout': int(os.getenv('CONNECTION_TIMEOUT', '30')),
+    'heartbeat_timeout': int(os.getenv('HEARTBEAT_TIMEOUT', '300'))
 }
 
 # Security Configuration
@@ -53,14 +54,14 @@ SECURITY_CONFIG = {
 
 # Agent Configuration
 AGENT_CONFIG = {
-    'registration_timeout': 60,      # Agent registration timeout
-    'heartbeat_interval': int(os.getenv('HEARTBEAT_INTERVAL', '30')),        # Expected heartbeat interval (seconds)
-    'heartbeat_grace_period': 90,    # Grace period before marking offline
-    'event_batch_size': int(os.getenv('EVENT_BATCH_SIZE', '100')),           # Maximum events per batch
-    'event_queue_size': int(os.getenv('EVENT_QUEUE_SIZE', '10000')),         # Maximum queued events per agent
-    'config_version': os.getenv('CONFIG_VERSION', '1.0'),                   # Agent configuration version
+    'registration_timeout': 60,
+    'heartbeat_interval': int(os.getenv('HEARTBEAT_INTERVAL', '30')),
+    'heartbeat_grace_period': 90,
+    'event_batch_size': int(os.getenv('EVENT_BATCH_SIZE', '100')),
+    'event_queue_size': int(os.getenv('EVENT_QUEUE_SIZE', '10000')),
+    'config_version': os.getenv('CONFIG_VERSION', '1.0'),
     'auto_approve_registration': os.getenv('AUTO_APPROVE_REGISTRATION', 'true').lower() == 'true',
-    'require_agent_certificate': False # Certificate-based auth (future)
+    'require_agent_certificate': False
 }
 
 # Detection Engine Configuration
@@ -68,23 +69,23 @@ DETECTION_CONFIG = {
     'rules_enabled': os.getenv('RULES_ENABLED', 'true').lower() == 'true',
     'threat_intel_enabled': os.getenv('THREAT_INTEL_ENABLED', 'true').lower() == 'true',
     'ml_detection_enabled': os.getenv('ML_DETECTION_ENABLED', 'false').lower() == 'true',
-    'rules_check_interval': int(os.getenv('RULES_CHECK_INTERVAL', '1')),        # Check rules every N seconds
-    'threat_intel_cache_ttl': int(os.getenv('THREAT_INTEL_CACHE_TTL', '3600')), # Cache threat intel for 1 hour
-    'alert_deduplication_window': int(os.getenv('ALERT_DEDUPLICATION_WINDOW', '300')), # 5 minutes dedup window
-    'max_alerts_per_agent': 1000,     # Max alerts per agent per day
-    'risk_score_threshold': int(os.getenv('RISK_SCORE_THRESHOLD', '70')),       # Alert threshold (0-100)
-    'auto_quarantine_threshold': int(os.getenv('AUTO_QUARANTINE_THRESHOLD', '90')) # Auto-quarantine threshold
+    'rules_check_interval': int(os.getenv('RULES_CHECK_INTERVAL', '1')),
+    'threat_intel_cache_ttl': int(os.getenv('THREAT_INTEL_CACHE_TTL', '3600')),
+    'alert_deduplication_window': int(os.getenv('ALERT_DEDUPLICATION_WINDOW', '300')),
+    'max_alerts_per_agent': 1000,
+    'risk_score_threshold': int(os.getenv('RISK_SCORE_THRESHOLD', '70')),
+    'auto_quarantine_threshold': int(os.getenv('AUTO_QUARANTINE_THRESHOLD', '90'))
 }
 
 # Alert Configuration
 ALERT_CONFIG = {
     'default_severity': os.getenv('DEFAULT_SEVERITY', 'Medium'),
     'auto_escalation_enabled': os.getenv('AUTO_ESCALATION_ENABLED', 'true').lower() == 'true',
-    'escalation_threshold_minutes': int(os.getenv('ESCALATION_THRESHOLD_MINUTES', '60')),  # Escalate after 1 hour
+    'escalation_threshold_minutes': int(os.getenv('ESCALATION_THRESHOLD_MINUTES', '60')),
     'alert_retention_days': int(os.getenv('ALERT_RETENTION_DAYS', '90')),
     'max_alerts_per_hour': int(os.getenv('MAX_ALERTS_PER_HOUR', '100')),
-    'notification_enabled': False,      # Future email/SMS notifications
-    'webhook_enabled': False            # Future webhook integration
+    'notification_enabled': False,
+    'webhook_enabled': False
 }
 
 # Performance Configuration
@@ -93,94 +94,110 @@ PERFORMANCE_CONFIG = {
     'database_max_overflow': int(os.getenv('DATABASE_MAX_OVERFLOW', '20')),
     'database_pool_timeout': int(os.getenv('DATABASE_POOL_TIMEOUT', '30')),
     'cache_enabled': os.getenv('CACHE_ENABLED', 'true').lower() == 'true',
-    'cache_ttl': int(os.getenv('CACHE_TTL', '300')),                   # 5 minutes cache
+    'cache_ttl': int(os.getenv('CACHE_TTL', '300')),
     'batch_processing_enabled': os.getenv('BATCH_PROCESSING_ENABLED', 'true').lower() == 'true',
-    'batch_processing_interval': int(os.getenv('BATCH_PROCESSING_INTERVAL', '5')),     # Process batches every 5 seconds
+    'batch_processing_interval': int(os.getenv('BATCH_PROCESSING_INTERVAL', '5')),
     'background_tasks_enabled': True
 }
 
-# Logging Configuration
-LOGGING_CONFIG = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'default': {
-            'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+# Unicode-safe logging configuration
+def get_logging_config():
+    """Get logging configuration with Unicode support"""
+    log_level = os.getenv('LOG_LEVEL', 'INFO')
+    
+    # Check if running on Windows and set appropriate encoding
+    is_windows = sys.platform.startswith('win')
+    console_encoding = 'utf-8' if not is_windows else 'ascii'
+    
+    return {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'default': {
+                'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                'datefmt': '%Y-%m-%d %H:%M:%S'
+            },
+            'detailed': {
+                'format': '%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(funcName)s - %(message)s',
+                'datefmt': '%Y-%m-%d %H:%M:%S'
+            },
+            'ascii_safe': {
+                'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                'datefmt': '%Y-%m-%d %H:%M:%S'
+            }
         },
-        'detailed': {
-            'format': '%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(funcName)s - %(message)s',
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+                'level': log_level,
+                'formatter': 'ascii_safe' if is_windows else 'default',
+                'stream': 'ext://sys.stdout'
+            },
+            'file_main': {
+                'class': 'logging.handlers.RotatingFileHandler',
+                'level': 'DEBUG',
+                'formatter': 'detailed',
+                'filename': str(BASE_DIR / 'logs' / 'server.log'),
+                'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),
+                'backupCount': int(os.getenv('LOG_BACKUP_COUNT', '5')),
+                'encoding': 'utf-8'
+            },
+            'file_detection': {
+                'class': 'logging.handlers.RotatingFileHandler',
+                'level': 'INFO',
+                'formatter': 'detailed',
+                'filename': str(BASE_DIR / 'logs' / 'detection.log'),
+                'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),
+                'backupCount': int(os.getenv('LOG_BACKUP_COUNT', '5')),
+                'encoding': 'utf-8'
+            },
+            'file_agents': {
+                'class': 'logging.handlers.RotatingFileHandler',
+                'level': 'INFO',
+                'formatter': 'default',
+                'filename': str(BASE_DIR / 'logs' / 'agents.log'),
+                'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),
+                'backupCount': int(os.getenv('LOG_BACKUP_COUNT', '5')),
+                'encoding': 'utf-8'
+            },
+            'file_errors': {
+                'class': 'logging.handlers.RotatingFileHandler',
+                'level': 'ERROR',
+                'formatter': 'detailed',
+                'filename': str(BASE_DIR / 'logs' / 'errors.log'),
+                'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),
+                'backupCount': int(os.getenv('LOG_BACKUP_COUNT', '5')),
+                'encoding': 'utf-8'
+            }
         },
-        'json': {
-            'format': '{"timestamp": "%(asctime)s", "level": "%(levelname)s", "logger": "%(name)s", "message": "%(message)s"}',
-        }
-    },
-    'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-            'level': os.getenv('LOG_LEVEL', 'INFO'),
-            'formatter': 'default',
+        'loggers': {
+            '': {  # Root logger
+                'handlers': ['console', 'file_main'],
+                'level': 'DEBUG',
+                'propagate': False,
+            },
+            'uvicorn': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'detection_engine': {
+                'handlers': ['console', 'file_detection'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'agent_communication': {
+                'handlers': ['console', 'file_agents'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'error': {
+                'handlers': ['file_errors'],
+                'level': 'ERROR',
+                'propagate': False,
+            }
         },
-        'file_main': {
-            'class': 'logging.handlers.RotatingFileHandler',
-            'level': 'DEBUG',
-            'formatter': 'detailed',
-            'filename': BASE_DIR / 'logs' / 'server.log',
-            'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),  # 10MB
-            'backupCount': int(os.getenv('LOG_BACKUP_COUNT', '5')),
-        },
-        'file_detection': {
-            'class': 'logging.handlers.RotatingFileHandler',
-            'level': 'INFO',
-            'formatter': 'detailed',
-            'filename': BASE_DIR / 'logs' / 'detection.log',
-            'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),
-            'backupCount': int(os.getenv('LOG_BACKUP_COUNT', '5')),
-        },
-        'file_agents': {
-            'class': 'logging.handlers.RotatingFileHandler',
-            'level': 'INFO',
-            'formatter': 'default',
-            'filename': BASE_DIR / 'logs' / 'agents.log',
-            'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),
-            'backupCount': int(os.getenv('LOG_BACKUP_COUNT', '5')),
-        },
-        'file_errors': {
-            'class': 'logging.handlers.RotatingFileHandler',
-            'level': 'ERROR',
-            'formatter': 'detailed',
-            'filename': BASE_DIR / 'logs' / 'errors.log',
-            'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),
-            'backupCount': int(os.getenv('LOG_BACKUP_COUNT', '5')),
-        }
-    },
-    'loggers': {
-        '': {  # Root logger
-            'handlers': ['console', 'file_main'],
-            'level': 'DEBUG',
-            'propagate': False,
-        },
-        'uvicorn': {
-            'handlers': ['console'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'detection_engine': {
-            'handlers': ['console', 'file_detection'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'agent_communication': {
-            'handlers': ['console', 'file_agents'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'error': {
-            'handlers': ['file_errors'],
-            'level': 'ERROR',
-            'propagate': False,
-        }
-    },
-}
+    }
 
 # Paths Configuration
 PATHS = {
@@ -204,9 +221,8 @@ def get_environment_config():
             'reload': False,
             'workers': 4
         })
-        LOGGING_CONFIG['handlers']['console']['level'] = 'WARNING'
-        DETECTION_CONFIG['rules_check_interval'] = 0.5  # Faster detection
-        PERFORMANCE_CONFIG['cache_ttl'] = 600  # Longer cache
+        DETECTION_CONFIG['rules_check_interval'] = 0.5
+        PERFORMANCE_CONFIG['cache_ttl'] = 600
         
     elif env == 'testing':
         # Testing settings
@@ -244,7 +260,7 @@ RATE_LIMITING = {
 # Monitoring & Health Check
 MONITORING_CONFIG = {
     'health_check_enabled': os.getenv('HEALTH_CHECK_ENABLED', 'true').lower() == 'true',
-    'health_check_interval': int(os.getenv('HEALTH_CHECK_INTERVAL', '30')),    # seconds
+    'health_check_interval': int(os.getenv('HEALTH_CHECK_INTERVAL', '30')),
     'metrics_enabled': os.getenv('METRICS_ENABLED', 'true').lower() == 'true',
     'metrics_retention_days': int(os.getenv('METRICS_RETENTION_DAYS', '7')),
     'performance_monitoring': os.getenv('PERFORMANCE_MONITORING', 'true').lower() == 'true',
@@ -270,7 +286,7 @@ def get_config():
         'detection': DETECTION_CONFIG,
         'alert': ALERT_CONFIG,
         'performance': PERFORMANCE_CONFIG,
-        'logging': LOGGING_CONFIG,
+        'logging': get_logging_config(),
         'paths': PATHS,
         'features': FEATURES,
         'rate_limiting': RATE_LIMITING,
