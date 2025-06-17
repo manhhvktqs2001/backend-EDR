@@ -6,7 +6,8 @@ Helper functions for validating inputs and data
 
 import re
 import ipaddress
-from typing import Any, List, Dict, Optional
+import uuid
+from typing import Any, List, Dict, Optional, Tuple
 
 def validate_hostname(hostname: str) -> bool:
     """Validate hostname format"""
@@ -53,7 +54,7 @@ def validate_port(port: int) -> bool:
 
 def validate_severity(severity: str) -> bool:
     """Validate alert/event severity"""
-    valid_severities = ['Low', 'Medium', 'High', 'Critical']
+    valid_severities = ['Info', 'Low', 'Medium', 'High', 'Critical']
     return severity in valid_severities
 
 def validate_event_type(event_type: str) -> bool:
@@ -70,7 +71,7 @@ def sanitize_string(value: str, max_length: int = 255) -> str:
     sanitized = re.sub(r'[\x00-\x1f\x7f-\x9f]', '', value)
     return sanitized[:max_length].strip()
 
-def validate_json_structure(data: Dict, required_fields: List[str]) -> tuple[bool, str]:
+def validate_json_structure(data: Dict, required_fields: List[str]) -> Tuple[bool, str]:
     """Validate JSON structure has required fields"""
     if not isinstance(data, dict):
         return False, "Data must be a dictionary"
@@ -81,234 +82,45 @@ def validate_json_structure(data: Dict, required_fields: List[str]) -> tuple[boo
     
     return True, "Valid"
 
-# app/utils/hash_utils.py
-"""
-Hash Calculation Utilities
-Helper functions for file hashing and hash operations
-"""
-
-import hashlib
-import hmac
-from typing import Optional
-
-def calculate_md5(data: bytes) -> str:
-    """Calculate MD5 hash of data"""
-    return hashlib.md5(data).hexdigest()
-
-def calculate_sha1(data: bytes) -> str:
-    """Calculate SHA1 hash of data"""
-    return hashlib.sha1(data).hexdigest()
-
-def calculate_sha256(data: bytes) -> str:
-    """Calculate SHA256 hash of data"""
-    return hashlib.sha256(data).hexdigest()
-
-def calculate_file_hash(file_path: str, algorithm: str = 'sha256') -> Optional[str]:
-    """Calculate hash of file"""
+def validate_agent_id(agent_id: str) -> bool:
+    """Validate agent ID format (UUID)"""
     try:
-        hash_func = {
-            'md5': hashlib.md5,
-            'sha1': hashlib.sha1,
-            'sha256': hashlib.sha256
-        }.get(algorithm.lower())
-        
-        if not hash_func:
-            return None
-        
-        hasher = hash_func()
-        with open(file_path, 'rb') as f:
-            for chunk in iter(lambda: f.read(4096), b""):
-                hasher.update(chunk)
-        
-        return hasher.hexdigest()
-    except Exception:
-        return None
+        uuid.UUID(agent_id)
+        return True
+    except ValueError:
+        return False
 
-def verify_hash(data: bytes, expected_hash: str, algorithm: str = 'sha256') -> bool:
-    """Verify data against expected hash"""
-    hash_functions = {
-        'md5': calculate_md5,
-        'sha1': calculate_sha1,
-        'sha256': calculate_sha256
-    }
-    
-    hash_func = hash_functions.get(algorithm.lower())
-    if not hash_func:
+def validate_file_path(file_path: str) -> bool:
+    """Validate file path format"""
+    if not file_path:
         return False
     
-    calculated_hash = hash_func(data)
-    return hmac.compare_digest(calculated_hash.lower(), expected_hash.lower())
+    # Basic file path validation
+    # Reject paths with null bytes or dangerous patterns
+    dangerous_patterns = ['\x00', '..', '<', '>', '|']
+    return not any(pattern in file_path for pattern in dangerous_patterns)
 
-# app/utils/datetime_utils.py
-"""
-DateTime Utilities
-Helper functions for datetime operations and formatting
-"""
-
-from datetime import datetime, timedelta, timezone
-from typing import Optional, Union
-import time
-
-def get_current_timestamp() -> float:
-    """Get current Unix timestamp"""
-    return time.time()
-
-def get_current_datetime() -> datetime:
-    """Get current datetime with timezone"""
-    return datetime.now(timezone.utc)
-
-def format_datetime(dt: datetime, format_string: str = "%Y-%m-%d %H:%M:%S") -> str:
-    """Format datetime to string"""
-    return dt.strftime(format_string)
-
-def parse_datetime(date_string: str, format_string: str = "%Y-%m-%d %H:%M:%S") -> Optional[datetime]:
-    """Parse string to datetime"""
-    try:
-        return datetime.strptime(date_string, format_string)
-    except ValueError:
-        return None
-
-def datetime_to_iso(dt: datetime) -> str:
-    """Convert datetime to ISO format string"""
-    return dt.isoformat()
-
-def iso_to_datetime(iso_string: str) -> Optional[datetime]:
-    """Convert ISO format string to datetime"""
-    try:
-        return datetime.fromisoformat(iso_string.replace('Z', '+00:00'))
-    except ValueError:
-        return None
-
-def get_time_ago(dt: datetime) -> str:
-    """Get human-readable time ago string"""
-    now = datetime.now(timezone.utc)
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
+def validate_command_line(command_line: str) -> bool:
+    """Validate command line format"""
+    if not command_line:
+        return True  # Empty command line is valid
     
-    diff = now - dt
-    seconds = diff.total_seconds()
+    # Basic validation - reject null bytes
+    return '\x00' not in command_line
+
+def validate_registry_key(registry_key: str) -> bool:
+    """Validate Windows registry key format"""
+    if not registry_key:
+        return False
     
-    if seconds < 60:
-        return f"{int(seconds)} seconds ago"
-    elif seconds < 3600:
-        return f"{int(seconds // 60)} minutes ago"
-    elif seconds < 86400:
-        return f"{int(seconds // 3600)} hours ago"
-    else:
-        return f"{int(seconds // 86400)} days ago"
-
-def is_within_time_range(dt: datetime, hours: int) -> bool:
-    """Check if datetime is within specified hours from now"""
-    now = datetime.now(timezone.utc)
-    if dt.tzinfo is None:
-        dt = dt.replace(tzinfo=timezone.utc)
+    # Basic registry key validation
+    valid_roots = [
+        'HKEY_CLASSES_ROOT', 'HKCR',
+        'HKEY_CURRENT_USER', 'HKCU',
+        'HKEY_LOCAL_MACHINE', 'HKLM',
+        'HKEY_USERS', 'HKU',
+        'HKEY_CURRENT_CONFIG', 'HKCC'
+    ]
     
-    time_diff = now - dt
-    return time_diff <= timedelta(hours=hours)
-
-# app/utils/json_utils.py
-"""
-JSON Utilities
-Helper functions for JSON operations and validation
-"""
-
-import json
-from typing import Any, Dict, Optional, Union
-import logging
-
-logger = logging.getLogger(__name__)
-
-def safe_json_loads(json_string: str) -> Optional[Dict]:
-    """Safely parse JSON string"""
-    try:
-        return json.loads(json_string)
-    except (json.JSONDecodeError, TypeError) as e:
-        logger.warning(f"Failed to parse JSON: {e}")
-        return None
-
-def safe_json_dumps(data: Any, indent: Optional[int] = None) -> Optional[str]:
-    """Safely serialize data to JSON"""
-    try:
-        return json.dumps(data, indent=indent, default=str, ensure_ascii=False)
-    except (TypeError, ValueError) as e:
-        logger.warning(f"Failed to serialize JSON: {e}")
-        return None
-
-def merge_json_objects(obj1: Dict, obj2: Dict) -> Dict:
-    """Merge two JSON objects"""
-    result = obj1.copy()
-    result.update(obj2)
-    return result
-
-def extract_json_field(data: Dict, field_path: str, default: Any = None) -> Any:
-    """Extract field from nested JSON using dot notation"""
-    try:
-        fields = field_path.split('.')
-        result = data
-        for field in fields:
-            result = result[field]
-        return result
-    except (KeyError, TypeError):
-        return default
-
-def validate_json_schema(data: Dict, schema: Dict) -> tuple[bool, str]:
-    """Basic JSON schema validation"""
-    try:
-        for field, field_type in schema.items():
-            if field not in data:
-                return False, f"Missing required field: {field}"
-            
-            if not isinstance(data[field], field_type):
-                return False, f"Field {field} must be of type {field_type.__name__}"
-        
-        return True, "Valid"
-    except Exception as e:
-        return False, f"Validation error: {str(e)}"
-
-# app/utils/formatting.py
-"""
-Data Formatting Utilities
-Helper functions for formatting and converting data
-"""
-
-def format_bytes(bytes_value: int) -> str:
-    """Format bytes to human readable format"""
-    for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
-        if bytes_value < 1024.0:
-            return f"{bytes_value:.1f} {unit}"
-        bytes_value /= 1024.0
-    return f"{bytes_value:.1f} PB"
-
-def format_percentage(value: float, decimal_places: int = 1) -> str:
-    """Format decimal as percentage"""
-    return f"{value:.{decimal_places}f}%"
-
-def format_duration(seconds: int) -> str:
-    """Format seconds to human readable duration"""
-    if seconds < 60:
-        return f"{seconds}s"
-    elif seconds < 3600:
-        minutes = seconds // 60
-        return f"{minutes}m {seconds % 60}s"
-    elif seconds < 86400:
-        hours = seconds // 3600
-        minutes = (seconds % 3600) // 60
-        return f"{hours}h {minutes}m"
-    else:
-        days = seconds // 86400
-        hours = (seconds % 86400) // 3600
-        return f"{days}d {hours}h"
-
-def truncate_string(text: str, max_length: int = 100, suffix: str = "...") -> str:
-    """Truncate string to specified length"""
-    if len(text) <= max_length:
-        return text
-    return text[:max_length - len(suffix)] + suffix
-
-def normalize_string(text: str) -> str:
-    """Normalize string (lowercase, strip, etc.)"""
-    return text.strip().lower() if text else ""
-
-def format_list_as_string(items: list, separator: str = ", ") -> str:
-    """Format list as comma-separated string"""
-    return separator.join(str(item) for item in items)
+    # Check if starts with valid root
+    return any(registry_key.upper().startswith(root) for root in valid_roots)

@@ -1,4 +1,4 @@
-# app/schemas/event.py - Complete Event Schemas
+# app/schemas/event.py - Complete Fixed Version
 """
 Event API Schemas
 Pydantic models for event-related API requests and responses
@@ -30,68 +30,7 @@ class ThreatLevel(str, Enum):
     SUSPICIOUS = "Suspicious"
     MALICIOUS = "Malicious"
 
-# Base Event Schema
-class EventBase(BaseModel):
-    """Base event schema with common fields"""
-    agent_id: str = Field(..., description="Agent ID that generated the event")
-    event_type: EventType = Field(..., description="Type of event")
-    event_action: str = Field(..., description="Action that occurred")
-    event_timestamp: datetime = Field(..., description="When the event occurred")
-    severity: EventSeverity = Field(default=EventSeverity.INFO, description="Event severity")
-
-# Process Event Schema
-class ProcessEventRequest(EventBase):
-    """Schema for process event submission"""
-    event_type: EventType = Field(default=EventType.PROCESS, description="Must be Process")
-    process_id: Optional[int] = Field(None, description="Process ID")
-    process_name: Optional[str] = Field(None, description="Process name")
-    process_path: Optional[str] = Field(None, description="Process executable path")
-    command_line: Optional[str] = Field(None, description="Command line arguments")
-    parent_pid: Optional[int] = Field(None, description="Parent process ID")
-    parent_process_name: Optional[str] = Field(None, description="Parent process name")
-    process_user: Optional[str] = Field(None, description="User context")
-    process_hash: Optional[str] = Field(None, description="Process file hash")
-
-# File Event Schema
-class FileEventRequest(EventBase):
-    """Schema for file event submission"""
-    event_type: EventType = Field(default=EventType.FILE, description="Must be File")
-    file_path: Optional[str] = Field(None, description="Full file path")
-    file_name: Optional[str] = Field(None, description="File name")
-    file_size: Optional[int] = Field(None, description="File size in bytes")
-    file_hash: Optional[str] = Field(None, description="File hash (SHA-256)")
-    file_extension: Optional[str] = Field(None, description="File extension")
-    file_operation: Optional[str] = Field(None, description="File operation (Create, Delete, Modify)")
-
-# Network Event Schema
-class NetworkEventRequest(EventBase):
-    """Schema for network event submission"""
-    event_type: EventType = Field(default=EventType.NETWORK, description="Must be Network")
-    source_ip: Optional[str] = Field(None, description="Source IP address")
-    destination_ip: Optional[str] = Field(None, description="Destination IP address")
-    source_port: Optional[int] = Field(None, description="Source port")
-    destination_port: Optional[int] = Field(None, description="Destination port")
-    protocol: Optional[str] = Field(None, description="Network protocol")
-    direction: Optional[str] = Field(None, description="Traffic direction")
-
-# Registry Event Schema (Windows)
-class RegistryEventRequest(EventBase):
-    """Schema for registry event submission"""
-    event_type: EventType = Field(default=EventType.REGISTRY, description="Must be Registry")
-    registry_key: Optional[str] = Field(None, description="Registry key path")
-    registry_value_name: Optional[str] = Field(None, description="Registry value name")
-    registry_value_data: Optional[str] = Field(None, description="Registry value data")
-    registry_operation: Optional[str] = Field(None, description="Registry operation")
-
-# Authentication Event Schema
-class AuthenticationEventRequest(EventBase):
-    """Schema for authentication event submission"""
-    event_type: EventType = Field(default=EventType.AUTHENTICATION, description="Must be Authentication")
-    login_user: Optional[str] = Field(None, description="Username")
-    login_type: Optional[str] = Field(None, description="Login type")
-    login_result: Optional[str] = Field(None, description="Login result (Success/Failed)")
-
-# Generic Event Submission Schema
+# Event Submission Schema
 class EventSubmissionRequest(BaseModel):
     """Schema for generic event submission"""
     agent_id: str = Field(..., description="Agent ID")
@@ -214,13 +153,18 @@ class EventStats(BaseModel):
     analyzed_count: int
     top_agents: List[Dict[str, Any]]
 
-class EventTimeline(BaseModel):
-    """Schema for event timeline"""
-    hour: int
-    event_type: str
-    severity: str
-    event_count: int
-    threat_events: int
+# Event Search Schema - FIXED
+class EventSearchRequest(BaseModel):
+    """Schema for event search request"""
+    agent_id: Optional[str] = None
+    event_type: Optional[EventType] = None
+    severity: Optional[EventSeverity] = None
+    threat_level: Optional[ThreatLevel] = None
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
+    search_text: Optional[str] = None
+    limit: int = Field(default=100, le=1000)
+    offset: int = Field(default=0, ge=0)
 
 # Event Analysis Schemas
 class EventAnalysisRequest(BaseModel):
@@ -237,12 +181,3 @@ class EventAnalysisResponse(BaseModel):
     matched_rules: List[int]
     matched_threats: List[int]
     recommendations: List[str]
-
-# Event Search and Filter Schemas
-class EventSearchRequest(BaseModel):
-    """Schema for event search request"""
-    agent_id: Optional[str] = None
-    event_type: Optional[EventType] = None
-    severity: Optional[EventSeverity] = None
-    threat_level: Optional[ThreatLevel] = None
-    start_time
