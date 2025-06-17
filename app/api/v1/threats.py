@@ -15,7 +15,7 @@ from ...schemas.threat import (
     ThreatLookupRequest, ThreatLookupResponse,
     ThreatStatsResponse, ThreatCreateRequest
 )
-
+from datetime import datetime
 logger = logging.getLogger('threat_intelligence')
 router = APIRouter()
 

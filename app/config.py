@@ -12,21 +12,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Database Configuration - EDR_System database
 DATABASE_CONFIG = {
-    'server': 'MANH',  # SQL Server instance
-    'database': 'EDR_System',
-    'driver': 'ODBC Driver 17 for SQL Server',
-    'timeout': 30,
-    'trusted_connection': True,
+    'server': os.getenv('DB_SERVER', 'MANH'),  # SQL Server instance
+    'database': os.getenv('DB_DATABASE', 'EDR_System'),
+    'driver': os.getenv('DB_DRIVER', 'ODBC Driver 17 for SQL Server'),
+    'timeout': int(os.getenv('DB_TIMEOUT', '30')),
+    'trusted_connection': os.getenv('DB_TRUSTED_CONNECTION', 'true').lower() == 'true',
     'autocommit': True
 }
 
 # Server Configuration - Agent Communication Server
 SERVER_CONFIG = {
-    'bind_host': '192.168.20.85',  # Server binds to this IP
-    'bind_port': 5000,             # Server listens on this port
-    'debug': True,
-    'reload': True,
-    'workers': 1,
+    'bind_host': os.getenv('SERVER_HOST', '192.168.20.85'),  # Server binds to this IP
+    'bind_port': int(os.getenv('SERVER_PORT', '5000')),      # Server listens on this port
+    'debug': os.getenv('SERVER_DEBUG', 'true').lower() == 'true',
+    'reload': os.getenv('SERVER_RELOAD', 'true').lower() == 'true',
+    'workers': int(os.getenv('SERVER_WORKERS', '1')),
     'title': 'EDR Agent Communication Server',
     'description': 'Agent Registration, Event Collection & Detection Engine',
     'version': '1.0.0'
@@ -34,71 +34,68 @@ SERVER_CONFIG = {
 
 # Network Security Configuration
 NETWORK_CONFIG = {
-    'allowed_agent_network': '192.168.20.0/24',  # Accept agents from this network
-    'server_endpoint': '192.168.20.85:5000',     # What agents connect to
-    'max_agents': 1000,                          # Maximum number of agents
-    'connection_timeout': 30,                    # Connection timeout seconds
-    'heartbeat_timeout': 300                     # 5 minutes agent timeout
+    'allowed_agent_network': os.getenv('ALLOWED_AGENT_NETWORK', '192.168.20.0/24'),  # Accept agents from this network
+    'server_endpoint': f"{SERVER_CONFIG['bind_host']}:{SERVER_CONFIG['bind_port']}",  # What agents connect to
+    'max_agents': int(os.getenv('MAX_AGENTS', '1000')),                              # Maximum number of agents
+    'connection_timeout': int(os.getenv('CONNECTION_TIMEOUT', '30')),                # Connection timeout seconds
+    'heartbeat_timeout': int(os.getenv('HEARTBEAT_TIMEOUT', '300'))                  # 5 minutes agent timeout
 }
 
 # Security Configuration
 SECURITY_CONFIG = {
     'agent_auth_required': True,
-    'agent_auth_token': 'edr_agent_auth_2024',
-    'api_key_header': 'X-API-Key',
-    'cors_origins': [
-        'http://localhost:3000',      # Dashboard development
-        'http://127.0.0.1:3000',      # Dashboard local
-        'http://192.168.20.85:3000'   # Dashboard production
-    ],
+    'agent_auth_token': os.getenv('AGENT_AUTH_TOKEN', 'edr_agent_auth_2024'),
+    'api_key_header': os.getenv('API_KEY_HEADER', 'X-API-Key'),
+    'secret_key': os.getenv('SECRET_KEY', 'edr_server_secret_key_2024_change_in_production'),
+    'cors_origins': os.getenv('CORS_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000,http://192.168.20.85:3000').split(','),
     'trusted_proxies': ['192.168.20.0/24']
 }
 
 # Agent Configuration
 AGENT_CONFIG = {
     'registration_timeout': 60,      # Agent registration timeout
-    'heartbeat_interval': 30,        # Expected heartbeat interval (seconds)
+    'heartbeat_interval': int(os.getenv('HEARTBEAT_INTERVAL', '30')),        # Expected heartbeat interval (seconds)
     'heartbeat_grace_period': 90,    # Grace period before marking offline
-    'event_batch_size': 100,         # Maximum events per batch
-    'event_queue_size': 10000,       # Maximum queued events per agent
-    'config_version': '1.0',         # Agent configuration version
-    'auto_approve_registration': True, # Auto-approve new agents
+    'event_batch_size': int(os.getenv('EVENT_BATCH_SIZE', '100')),           # Maximum events per batch
+    'event_queue_size': int(os.getenv('EVENT_QUEUE_SIZE', '10000')),         # Maximum queued events per agent
+    'config_version': os.getenv('CONFIG_VERSION', '1.0'),                   # Agent configuration version
+    'auto_approve_registration': os.getenv('AUTO_APPROVE_REGISTRATION', 'true').lower() == 'true',
     'require_agent_certificate': False # Certificate-based auth (future)
 }
 
 # Detection Engine Configuration
 DETECTION_CONFIG = {
-    'rules_enabled': True,
-    'threat_intel_enabled': True,
-    'ml_detection_enabled': False,    # Future ML integration
-    'rules_check_interval': 1,        # Check rules every N seconds
-    'threat_intel_cache_ttl': 3600,   # Cache threat intel for 1 hour
-    'alert_deduplication_window': 300, # 5 minutes dedup window
+    'rules_enabled': os.getenv('RULES_ENABLED', 'true').lower() == 'true',
+    'threat_intel_enabled': os.getenv('THREAT_INTEL_ENABLED', 'true').lower() == 'true',
+    'ml_detection_enabled': os.getenv('ML_DETECTION_ENABLED', 'false').lower() == 'true',
+    'rules_check_interval': int(os.getenv('RULES_CHECK_INTERVAL', '1')),        # Check rules every N seconds
+    'threat_intel_cache_ttl': int(os.getenv('THREAT_INTEL_CACHE_TTL', '3600')), # Cache threat intel for 1 hour
+    'alert_deduplication_window': int(os.getenv('ALERT_DEDUPLICATION_WINDOW', '300')), # 5 minutes dedup window
     'max_alerts_per_agent': 1000,     # Max alerts per agent per day
-    'risk_score_threshold': 70,       # Alert threshold (0-100)
-    'auto_quarantine_threshold': 90   # Auto-quarantine threshold
+    'risk_score_threshold': int(os.getenv('RISK_SCORE_THRESHOLD', '70')),       # Alert threshold (0-100)
+    'auto_quarantine_threshold': int(os.getenv('AUTO_QUARANTINE_THRESHOLD', '90')) # Auto-quarantine threshold
 }
 
 # Alert Configuration
 ALERT_CONFIG = {
-    'default_severity': 'Medium',
-    'auto_escalation_enabled': True,
-    'escalation_threshold_minutes': 60,  # Escalate after 1 hour
-    'alert_retention_days': 90,
-    'max_alerts_per_hour': 100,
+    'default_severity': os.getenv('DEFAULT_SEVERITY', 'Medium'),
+    'auto_escalation_enabled': os.getenv('AUTO_ESCALATION_ENABLED', 'true').lower() == 'true',
+    'escalation_threshold_minutes': int(os.getenv('ESCALATION_THRESHOLD_MINUTES', '60')),  # Escalate after 1 hour
+    'alert_retention_days': int(os.getenv('ALERT_RETENTION_DAYS', '90')),
+    'max_alerts_per_hour': int(os.getenv('MAX_ALERTS_PER_HOUR', '100')),
     'notification_enabled': False,      # Future email/SMS notifications
     'webhook_enabled': False            # Future webhook integration
 }
 
 # Performance Configuration
 PERFORMANCE_CONFIG = {
-    'database_pool_size': 10,
-    'database_max_overflow': 20,
-    'database_pool_timeout': 30,
-    'cache_enabled': True,
-    'cache_ttl': 300,                   # 5 minutes cache
-    'batch_processing_enabled': True,
-    'batch_processing_interval': 5,     # Process batches every 5 seconds
+    'database_pool_size': int(os.getenv('DATABASE_POOL_SIZE', '10')),
+    'database_max_overflow': int(os.getenv('DATABASE_MAX_OVERFLOW', '20')),
+    'database_pool_timeout': int(os.getenv('DATABASE_POOL_TIMEOUT', '30')),
+    'cache_enabled': os.getenv('CACHE_ENABLED', 'true').lower() == 'true',
+    'cache_ttl': int(os.getenv('CACHE_TTL', '300')),                   # 5 minutes cache
+    'batch_processing_enabled': os.getenv('BATCH_PROCESSING_ENABLED', 'true').lower() == 'true',
+    'batch_processing_interval': int(os.getenv('BATCH_PROCESSING_INTERVAL', '5')),     # Process batches every 5 seconds
     'background_tasks_enabled': True
 }
 
@@ -120,7 +117,7 @@ LOGGING_CONFIG = {
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'level': 'INFO',
+            'level': os.getenv('LOG_LEVEL', 'INFO'),
             'formatter': 'default',
         },
         'file_main': {
@@ -128,32 +125,32 @@ LOGGING_CONFIG = {
             'level': 'DEBUG',
             'formatter': 'detailed',
             'filename': BASE_DIR / 'logs' / 'server.log',
-            'maxBytes': 10485760,  # 10MB
-            'backupCount': 5,
+            'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),  # 10MB
+            'backupCount': int(os.getenv('LOG_BACKUP_COUNT', '5')),
         },
         'file_detection': {
             'class': 'logging.handlers.RotatingFileHandler',
             'level': 'INFO',
             'formatter': 'detailed',
             'filename': BASE_DIR / 'logs' / 'detection.log',
-            'maxBytes': 10485760,
-            'backupCount': 5,
+            'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),
+            'backupCount': int(os.getenv('LOG_BACKUP_COUNT', '5')),
         },
         'file_agents': {
             'class': 'logging.handlers.RotatingFileHandler',
             'level': 'INFO',
             'formatter': 'default',
             'filename': BASE_DIR / 'logs' / 'agents.log',
-            'maxBytes': 10485760,
-            'backupCount': 5,
+            'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),
+            'backupCount': int(os.getenv('LOG_BACKUP_COUNT', '5')),
         },
         'file_errors': {
             'class': 'logging.handlers.RotatingFileHandler',
             'level': 'ERROR',
             'formatter': 'detailed',
             'filename': BASE_DIR / 'logs' / 'errors.log',
-            'maxBytes': 10485760,
-            'backupCount': 5,
+            'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),
+            'backupCount': int(os.getenv('LOG_BACKUP_COUNT', '5')),
         }
     },
     'loggers': {
@@ -191,7 +188,8 @@ PATHS = {
     'static': BASE_DIR / 'static',
     'temp': BASE_DIR / 'temp',
     'uploads': BASE_DIR / 'uploads',
-    'exports': BASE_DIR / 'exports'
+    'exports': BASE_DIR / 'exports',
+    'data': BASE_DIR / 'data'
 }
 
 # Development vs Production Settings
@@ -221,37 +219,37 @@ def get_environment_config():
 
 # Feature Flags
 FEATURES = {
-    'agent_registration': True,
-    'event_collection': True,
-    'real_time_detection': True,
-    'threat_intelligence': True,
-    'automated_response': False,    # Future feature
-    'ml_detection': False,          # Future feature
-    'file_quarantine': False,       # Future feature
-    'network_isolation': False,     # Future feature
-    'forensic_collection': False,   # Future feature
-    'threat_hunting': False         # Future feature
+    'agent_registration': os.getenv('FEATURE_AGENT_REGISTRATION', 'true').lower() == 'true',
+    'event_collection': os.getenv('FEATURE_EVENT_COLLECTION', 'true').lower() == 'true',
+    'real_time_detection': os.getenv('FEATURE_REAL_TIME_DETECTION', 'true').lower() == 'true',
+    'threat_intelligence': os.getenv('FEATURE_THREAT_INTELLIGENCE', 'true').lower() == 'true',
+    'automated_response': os.getenv('FEATURE_AUTOMATED_RESPONSE', 'false').lower() == 'true',
+    'ml_detection': os.getenv('FEATURE_ML_DETECTION', 'false').lower() == 'true',
+    'file_quarantine': os.getenv('FEATURE_FILE_QUARANTINE', 'false').lower() == 'true',
+    'network_isolation': os.getenv('FEATURE_NETWORK_ISOLATION', 'false').lower() == 'true',
+    'forensic_collection': os.getenv('FEATURE_FORENSIC_COLLECTION', 'false').lower() == 'true',
+    'threat_hunting': os.getenv('FEATURE_THREAT_HUNTING', 'false').lower() == 'true'
 }
 
 # API Rate Limiting
 RATE_LIMITING = {
-    'enabled': True,
-    'agent_registration': '10/minute',
-    'agent_heartbeat': '2/second',
-    'event_submission': '100/minute',
-    'dashboard_api': '60/minute',
-    'default': '30/minute'
+    'enabled': os.getenv('RATE_LIMITING_ENABLED', 'true').lower() == 'true',
+    'agent_registration': os.getenv('RATE_LIMIT_AGENT_REGISTRATION', '10/minute'),
+    'agent_heartbeat': os.getenv('RATE_LIMIT_AGENT_HEARTBEAT', '2/second'),
+    'event_submission': os.getenv('RATE_LIMIT_EVENT_SUBMISSION', '100/minute'),
+    'dashboard_api': os.getenv('RATE_LIMIT_DASHBOARD_API', '60/minute'),
+    'default': os.getenv('RATE_LIMIT_DEFAULT', '30/minute')
 }
 
 # Monitoring & Health Check
 MONITORING_CONFIG = {
-    'health_check_enabled': True,
-    'health_check_interval': 30,    # seconds
-    'metrics_enabled': True,
-    'metrics_retention_days': 7,
-    'performance_monitoring': True,
-    'error_tracking': True,
-    'uptime_monitoring': True
+    'health_check_enabled': os.getenv('HEALTH_CHECK_ENABLED', 'true').lower() == 'true',
+    'health_check_interval': int(os.getenv('HEALTH_CHECK_INTERVAL', '30')),    # seconds
+    'metrics_enabled': os.getenv('METRICS_ENABLED', 'true').lower() == 'true',
+    'metrics_retention_days': int(os.getenv('METRICS_RETENTION_DAYS', '7')),
+    'performance_monitoring': os.getenv('PERFORMANCE_MONITORING', 'true').lower() == 'true',
+    'error_tracking': os.getenv('ERROR_TRACKING', 'true').lower() == 'true',
+    'uptime_monitoring': os.getenv('UPTIME_MONITORING', 'true').lower() == 'true'
 }
 
 # Export configuration

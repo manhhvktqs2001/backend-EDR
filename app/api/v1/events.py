@@ -7,7 +7,7 @@ import logging
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Request, Header, Query
 from sqlalchemy.orm import Session
-
+from datetime import datetime
 from ...database import get_db
 from ...models.event import Event
 from ...models.agent import Agent

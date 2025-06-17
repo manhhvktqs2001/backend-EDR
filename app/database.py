@@ -186,13 +186,13 @@ class DatabaseManager:
         try:
             info = {}
             
-            # Basic database info
+            # Basic database info - FIXED SQL syntax
             basic_info = self.execute_query("""
                 SELECT 
                     @@VERSION as version,
                     DB_NAME() as database_name,
                     @@SERVERNAME as server_name,
-                    GETDATE() as current_time
+                    GETDATE() as current_datetime
             """)
             if basic_info:
                 info.update(basic_info[0])
@@ -233,7 +233,7 @@ class DatabaseManager:
                 'checked_in': pool.checkedin(),
                 'checked_out': pool.checkedout(),
                 'overflow': pool.overflow(),
-                'invalid': pool.invalid(),
+                # Removed 'invalid' as it doesn't exist in newer SQLAlchemy
                 'total_connections': pool.size() + pool.overflow()
             }
         except Exception as e:

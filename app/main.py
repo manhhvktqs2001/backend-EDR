@@ -1,3 +1,4 @@
+# Fix cho app/main.py - Complete file
 """
 EDR System - Main FastAPI Application
 Agent Communication Server running on 192.168.20.85:5000
@@ -15,7 +16,7 @@ import uvicorn
 
 from .config import config
 from .database import init_database, get_database_status
-from .api.v1 import agents, events, dashboard
+from .api.v1 import agents, events, alerts, dashboard, threats
 from .utils.network_utils import is_internal_ip
 
 # Configure logging
@@ -36,7 +37,7 @@ async def lifespan(app: FastAPI):
         logger.info("✅ Database initialized successfully")
         
         # Log server configuration
-        server_config = config['api_server']
+        server_config = config['server']
         logger.info(f"🌐 Server binding to: {server_config['bind_host']}:{server_config['bind_port']}")
         logger.info(f"🔒 Network access: {config['network']['allowed_agent_network']}")
         logger.info(f"🛡️  Detection engine: {'Enabled' if config['detection']['rules_enabled'] else 'Disabled'}")
@@ -53,9 +54,9 @@ async def lifespan(app: FastAPI):
 
 # Create FastAPI application
 app = FastAPI(
-    title=config['api_server']['title'],
-    description=config['api_server']['description'],
-    version=config['api_server']['version'],
+    title=config['server']['title'],
+    description=config['server']['description'],
+    version=config['server']['version'],
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan
@@ -110,7 +111,7 @@ async def security_and_logging_middleware(request: Request, call_next):
 @app.get("/")
 async def root():
     """Root endpoint with server information"""
-    server_config = config['api_server']
+    server_config = config['server']
     return {
         "message": "EDR Agent Communication Server",
         "version": server_config['version'],
@@ -128,7 +129,7 @@ async def health_check():
     """Comprehensive health check"""
     try:
         db_status = get_database_status()
-        server_config = config['api_server']
+        server_config = config['server']
         
         health_data = {
             "status": "healthy" if db_status.get('healthy') else "unhealthy",
@@ -213,9 +214,21 @@ app.include_router(
 )
 
 app.include_router(
+    alerts.router,
+    prefix="/api/v1/alerts",
+    tags=["alerts"]
+)
+
+app.include_router(
     dashboard.router,
     prefix="/api/v1/dashboard",
     tags=["dashboard"]
+)
+
+app.include_router(
+    threats.router,
+    prefix="/api/v1/threats",
+    tags=["threats"]
 )
 
 # Global exception handlers
@@ -280,7 +293,7 @@ async def startup_event():
 
 # Development server runner
 if __name__ == "__main__":
-    server_config = config['api_server']
+    server_config = config['server']
     uvicorn.run(
         "app.main:app",
         host=server_config['bind_host'],

@@ -3,7 +3,7 @@ Event API Schemas
 Pydantic models for event-related API requests and responses
 """
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 from enum import Enum
@@ -140,7 +140,8 @@ class EventBatchRequest(BaseModel):
     agent_id: str = Field(..., description="Agent ID")
     events: List[EventSubmissionRequest] = Field(..., description="List of events")
     
-    @validator('events')
+    @field_validator('events')
+    @classmethod
     def validate_events_limit(cls, v):
         if len(v) > 1000:
             raise ValueError('Maximum 1000 events per batch')
@@ -255,5 +256,5 @@ class EventExportRequest(BaseModel):
     start_time: datetime
     end_time: datetime
     event_types: Optional[List[EventType]] = None
-    format: str = Field(default="json", regex="^(json|csv|xlsx)$")
+    format: str = Field(default="json", pattern="^(json|csv|xlsx)$")  # FIXED: regex -> pattern
     include_raw_data: bool = False

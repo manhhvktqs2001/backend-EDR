@@ -9,7 +9,7 @@ import re
 from datetime import datetime, timedelta
 from typing import Optional, Dict, List, Any, Tuple
 from sqlalchemy.orm import Session
-
+from ..models.agent import Agent
 from ..models.event import Event
 from ..models.alert import Alert
 from ..models.threat import Threat

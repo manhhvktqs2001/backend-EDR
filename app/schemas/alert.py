@@ -156,7 +156,7 @@ class AlertExportRequest(BaseModel):
     end_time: Optional[datetime] = None
     status: Optional[List[AlertStatus]] = None
     severity: Optional[List[AlertSeverity]] = None
-    format: str = Field(default="json", regex="^(json|csv|xlsx)$")
+    format: str = Field(default="json", pattern="^(json|csv|xlsx)$")  # FIXED: regex -> pattern
     include_event_details: bool = False
     include_rule_details: bool = False
 
@@ -235,7 +235,7 @@ class AlertDashboardSummary(BaseModel):
 class AlertNotificationRequest(BaseModel):
     """Schema for alert notification configuration"""
     alert_id: int
-    notification_type: str = Field(..., regex="^(email|sms|webhook|slack)$")
+    notification_type: str = Field(..., pattern="^(email|sms|webhook|slack)$")  # FIXED: regex -> pattern
     recipients: List[str]
     message_template: Optional[str] = None
     immediate: bool = True
@@ -279,7 +279,7 @@ class AlertSuppressionRuleResponse(BaseModel):
 class AlertFeedbackRequest(BaseModel):
     """Schema for alert quality feedback"""
     alert_id: int
-    feedback_type: str = Field(..., regex="^(accurate|false_positive|needs_tuning|informational)$")
+    feedback_type: str = Field(..., pattern="^(accurate|false_positive|needs_tuning|informational)$")  # FIXED: regex -> pattern
     feedback_notes: Optional[str] = None
     analyst: str
     confidence_rating: int = Field(..., ge=1, le=5)

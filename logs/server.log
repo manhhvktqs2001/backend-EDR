@@ -1,0 +1,290 @@
+2025-06-17 18:58:30,387 - app.database - INFO - database.py:316 - init_database - Initializing EDR database connection...
+2025-06-17 18:58:30,438 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - SELECT CAST(SERVERPROPERTY('ProductVersion') AS VARCHAR)
+2025-06-17 18:58:30,438 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [raw sql] ()
+2025-06-17 18:58:30,440 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - SELECT schema_name()
+2025-06-17 18:58:30,440 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00064s] ()
+2025-06-17 18:58:30,443 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - SELECT CAST('test max support' AS NVARCHAR(max))
+2025-06-17 18:58:30,444 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00087s] ()
+2025-06-17 18:58:30,445 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - SELECT 1 FROM fn_listextendedproperty(default, default, default, default, default, default, default)
+2025-06-17 18:58:30,446 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00083s] ()
+2025-06-17 18:58:30,447 - app.database - DEBUG - database.py:79 - receive_connect - Database connection established
+2025-06-17 18:58:30,447 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:58:30,448 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:58:30,448 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - SELECT 1 as test
+2025-06-17 18:58:30,448 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00060s] ()
+2025-06-17 18:58:30,449 - app.database - INFO - database.py:97 - test_connection - Database connection test successful
+2025-06-17 18:58:30,449 - sqlalchemy.engine.Engine - INFO - base.py:2701 - _connection_rollback_impl - ROLLBACK
+2025-06-17 18:58:30,450 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:58:30,451 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:58:30,451 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:58:30,451 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - 
+                SELECT 
+                    @@VERSION as version,
+                    DB_NAME() as database_name,
+                    @@SERVERNAME as server_name,
+                    GETDATE() as current_datetime
+            
+2025-06-17 18:58:30,452 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00057s] ()
+2025-06-17 18:58:30,452 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:58:30,453 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:58:30,453 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:58:30,453 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:58:30,454 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - 
+                SELECT 
+                    TABLE_NAME,
+                    (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = t.TABLE_NAME) as column_count
+                FROM INFORMATION_SCHEMA.TABLES t
+                WHERE TABLE_SCHEMA = 'dbo' AND TABLE_TYPE = 'BASE TABLE'
+                ORDER BY TABLE_NAME
+            
+2025-06-17 18:58:30,454 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00049s] ()
+2025-06-17 18:58:30,459 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:58:30,460 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:58:30,460 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:58:30,461 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:58:30,461 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - 
+                SELECT 
+                    SUM(size) * 8 / 1024 as size_mb
+                FROM sys.master_files 
+                WHERE database_id = DB_ID()
+            
+2025-06-17 18:58:30,462 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00047s] ()
+2025-06-17 18:58:30,463 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:58:30,463 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:58:30,463 - app.database - INFO - database.py:329 - init_database - Connected to database: EDR_System on Manh
+2025-06-17 18:58:30,464 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:58:30,464 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:58:30,465 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = 'dbo'
+            
+2025-06-17 18:58:30,465 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00051s] ('Agents',)
+2025-06-17 18:58:30,466 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:58:30,466 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:58:30,467 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:58:30,467 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:58:30,468 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = 'dbo'
+            
+2025-06-17 18:58:30,468 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [cached since 0.003471s ago] ('Events',)
+2025-06-17 18:58:30,469 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:58:30,469 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:58:30,470 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:58:30,470 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:58:30,470 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = 'dbo'
+            
+2025-06-17 18:58:30,471 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [cached since 0.006069s ago] ('Alerts',)
+2025-06-17 18:58:30,472 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:58:30,472 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:58:30,473 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:58:30,473 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:58:30,473 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = 'dbo'
+            
+2025-06-17 18:58:30,475 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [cached since 0.01035s ago] ('Threats',)
+2025-06-17 18:58:30,476 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:58:30,477 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:58:30,477 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:58:30,477 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:58:30,478 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = 'dbo'
+            
+2025-06-17 18:58:30,478 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [cached since 0.01376s ago] ('DetectionRules',)
+2025-06-17 18:58:30,479 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:58:30,480 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:58:30,480 - app.database - INFO - database.py:343 - init_database - All critical tables verified: ['Agents', 'Events', 'Alerts', 'Threats', 'DetectionRules']
+2025-06-17 18:58:30,480 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:58:30,481 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:58:30,481 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - SELECT COUNT(*) as count FROM Agents
+2025-06-17 18:58:30,481 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00034s] ()
+2025-06-17 18:58:30,482 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:58:30,482 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:58:30,483 - app.database - INFO - database.py:348 - init_database - Table Agents: 0 records
+2025-06-17 18:58:30,483 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:58:30,483 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:58:30,484 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - SELECT COUNT(*) as count FROM Events
+2025-06-17 18:58:30,484 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00038s] ()
+2025-06-17 18:58:30,485 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:58:30,485 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:58:30,485 - app.database - INFO - database.py:348 - init_database - Table Events: 0 records
+2025-06-17 18:58:30,486 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:58:30,486 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:58:30,487 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - SELECT COUNT(*) as count FROM Alerts
+2025-06-17 18:58:30,487 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00043s] ()
+2025-06-17 18:58:30,488 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:58:30,488 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:58:30,488 - app.database - INFO - database.py:348 - init_database - Table Alerts: 0 records
+2025-06-17 18:58:30,489 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:58:30,489 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:58:30,489 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - SELECT COUNT(*) as count FROM Threats
+2025-06-17 18:58:30,490 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00046s] ()
+2025-06-17 18:58:30,491 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:58:30,492 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:58:30,492 - app.database - INFO - database.py:348 - init_database - Table Threats: 10 records
+2025-06-17 18:58:30,493 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:58:30,493 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:58:30,493 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - SELECT COUNT(*) as count FROM DetectionRules
+2025-06-17 18:58:30,493 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00033s] ()
+2025-06-17 18:58:30,494 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:58:30,494 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:58:30,495 - app.database - INFO - database.py:348 - init_database - Table DetectionRules: 5 records
+2025-06-17 18:59:00,806 - app.database - INFO - database.py:316 - init_database - Initializing EDR database connection...
+2025-06-17 18:59:00,863 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - SELECT CAST(SERVERPROPERTY('ProductVersion') AS VARCHAR)
+2025-06-17 18:59:00,864 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [raw sql] ()
+2025-06-17 18:59:00,866 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - SELECT schema_name()
+2025-06-17 18:59:00,866 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00045s] ()
+2025-06-17 18:59:00,868 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - SELECT CAST('test max support' AS NVARCHAR(max))
+2025-06-17 18:59:00,868 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00044s] ()
+2025-06-17 18:59:00,869 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - SELECT 1 FROM fn_listextendedproperty(default, default, default, default, default, default, default)
+2025-06-17 18:59:00,869 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00046s] ()
+2025-06-17 18:59:00,870 - app.database - DEBUG - database.py:79 - receive_connect - Database connection established
+2025-06-17 18:59:00,871 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:59:00,871 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:59:00,871 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - SELECT 1 as test
+2025-06-17 18:59:00,872 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00087s] ()
+2025-06-17 18:59:00,877 - app.database - INFO - database.py:97 - test_connection - Database connection test successful
+2025-06-17 18:59:00,880 - sqlalchemy.engine.Engine - INFO - base.py:2701 - _connection_rollback_impl - ROLLBACK
+2025-06-17 18:59:00,881 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:59:00,883 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:59:00,883 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:59:00,884 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - 
+                SELECT 
+                    @@VERSION as version,
+                    DB_NAME() as database_name,
+                    @@SERVERNAME as server_name,
+                    GETDATE() as current_datetime
+            
+2025-06-17 18:59:00,885 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00119s] ()
+2025-06-17 18:59:00,887 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:59:00,888 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:59:00,889 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:59:00,889 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:59:00,890 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - 
+                SELECT 
+                    TABLE_NAME,
+                    (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = t.TABLE_NAME) as column_count
+                FROM INFORMATION_SCHEMA.TABLES t
+                WHERE TABLE_SCHEMA = 'dbo' AND TABLE_TYPE = 'BASE TABLE'
+                ORDER BY TABLE_NAME
+            
+2025-06-17 18:59:00,890 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00064s] ()
+2025-06-17 18:59:00,897 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:59:00,898 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:59:00,899 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:59:00,900 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:59:00,900 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - 
+                SELECT 
+                    SUM(size) * 8 / 1024 as size_mb
+                FROM sys.master_files 
+                WHERE database_id = DB_ID()
+            
+2025-06-17 18:59:00,901 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00059s] ()
+2025-06-17 18:59:00,902 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:59:00,902 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:59:00,903 - app.database - INFO - database.py:329 - init_database - Connected to database: EDR_System on Manh
+2025-06-17 18:59:00,903 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:59:00,904 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:59:00,905 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = 'dbo'
+            
+2025-06-17 18:59:00,905 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00069s] ('Agents',)
+2025-06-17 18:59:00,907 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:59:00,907 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:59:00,908 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:59:00,908 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:59:00,909 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = 'dbo'
+            
+2025-06-17 18:59:00,911 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [cached since 0.006803s ago] ('Events',)
+2025-06-17 18:59:00,912 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:59:00,913 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:59:00,914 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:59:00,914 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:59:00,914 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = 'dbo'
+            
+2025-06-17 18:59:00,915 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [cached since 0.01042s ago] ('Alerts',)
+2025-06-17 18:59:00,916 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:59:00,916 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:59:00,917 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:59:00,917 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:59:00,917 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = 'dbo'
+            
+2025-06-17 18:59:00,918 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [cached since 0.01336s ago] ('Threats',)
+2025-06-17 18:59:00,919 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:59:00,919 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:59:00,920 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:59:00,920 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:59:00,920 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = 'dbo'
+            
+2025-06-17 18:59:00,921 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [cached since 0.01622s ago] ('DetectionRules',)
+2025-06-17 18:59:00,921 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:59:00,922 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:59:00,922 - app.database - INFO - database.py:343 - init_database - All critical tables verified: ['Agents', 'Events', 'Alerts', 'Threats', 'DetectionRules']
+2025-06-17 18:59:00,923 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:59:00,923 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:59:00,923 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - SELECT COUNT(*) as count FROM Agents
+2025-06-17 18:59:00,924 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00048s] ()
+2025-06-17 18:59:00,925 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:59:00,925 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:59:00,926 - app.database - INFO - database.py:348 - init_database - Table Agents: 0 records
+2025-06-17 18:59:00,927 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:59:00,927 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:59:00,928 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - SELECT COUNT(*) as count FROM Events
+2025-06-17 18:59:00,929 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00057s] ()
+2025-06-17 18:59:00,930 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:59:00,930 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:59:00,930 - app.database - INFO - database.py:348 - init_database - Table Events: 0 records
+2025-06-17 18:59:00,931 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:59:00,931 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:59:00,932 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - SELECT COUNT(*) as count FROM Alerts
+2025-06-17 18:59:00,932 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00036s] ()
+2025-06-17 18:59:00,932 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:59:00,933 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:59:00,933 - app.database - INFO - database.py:348 - init_database - Table Alerts: 0 records
+2025-06-17 18:59:00,933 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:59:00,934 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:59:00,934 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - SELECT COUNT(*) as count FROM Threats
+2025-06-17 18:59:00,934 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00034s] ()
+2025-06-17 18:59:00,935 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:59:00,935 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:59:00,935 - app.database - INFO - database.py:348 - init_database - Table Threats: 10 records
+2025-06-17 18:59:00,936 - app.database - DEBUG - database.py:83 - receive_checkout - Database connection checked out from pool
+2025-06-17 18:59:00,936 - sqlalchemy.engine.Engine - INFO - base.py:2698 - _connection_begin_impl - BEGIN (implicit)
+2025-06-17 18:59:00,936 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - SELECT COUNT(*) as count FROM DetectionRules
+2025-06-17 18:59:00,937 - sqlalchemy.engine.Engine - INFO - base.py:1842 - _execute_context - [generated in 0.00037s] ()
+2025-06-17 18:59:00,937 - sqlalchemy.engine.Engine - INFO - base.py:2704 - _connection_commit_impl - COMMIT
+2025-06-17 18:59:00,938 - app.database - DEBUG - database.py:87 - receive_checkin - Database connection returned to pool
+2025-06-17 18:59:00,938 - app.database - INFO - database.py:348 - init_database - Table DetectionRules: 5 records

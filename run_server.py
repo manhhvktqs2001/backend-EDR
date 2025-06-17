@@ -37,19 +37,24 @@ def check_environment():
     
     # Test database connection
     logger.info("🗃️  Testing database connection...")
-    db_status = get_database_status()
-    
-    if not db_status.get('healthy'):
-        logger.error("❌ Database connection failed!")
-        logger.error(f"Database error: {db_status.get('errors', [])}")
+    try:
+        db_status = get_database_status()
+        
+        if not db_status.get('healthy'):
+            logger.error("❌ Database connection failed!")
+            logger.error(f"Database error: {db_status.get('errors', [])}")
+            return False
+        
+        logger.info(f"✅ Database connected: {db_status.get('database_info', {}).get('database_name', 'EDR_System')}")
+        
+        # Check table counts
+        table_counts = db_status.get('table_counts', {})
+        for table, count in table_counts.items():
+            logger.info(f"📊 Table {table}: {count} records")
+        
+    except Exception as e:
+        logger.error(f"❌ Database connection test failed: {e}")
         return False
-    
-    logger.info(f"✅ Database connected: {db_status.get('database_info', {}).get('database_name')}")
-    
-    # Check table counts
-    table_counts = db_status.get('table_counts', {})
-    for table, count in table_counts.items():
-        logger.info(f"📊 Table {table}: {count} records")
     
     return True
 
@@ -57,7 +62,7 @@ def print_server_info():
     """Print server information"""
     logger = logging.getLogger(__name__)
     
-    server_config = config['api_server']
+    server_config = config['server']  # FIXED: Changed from 'api_server' to 'server'
     network_config = config['network']
     
     print("\n" + "="*60)
@@ -93,7 +98,12 @@ def main():
     logger.info("🚀 Starting EDR Agent Communication Server...")
     
     # Print server information
-    print_server_info()
+    try:
+        print_server_info()
+    except Exception as e:
+        logger.error(f"❌ Failed to print server info: {e}")
+        print(f"Configuration error: {e}")
+        sys.exit(1)
     
     # Check environment
     if not check_environment():
@@ -104,7 +114,7 @@ def main():
     os.environ['EDR_ENV'] = config['environment']
     
     # Get server configuration
-    server_config = config['api_server']
+    server_config = config['server']  # FIXED: Changed from 'api_server' to 'server'
     
     try:
         logger.info(f"🌐 Starting server on {server_config['bind_host']}:{server_config['bind_port']}")

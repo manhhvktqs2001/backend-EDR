@@ -195,7 +195,87 @@ class LiveActivityFeed(BaseModel):
 # Report and Export Schemas
 class DashboardReportRequest(BaseModel):
     """Schema for dashboard report generation"""
-    report_type: str = Field(..., regex="^(summary|detailed|executive|technical)$")
+    report_type: str = Field(..., pattern="^(summary|detailed|executive|technical)$")  # FIXED: regex -> pattern
     time_range_hours: int = Field(default=24, ge=1, le=8760)
     include_sections: List[str] = Field(default=["agents", "events", "alerts", "threats"])
-    format: str = Field(default="pdf", regex="^(pdf|html|json)$")
+    format: str = Field(default="pdf", pattern="^(pdf|html|json)$")  # FIXED: regex -> pattern
+
+class DashboardReportResponse(BaseModel):
+    """Schema for dashboard report response"""
+    success: bool
+    report_id: str
+    report_type: str
+    generated_at: datetime
+    file_path: Optional[str]
+    download_url: Optional[str]
+    expires_at: datetime
+
+# Compliance and Audit Schemas
+class ComplianceMetrics(BaseModel):
+    """Schema for compliance and audit metrics"""
+    total_events_logged: int
+    audit_trail_complete: bool
+    data_retention_compliance: bool
+    encryption_status: str
+    access_control_violations: int
+    policy_violations: List[Dict[str, Any]]
+    compliance_score: float
+    last_audit_date: Optional[datetime]
+
+class SecurityPostureMetrics(BaseModel):
+    """Schema for security posture assessment"""
+    risk_score: float
+    threat_exposure: float
+    detection_coverage: float
+    response_readiness: float
+    vulnerability_count: int
+    mitigation_effectiveness: float
+    security_gaps: List[str]
+    improvement_recommendations: List[str]
+
+# Custom Dashboard Widgets
+class WidgetConfiguration(BaseModel):
+    """Schema for dashboard widget configuration"""
+    widget_id: str
+    widget_type: str
+    title: str
+    position: Dict[str, int]  # x, y, width, height
+    refresh_interval: int
+    data_source: str
+    filters: Dict[str, Any]
+    display_options: Dict[str, Any]
+
+class CustomDashboardLayout(BaseModel):
+    """Schema for custom dashboard layout"""
+    dashboard_id: str
+    dashboard_name: str
+    user_id: str
+    layout_config: List[WidgetConfiguration]
+    created_at: datetime
+    updated_at: datetime
+    is_default: bool
+    is_shared: bool
+
+# Alerting and Notification Schemas
+class DashboardAlertRule(BaseModel):
+    """Schema for dashboard alert rules"""
+    rule_id: str
+    rule_name: str
+    metric: str
+    threshold: float
+    comparison: str  # gt, lt, eq
+    time_window: int
+    notification_channels: List[str]
+    is_active: bool
+    created_by: str
+
+class DashboardNotification(BaseModel):
+    """Schema for dashboard notifications"""
+    notification_id: str
+    alert_rule_id: str
+    metric_value: float
+    threshold: float
+    triggered_at: datetime
+    acknowledged: bool
+    acknowledged_by: Optional[str]
+    acknowledged_at: Optional[datetime]
