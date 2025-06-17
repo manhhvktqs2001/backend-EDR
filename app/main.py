@@ -1,4 +1,4 @@
-# app/main.py - Fixed Unicode encoding issues
+# app/main.py - Final Fixed Version
 """
 EDR System - Main FastAPI Application
 Agent Communication Server running on 192.168.20.85:5000
@@ -26,7 +26,7 @@ logger = logging.getLogger(__name__)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan management"""
-    # Startup - Use ASCII-safe logging
+    # Startup
     logger.info("Starting EDR Agent Communication Server...")
     
     try:
@@ -42,6 +42,9 @@ async def lifespan(app: FastAPI):
         logger.info(f"Network access: {config['network']['allowed_agent_network']}")
         logger.info(f"Detection engine: {'Enabled' if config['detection']['rules_enabled'] else 'Disabled'}")
         logger.info(f"Threat intelligence: {'Enabled' if config['detection']['threat_intel_enabled'] else 'Disabled'}")
+        
+        # Directories are already created in config.py
+        logger.info("All required directories verified")
         
         yield
         
@@ -65,7 +68,7 @@ app = FastAPI(
 # Trust proxy middleware
 app.add_middleware(
     TrustedHostMiddleware,
-    allowed_hosts=["*"]  # Allow all since we have custom network validation
+    allowed_hosts=["*"]
 )
 
 # CORS middleware
@@ -278,19 +281,6 @@ async def value_error_handler(request: Request, exc: ValueError):
         }
     )
 
-# Startup event
-@app.on_event("startup") 
-async def startup_event():
-    """Additional startup tasks"""
-    logger.info("Running additional startup tasks...")
-    
-    # Ensure required directories exist
-    import os
-    for path_name, path in config['paths'].items():
-        if not os.path.exists(path):
-            os.makedirs(path, exist_ok=True)
-            logger.info(f"Created directory: {path}")
-
 # Development server runner
 if __name__ == "__main__":
     server_config = config['server']
@@ -299,6 +289,5 @@ if __name__ == "__main__":
         host=server_config['bind_host'],
         port=server_config['bind_port'],
         reload=server_config['reload'],
-        debug=server_config['debug'],
         log_level="info"
     )

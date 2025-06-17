@@ -92,6 +92,8 @@ class Agent(Base):
                 'domain': self.Domain,
                 'install_path': self.InstallPath
             })
+        
+        return data
     
     def to_summary(self) -> Dict:
         """Convert to summary format for lists and dashboards"""
@@ -199,8 +201,8 @@ class Agent(Base):
     
     def update_heartbeat(self, performance_data: Optional[Dict] = None):
         """Update heartbeat and performance metrics"""
-        self.LastHeartbeat = func.getdate()
-        self.UpdatedAt = func.getdate()
+        self.LastHeartbeat = datetime.now()  # Fixed: Use datetime.now() instead of func.getdate()
+        self.UpdatedAt = datetime.now()
         
         if performance_data:
             self.CPUUsage = performance_data.get('cpu_usage', self.CPUUsage)
@@ -213,7 +215,7 @@ class Agent(Base):
         self.OSVersion = system_info.get('os_version', self.OSVersion)
         self.Architecture = system_info.get('architecture', self.Architecture)
         self.Domain = system_info.get('domain', self.Domain)
-        self.UpdatedAt = func.getdate()
+        self.UpdatedAt = datetime.now()  # Fixed: Use datetime.now() instead of func.getdate()
     
     def set_status(self, status: str, reason: Optional[str] = None):
         """Set agent status with validation"""
@@ -222,17 +224,17 @@ class Agent(Base):
             raise ValueError(f"Invalid status: {status}. Must be one of {valid_statuses}")
         
         self.Status = status
-        self.UpdatedAt = func.getdate()
+        self.UpdatedAt = datetime.now()  # Fixed: Use datetime.now() instead of func.getdate()
     
     def enable_monitoring(self):
         """Enable monitoring for this agent"""
         self.MonitoringEnabled = True
-        self.UpdatedAt = func.getdate()
+        self.UpdatedAt = datetime.now()  # Fixed: Use datetime.now() instead of func.getdate()
     
     def disable_monitoring(self):
         """Disable monitoring for this agent"""
         self.MonitoringEnabled = False
-        self.UpdatedAt = func.getdate()
+        self.UpdatedAt = datetime.now()  # Fixed: Use datetime.now() instead of func.getdate()
     
     @classmethod
     def create_agent(cls, hostname: str, ip_address: str, operating_system: str, **kwargs):

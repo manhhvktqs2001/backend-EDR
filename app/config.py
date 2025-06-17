@@ -1,3 +1,4 @@
+# app/config.py - Fixed Unicode logging and paths
 """
 EDR Server Configuration
 Complete configuration for Agent Communication Server with Unicode-safe logging
@@ -100,6 +101,20 @@ PERFORMANCE_CONFIG = {
     'background_tasks_enabled': True
 }
 
+# Paths Configuration
+PATHS = {
+    'logs': BASE_DIR / 'logs',
+    'static': BASE_DIR / 'static',
+    'temp': BASE_DIR / 'temp',
+    'uploads': BASE_DIR / 'uploads',
+    'exports': BASE_DIR / 'exports',
+    'data': BASE_DIR / 'data'
+}
+
+# Ensure directories exist
+for path in PATHS.values():
+    path.mkdir(parents=True, exist_ok=True)
+
 # Unicode-safe logging configuration
 def get_logging_config():
     """Get logging configuration with Unicode support"""
@@ -137,7 +152,7 @@ def get_logging_config():
                 'class': 'logging.handlers.RotatingFileHandler',
                 'level': 'DEBUG',
                 'formatter': 'detailed',
-                'filename': str(BASE_DIR / 'logs' / 'server.log'),
+                'filename': str(PATHS['logs'] / 'server.log'),
                 'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),
                 'backupCount': int(os.getenv('LOG_BACKUP_COUNT', '5')),
                 'encoding': 'utf-8'
@@ -146,7 +161,7 @@ def get_logging_config():
                 'class': 'logging.handlers.RotatingFileHandler',
                 'level': 'INFO',
                 'formatter': 'detailed',
-                'filename': str(BASE_DIR / 'logs' / 'detection.log'),
+                'filename': str(PATHS['logs'] / 'detection.log'),
                 'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),
                 'backupCount': int(os.getenv('LOG_BACKUP_COUNT', '5')),
                 'encoding': 'utf-8'
@@ -155,7 +170,7 @@ def get_logging_config():
                 'class': 'logging.handlers.RotatingFileHandler',
                 'level': 'INFO',
                 'formatter': 'default',
-                'filename': str(BASE_DIR / 'logs' / 'agents.log'),
+                'filename': str(PATHS['logs'] / 'agents.log'),
                 'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),
                 'backupCount': int(os.getenv('LOG_BACKUP_COUNT', '5')),
                 'encoding': 'utf-8'
@@ -164,7 +179,7 @@ def get_logging_config():
                 'class': 'logging.handlers.RotatingFileHandler',
                 'level': 'ERROR',
                 'formatter': 'detailed',
-                'filename': str(BASE_DIR / 'logs' / 'errors.log'),
+                'filename': str(PATHS['logs'] / 'errors.log'),
                 'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),
                 'backupCount': int(os.getenv('LOG_BACKUP_COUNT', '5')),
                 'encoding': 'utf-8'
@@ -198,16 +213,6 @@ def get_logging_config():
             }
         },
     }
-
-# Paths Configuration
-PATHS = {
-    'logs': BASE_DIR / 'logs',
-    'static': BASE_DIR / 'static',
-    'temp': BASE_DIR / 'temp',
-    'uploads': BASE_DIR / 'uploads',
-    'exports': BASE_DIR / 'exports',
-    'data': BASE_DIR / 'data'
-}
 
 # Development vs Production Settings
 def get_environment_config():
@@ -247,35 +252,10 @@ FEATURES = {
     'threat_hunting': os.getenv('FEATURE_THREAT_HUNTING', 'false').lower() == 'true'
 }
 
-# API Rate Limiting
-RATE_LIMITING = {
-    'enabled': os.getenv('RATE_LIMITING_ENABLED', 'true').lower() == 'true',
-    'agent_registration': os.getenv('RATE_LIMIT_AGENT_REGISTRATION', '10/minute'),
-    'agent_heartbeat': os.getenv('RATE_LIMIT_AGENT_HEARTBEAT', '2/second'),
-    'event_submission': os.getenv('RATE_LIMIT_EVENT_SUBMISSION', '100/minute'),
-    'dashboard_api': os.getenv('RATE_LIMIT_DASHBOARD_API', '60/minute'),
-    'default': os.getenv('RATE_LIMIT_DEFAULT', '30/minute')
-}
-
-# Monitoring & Health Check
-MONITORING_CONFIG = {
-    'health_check_enabled': os.getenv('HEALTH_CHECK_ENABLED', 'true').lower() == 'true',
-    'health_check_interval': int(os.getenv('HEALTH_CHECK_INTERVAL', '30')),
-    'metrics_enabled': os.getenv('METRICS_ENABLED', 'true').lower() == 'true',
-    'metrics_retention_days': int(os.getenv('METRICS_RETENTION_DAYS', '7')),
-    'performance_monitoring': os.getenv('PERFORMANCE_MONITORING', 'true').lower() == 'true',
-    'error_tracking': os.getenv('ERROR_TRACKING', 'true').lower() == 'true',
-    'uptime_monitoring': os.getenv('UPTIME_MONITORING', 'true').lower() == 'true'
-}
-
 # Export configuration
 def get_config():
     """Get complete configuration"""
     env = get_environment_config()
-    
-    # Ensure directories exist
-    for path in PATHS.values():
-        path.mkdir(parents=True, exist_ok=True)
     
     return {
         'database': DATABASE_CONFIG,
@@ -289,8 +269,6 @@ def get_config():
         'logging': get_logging_config(),
         'paths': PATHS,
         'features': FEATURES,
-        'rate_limiting': RATE_LIMITING,
-        'monitoring': MONITORING_CONFIG,
         'environment': env
     }
 

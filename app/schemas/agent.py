@@ -1,9 +1,10 @@
+# app/schemas/agent.py - Fixed field_validator usage
 """
 Agent API Schemas
 Pydantic models for agent-related API requests and responses
 """
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Dict
 from datetime import datetime
 import ipaddress
@@ -21,13 +22,15 @@ class AgentRegisterRequest(BaseModel):
     domain: Optional[str] = Field(None, description="Domain name")
     install_path: Optional[str] = Field(None, description="Agent installation path")
     
-    @validator('hostname')
+    @field_validator('hostname')
+    @classmethod
     def validate_hostname(cls, v):
         if not v or v.isspace():
             raise ValueError('Hostname cannot be empty')
         return v.strip()
     
-    @validator('ip_address')
+    @field_validator('ip_address')
+    @classmethod
     def validate_ip_address(cls, v):
         try:
             ipaddress.ip_address(v)
@@ -35,7 +38,8 @@ class AgentRegisterRequest(BaseModel):
         except ValueError:
             raise ValueError('Invalid IP address format')
     
-    @validator('mac_address')
+    @field_validator('mac_address')
+    @classmethod
     def validate_mac_address(cls, v):
         if v is None:
             return v
@@ -66,7 +70,8 @@ class AgentHeartbeatRequest(BaseModel):
     disk_usage: float = Field(default=0.0, ge=0.0, le=100.0, description="Disk usage percentage")
     network_latency: int = Field(default=0, ge=0, description="Network latency in milliseconds")
     
-    @validator('status')
+    @field_validator('status')
+    @classmethod
     def validate_status(cls, v):
         if v is not None:
             valid_statuses = ['Active', 'Inactive', 'Error', 'Updating', 'Offline']
@@ -99,7 +104,8 @@ class AgentStatusUpdate(BaseModel):
     status: str
     monitoring_enabled: Optional[bool] = None
     
-    @validator('status')
+    @field_validator('status')
+    @classmethod
     def validate_status(cls, v):
         valid_statuses = ['Active', 'Inactive', 'Error', 'Updating', 'Offline']
         if v not in valid_statuses:
@@ -164,26 +170,3 @@ class AgentStatsResponse(BaseModel):
     os_breakdown: Dict[str, int]
     connection_status_breakdown: Dict[str, int]
     performance_summary: Dict
-
-# Health and Monitoring Schemas
-class AgentHealthStatus(BaseModel):
-    """Schema for agent health status"""
-    agent_id: str
-    hostname: str
-    overall_health: str  # Healthy, Warning, Critical
-    connection_status: str
-    performance_status: str
-    issues: List[str]
-    last_check: datetime
-
-class AgentPerformanceMetrics(BaseModel):
-    """Schema for agent performance metrics"""
-    agent_id: str
-    hostname: str
-    cpu_usage: float
-    memory_usage: float
-    disk_usage: float
-    network_latency: int
-    uptime_minutes: int
-    events_per_hour: int
-    last_updated: datetime

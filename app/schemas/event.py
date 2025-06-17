@@ -1,3 +1,4 @@
+# app/schemas/event.py - Complete Event Schemas
 """
 Event API Schemas
 Pydantic models for event-related API requests and responses
@@ -244,17 +245,4 @@ class EventSearchRequest(BaseModel):
     event_type: Optional[EventType] = None
     severity: Optional[EventSeverity] = None
     threat_level: Optional[ThreatLevel] = None
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
-    search_text: Optional[str] = None
-    limit: int = Field(default=100, le=1000)
-    offset: int = Field(default=0, ge=0)
-
-class EventExportRequest(BaseModel):
-    """Schema for event export request"""
-    agent_id: Optional[str] = None
-    start_time: datetime
-    end_time: datetime
-    event_types: Optional[List[EventType]] = None
-    format: str = Field(default="json", pattern="^(json|csv|xlsx)$")  # FIXED: regex -> pattern
-    include_raw_data: bool = False
+    start_time
