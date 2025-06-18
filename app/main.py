@@ -17,7 +17,7 @@ import uvicorn
 
 from .config import config
 from .database import init_database, get_database_status
-from .api.v1 import agents, events, alerts, dashboard, threats
+from .api.v1 import agents, events, alerts, dashboard, threats, detection
 from .utils.network_utils import is_internal_ip
 
 # Configure logging
@@ -222,7 +222,8 @@ async def system_status():
                 "threat_detection": config['detection']['rules_enabled'],
                 "threat_intelligence": config['detection']['threat_intel_enabled'],
                 "alert_management": True,
-                "dashboard_api": True
+                "dashboard_api": True,
+                "detection_rules": True
             },
             "timestamp": time.time()
         }
@@ -287,6 +288,12 @@ app.include_router(
     threats.router,
     prefix="/api/v1/threats",
     tags=["🔍 Threat Intelligence"]
+)
+
+app.include_router(
+    detection.router,
+    prefix="/api/v1/detection",
+    tags=["🎯 Detection Rules"]
 )
 
 # Global exception handlers

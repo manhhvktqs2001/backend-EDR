@@ -6,7 +6,7 @@ Represents endpoint agents in the EDR system (Updated for simplified schema)
 
 from datetime import datetime, timedelta
 from typing import Optional, Dict, List
-from sqlalchemy import Column, String, DateTime, Boolean, Numeric, Integer
+from sqlalchemy import Column, String, DateTime, Boolean, Numeric, Integer, or_
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
@@ -225,10 +225,20 @@ class Agent(Base):
         
         return status
     
-    def update_heartbeat(self) -> None:
-        """Update last heartbeat timestamp"""
+    def update_heartbeat(self, performance_data: Dict = None) -> None:
+        """Update heartbeat with optional performance data"""
         self.LastHeartbeat = datetime.now()
         self.UpdatedAt = datetime.now()
+        
+        if performance_data:
+            if 'cpu_usage' in performance_data:
+                self.CPUUsage = performance_data['cpu_usage']
+            if 'memory_usage' in performance_data:
+                self.MemoryUsage = performance_data['memory_usage']
+            if 'disk_usage' in performance_data:
+                self.DiskUsage = performance_data['disk_usage']
+            if 'network_latency' in performance_data:
+                self.NetworkLatency = performance_data['network_latency']
     
     def update_performance_metrics(self, cpu: float = None, memory: float = None, 
                                  disk: float = None, latency: int = None) -> None:
@@ -246,12 +256,22 @@ class Agent(Base):
     
     def set_status(self, status: str) -> None:
         """Set agent status"""
-        valid_statuses = ['Active', 'Inactive', 'Maintenance', 'Error', 'Uninstalled']
+        valid_statuses = ['Active', 'Inactive', 'Error', 'Updating', 'Offline']
         if status in valid_statuses:
             self.Status = status
             self.UpdatedAt = datetime.now()
         else:
             raise ValueError(f"Invalid status: {status}. Valid statuses: {valid_statuses}")
+    
+    def enable_monitoring(self) -> None:
+        """Enable monitoring for agent"""
+        self.MonitoringEnabled = True
+        self.UpdatedAt = datetime.now()
+    
+    def disable_monitoring(self) -> None:
+        """Disable monitoring for agent"""
+        self.MonitoringEnabled = False
+        self.UpdatedAt = datetime.now()
     
     def get_uptime_percentage(self, days: int = 30) -> float:
         """Calculate uptime percentage over specified days"""
@@ -311,6 +331,32 @@ class Agent(Base):
         }
     
     @classmethod
+    def get_by_hostname(cls, session, hostname: str) -> Optional['Agent']:
+        """Get agent by hostname"""
+        return session.query(cls).filter(cls.HostName == hostname).first()
+    
+    @classmethod
+    def get_by_id(cls, session, agent_id: str) -> Optional['Agent']:
+        """Get agent by ID"""
+        return session.query(cls).filter(cls.AgentID == agent_id).first()
+    
+    @classmethod
+    def get_by_ip(cls, session, ip_address: str) -> Optional['Agent']:
+        """Get agent by IP address"""
+        return session.query(cls).filter(cls.IPAddress == ip_address).first()
+    
+    @classmethod
+    def create_agent(cls, hostname: str, ip_address: str, operating_system: str, **kwargs) -> 'Agent':
+        """Create new agent instance"""
+        agent = cls(
+            HostName=hostname,
+            IPAddress=ip_address,
+            OperatingSystem=operating_system,
+            **kwargs
+        )
+        return agent
+    
+    @classmethod
     def get_online_agents_count(cls, session) -> int:
         """Get count of online agents"""
         from sqlalchemy import and_
@@ -325,7 +371,6 @@ class Agent(Base):
     @classmethod
     def get_offline_agents_count(cls, session) -> int:
         """Get count of offline agents"""
-        from sqlalchemy import or_
         cutoff_time = datetime.now() - timedelta(minutes=15)
         return session.query(cls).filter(
             or_(
@@ -335,9 +380,28 @@ class Agent(Base):
         ).count()
     
     @classmethod
+    def get_online_agents(cls, session, timeout_minutes: int = 5):
+        """Get currently online agents"""
+        cutoff_time = datetime.now() - timedelta(minutes=timeout_minutes)
+        return session.query(cls).filter(
+            cls.Status == 'Active',
+            cls.LastHeartbeat >= cutoff_time
+        ).all()
+    
+    @classmethod
+    def get_offline_agents(cls, session, timeout_minutes: int = 15):
+        """Get offline agents"""
+        cutoff_time = datetime.now() - timedelta(minutes=timeout_minutes)
+        return session.query(cls).filter(
+            or_(
+                cls.LastHeartbeat < cutoff_time,
+                cls.Status != 'Active'
+            )
+        ).all()
+    
+    @classmethod
     def get_agents_by_platform(cls, session) -> Dict:
         """Get agent count by platform"""
-        from sqlalchemy import func
         results = session.query(
             cls.OperatingSystem,
             func.count(cls.AgentID).label('count')
@@ -360,7 +424,6 @@ class Agent(Base):
     @classmethod
     def get_unhealthy_agents(cls, session) -> List['Agent']:
         """Get list of unhealthy agents"""
-        from sqlalchemy import or_
         cutoff_time = datetime.now() - timedelta(minutes=5)
         
         return session.query(cls).filter(
@@ -372,3 +435,31 @@ class Agent(Base):
                 cls.Status != 'Active'
             )
         ).all()
+    
+    @classmethod
+    def get_agents_summary(cls, session) -> Dict:
+        """Get agents summary statistics"""
+        total_agents = session.query(cls).count()
+        active_agents = session.query(cls).filter(cls.Status == 'Active').count()
+        
+        # Online agents (last 5 minutes)
+        online_cutoff = datetime.now() - timedelta(minutes=5)
+        online_agents = session.query(cls).filter(
+            cls.Status == 'Active',
+            cls.LastHeartbeat >= online_cutoff
+        ).count()
+        
+        # OS breakdown
+        os_breakdown = session.query(
+            cls.OperatingSystem,
+            func.count(cls.AgentID).label('count')
+        ).group_by(cls.OperatingSystem).all()
+        
+        return {
+            'total_agents': total_agents,
+            'active_agents': active_agents,
+            'online_agents': online_agents,
+            'offline_agents': total_agents - online_agents,
+            'inactive_agents': total_agents - active_agents,
+            'os_breakdown': {os: count for os, count in os_breakdown}
+        }
