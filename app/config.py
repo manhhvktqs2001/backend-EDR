@@ -1,7 +1,7 @@
-# app/config.py - Fixed Unicode logging and paths
+# app/config.py - EDR Server Configuration (Updated)
 """
 EDR Server Configuration
-Complete configuration for Agent Communication Server with Unicode-safe logging
+Complete configuration for Agent Communication Server (No Authentication Version)
 """
 
 import os
@@ -12,7 +12,7 @@ from typing import List
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Database Configuration - EDR_System database
+# Database Configuration - EDR_System database (simplified)
 DATABASE_CONFIG = {
     'server': os.getenv('DB_SERVER', 'MANH'),
     'database': os.getenv('DB_DATABASE', 'EDR_System'),
@@ -30,8 +30,8 @@ SERVER_CONFIG = {
     'reload': os.getenv('SERVER_RELOAD', 'true').lower() == 'true',
     'workers': int(os.getenv('SERVER_WORKERS', '1')),
     'title': 'EDR Agent Communication Server',
-    'description': 'Agent Registration, Event Collection & Detection Engine',
-    'version': '1.0.0'
+    'description': 'Agent Registration, Event Collection & Detection Engine (No Auth Version)',
+    'version': '2.0.0'
 }
 
 # Network Security Configuration
@@ -43,14 +43,15 @@ NETWORK_CONFIG = {
     'heartbeat_timeout': int(os.getenv('HEARTBEAT_TIMEOUT', '300'))
 }
 
-# Security Configuration
+# Security Configuration (Simplified - No User Auth)
 SECURITY_CONFIG = {
-    'agent_auth_required': True,
+    'agent_auth_required': True,  # Agents still need token
     'agent_auth_token': os.getenv('AGENT_AUTH_TOKEN', 'edr_agent_auth_2024'),
-    'api_key_header': os.getenv('API_KEY_HEADER', 'X-API-Key'),
-    'secret_key': os.getenv('SECRET_KEY', 'edr_server_secret_key_2024_change_in_production'),
+    'api_key_header': os.getenv('API_KEY_HEADER', 'X-Agent-Token'),
     'cors_origins': os.getenv('CORS_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000,http://192.168.20.85:3000').split(','),
-    'trusted_proxies': ['192.168.20.0/24']
+    'trusted_proxies': ['192.168.20.0/24'],
+    'dashboard_auth': False,  # No dashboard authentication
+    'user_management': False  # No user management
 }
 
 # Agent Configuration
@@ -60,9 +61,11 @@ AGENT_CONFIG = {
     'heartbeat_grace_period': 90,
     'event_batch_size': int(os.getenv('EVENT_BATCH_SIZE', '100')),
     'event_queue_size': int(os.getenv('EVENT_QUEUE_SIZE', '10000')),
-    'config_version': os.getenv('CONFIG_VERSION', '1.0'),
+    'config_version': os.getenv('CONFIG_VERSION', '2.0'),
     'auto_approve_registration': os.getenv('AUTO_APPROVE_REGISTRATION', 'true').lower() == 'true',
-    'require_agent_certificate': False
+    'require_agent_certificate': False,
+    'max_events_per_minute': 1000,
+    'max_batch_size': 1000
 }
 
 # Detection Engine Configuration
@@ -70,23 +73,27 @@ DETECTION_CONFIG = {
     'rules_enabled': os.getenv('RULES_ENABLED', 'true').lower() == 'true',
     'threat_intel_enabled': os.getenv('THREAT_INTEL_ENABLED', 'true').lower() == 'true',
     'ml_detection_enabled': os.getenv('ML_DETECTION_ENABLED', 'false').lower() == 'true',
-    'rules_check_interval': int(os.getenv('RULES_CHECK_INTERVAL', '1')),
+    'rules_check_interval': float(os.getenv('RULES_CHECK_INTERVAL', '1')),
     'threat_intel_cache_ttl': int(os.getenv('THREAT_INTEL_CACHE_TTL', '3600')),
     'alert_deduplication_window': int(os.getenv('ALERT_DEDUPLICATION_WINDOW', '300')),
     'max_alerts_per_agent': 1000,
     'risk_score_threshold': int(os.getenv('RISK_SCORE_THRESHOLD', '70')),
-    'auto_quarantine_threshold': int(os.getenv('AUTO_QUARANTINE_THRESHOLD', '90'))
+    'auto_quarantine_threshold': int(os.getenv('AUTO_QUARANTINE_THRESHOLD', '90')),
+    'real_time_processing': True,
+    'batch_processing_enabled': True
 }
 
-# Alert Configuration
+# Alert Configuration (Simplified)
 ALERT_CONFIG = {
     'default_severity': os.getenv('DEFAULT_SEVERITY', 'Medium'),
-    'auto_escalation_enabled': os.getenv('AUTO_ESCALATION_ENABLED', 'true').lower() == 'true',
+    'auto_escalation_enabled': os.getenv('AUTO_ESCALATION_ENABLED', 'false').lower() == 'true',  # Disabled without users
     'escalation_threshold_minutes': int(os.getenv('ESCALATION_THRESHOLD_MINUTES', '60')),
     'alert_retention_days': int(os.getenv('ALERT_RETENTION_DAYS', '90')),
     'max_alerts_per_hour': int(os.getenv('MAX_ALERTS_PER_HOUR', '100')),
-    'notification_enabled': False,
-    'webhook_enabled': False
+    'notification_enabled': False,  # Simplified - no notifications
+    'webhook_enabled': False,
+    'auto_resolve_enabled': True,
+    'auto_resolve_days': 30
 }
 
 # Performance Configuration
@@ -98,7 +105,9 @@ PERFORMANCE_CONFIG = {
     'cache_ttl': int(os.getenv('CACHE_TTL', '300')),
     'batch_processing_enabled': os.getenv('BATCH_PROCESSING_ENABLED', 'true').lower() == 'true',
     'batch_processing_interval': int(os.getenv('BATCH_PROCESSING_INTERVAL', '5')),
-    'background_tasks_enabled': True
+    'background_tasks_enabled': True,
+    'memory_limit_mb': 2048,
+    'max_concurrent_requests': 100
 }
 
 # Paths Configuration
@@ -108,19 +117,21 @@ PATHS = {
     'temp': BASE_DIR / 'temp',
     'uploads': BASE_DIR / 'uploads',
     'exports': BASE_DIR / 'exports',
-    'data': BASE_DIR / 'data'
+    'data': BASE_DIR / 'data',
+    'detection_rules': BASE_DIR / 'data' / 'detection_rules',
+    'threat_intel': BASE_DIR / 'data' / 'threat_intelligence'
 }
 
 # Ensure directories exist
 for path in PATHS.values():
     path.mkdir(parents=True, exist_ok=True)
 
-# Unicode-safe logging configuration
+# Logging configuration with Unicode support
 def get_logging_config():
-    """Get logging configuration with Unicode support"""
+    """Get logging configuration for EDR system"""
     log_level = os.getenv('LOG_LEVEL', 'INFO')
     
-    # Check if running on Windows and set appropriate encoding
+    # Check if running on Windows
     is_windows = sys.platform.startswith('win')
     console_encoding = 'utf-8' if not is_windows else 'ascii'
     
@@ -136,8 +147,8 @@ def get_logging_config():
                 'format': '%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(funcName)s - %(message)s',
                 'datefmt': '%Y-%m-%d %H:%M:%S'
             },
-            'ascii_safe': {
-                'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            'edr_format': {
+                'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s',
                 'datefmt': '%Y-%m-%d %H:%M:%S'
             }
         },
@@ -145,14 +156,14 @@ def get_logging_config():
             'console': {
                 'class': 'logging.StreamHandler',
                 'level': log_level,
-                'formatter': 'ascii_safe' if is_windows else 'default',
+                'formatter': 'edr_format',
                 'stream': 'ext://sys.stdout'
             },
             'file_main': {
                 'class': 'logging.handlers.RotatingFileHandler',
                 'level': 'DEBUG',
                 'formatter': 'detailed',
-                'filename': str(PATHS['logs'] / 'server.log'),
+                'filename': str(PATHS['logs'] / 'edr_server.log'),
                 'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),
                 'backupCount': int(os.getenv('LOG_BACKUP_COUNT', '5')),
                 'encoding': 'utf-8'
@@ -161,7 +172,7 @@ def get_logging_config():
                 'class': 'logging.handlers.RotatingFileHandler',
                 'level': 'INFO',
                 'formatter': 'detailed',
-                'filename': str(PATHS['logs'] / 'detection.log'),
+                'filename': str(PATHS['logs'] / 'detection_engine.log'),
                 'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),
                 'backupCount': int(os.getenv('LOG_BACKUP_COUNT', '5')),
                 'encoding': 'utf-8'
@@ -170,7 +181,16 @@ def get_logging_config():
                 'class': 'logging.handlers.RotatingFileHandler',
                 'level': 'INFO',
                 'formatter': 'default',
-                'filename': str(PATHS['logs'] / 'agents.log'),
+                'filename': str(PATHS['logs'] / 'agent_communication.log'),
+                'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),
+                'backupCount': int(os.getenv('LOG_BACKUP_COUNT', '5')),
+                'encoding': 'utf-8'
+            },
+            'file_events': {
+                'class': 'logging.handlers.RotatingFileHandler',
+                'level': 'INFO',
+                'formatter': 'default',
+                'filename': str(PATHS['logs'] / 'event_processing.log'),
                 'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),
                 'backupCount': int(os.getenv('LOG_BACKUP_COUNT', '5')),
                 'encoding': 'utf-8'
@@ -206,6 +226,11 @@ def get_logging_config():
                 'level': 'INFO',
                 'propagate': False,
             },
+            'event_processing': {
+                'handlers': ['console', 'file_events'],
+                'level': 'INFO',
+                'propagate': False,
+            },
             'error': {
                 'handlers': ['file_errors'],
                 'level': 'ERROR',
@@ -214,7 +239,7 @@ def get_logging_config():
         },
     }
 
-# Development vs Production Settings
+# Environment Configuration
 def get_environment_config():
     """Get configuration based on environment"""
     env = os.getenv('EDR_ENV', 'development')
@@ -228,6 +253,7 @@ def get_environment_config():
         })
         DETECTION_CONFIG['rules_check_interval'] = 0.5
         PERFORMANCE_CONFIG['cache_ttl'] = 600
+        PERFORMANCE_CONFIG['database_pool_size'] = 20
         
     elif env == 'testing':
         # Testing settings
@@ -238,7 +264,7 @@ def get_environment_config():
         
     return env
 
-# Feature Flags
+# Feature Flags (Updated for no-auth version)
 FEATURES = {
     'agent_registration': os.getenv('FEATURE_AGENT_REGISTRATION', 'true').lower() == 'true',
     'event_collection': os.getenv('FEATURE_EVENT_COLLECTION', 'true').lower() == 'true',
@@ -249,7 +275,31 @@ FEATURES = {
     'file_quarantine': os.getenv('FEATURE_FILE_QUARANTINE', 'false').lower() == 'true',
     'network_isolation': os.getenv('FEATURE_NETWORK_ISOLATION', 'false').lower() == 'true',
     'forensic_collection': os.getenv('FEATURE_FORENSIC_COLLECTION', 'false').lower() == 'true',
-    'threat_hunting': os.getenv('FEATURE_THREAT_HUNTING', 'false').lower() == 'true'
+    'threat_hunting': os.getenv('FEATURE_THREAT_HUNTING', 'false').lower() == 'true',
+    
+    # Disabled features in simplified version
+    'user_authentication': False,
+    'user_management': False,
+    'role_based_access': False,
+    'audit_logging': False,
+    'email_notifications': False,
+    'sms_notifications': False,
+    'webhook_notifications': False
+}
+
+# EDR System Specific Configuration
+EDR_CONFIG = {
+    'system_name': 'EDR Security Platform (No Auth)',
+    'system_version': '2.0.0',
+    'deployment_type': 'simplified',
+    'max_agents_per_network': 1000,
+    'event_retention_days': 365,
+    'alert_retention_days': 90,
+    'threat_intel_sources': ['internal', 'file_hashes', 'ip_addresses', 'domains'],
+    'supported_platforms': ['Windows', 'Linux'],
+    'supported_event_types': ['Process', 'File', 'Network', 'Registry', 'Authentication', 'System'],
+    'mitre_attack_enabled': True,
+    'real_time_dashboard': True
 }
 
 # Export configuration
@@ -269,6 +319,7 @@ def get_config():
         'logging': get_logging_config(),
         'paths': PATHS,
         'features': FEATURES,
+        'edr': EDR_CONFIG,
         'environment': env
     }
 
@@ -277,7 +328,7 @@ config = get_config()
 
 # Helper functions
 def get_database_url():
-    """Get database connection URL"""
+    """Get database connection URL for SQL Server"""
     db_config = DATABASE_CONFIG
     return (
         f"mssql+pyodbc://@{db_config['server']}/{db_config['database']}?"
@@ -301,3 +352,17 @@ def get_server_url():
 def get_feature_flag(feature_name: str) -> bool:
     """Get feature flag status"""
     return FEATURES.get(feature_name, False)
+
+def get_edr_info():
+    """Get EDR system information"""
+    return {
+        'system_name': EDR_CONFIG['system_name'],
+        'version': EDR_CONFIG['system_version'],
+        'deployment_type': EDR_CONFIG['deployment_type'],
+        'server_url': get_server_url(),
+        'database_server': DATABASE_CONFIG['server'],
+        'supported_platforms': EDR_CONFIG['supported_platforms'],
+        'max_agents': NETWORK_CONFIG['max_agents'],
+        'features_enabled': {k: v for k, v in FEATURES.items() if v},
+        'authentication': False
+    }

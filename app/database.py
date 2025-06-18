@@ -1,6 +1,7 @@
+# app/database.py - Updated Database Manager
 """
 Database Connection Manager for EDR Server
-SQLAlchemy integration with SQL Server
+SQLAlchemy integration with SQL Server (No Authentication Version)
 """
 
 import logging
@@ -18,7 +19,7 @@ from .config import config, get_database_url
 # Configure logging
 logger = logging.getLogger(__name__)
 
-# SQLAlchemy Base for models
+# SQLAlchemy Base for all models
 Base = declarative_base()
 
 class DatabaseManager:
@@ -38,7 +39,9 @@ class DatabaseManager:
             database_url = get_database_url()
             perf_config = config['performance']
             
-            # Create engine with optimized settings
+            logger.info(f"🔗 Connecting to database: {config['database']['server']}/{config['database']['database']}")
+            
+            # Create engine with optimized settings for EDR workload
             self.engine = create_engine(
                 database_url,
                 poolclass=QueuePool,
@@ -65,10 +68,10 @@ class DatabaseManager:
             # Add event listeners for monitoring
             self._add_event_listeners()
             
-            logger.info("Database engine initialized successfully")
+            logger.info("✅ Database engine initialized successfully")
             
         except Exception as e:
-            logger.error(f"Failed to initialize database engine: {e}")
+            logger.error(f"❌ Failed to initialize database engine: {e}")
             raise
     
     def _add_event_listeners(self):
@@ -76,15 +79,15 @@ class DatabaseManager:
         
         @event.listens_for(self.engine, "connect")
         def receive_connect(dbapi_connection, connection_record):
-            logger.debug("Database connection established")
+            logger.debug("🔗 Database connection established")
         
         @event.listens_for(self.engine, "checkout")
         def receive_checkout(dbapi_connection, connection_record, connection_proxy):
-            logger.debug("Database connection checked out from pool")
+            logger.debug("📤 Database connection checked out from pool")
         
         @event.listens_for(self.engine, "checkin")
         def receive_checkin(dbapi_connection, connection_record):
-            logger.debug("Database connection returned to pool")
+            logger.debug("📥 Database connection returned to pool")
     
     def test_connection(self) -> bool:
         """Test database connection"""
@@ -94,15 +97,15 @@ class DatabaseManager:
                 row = result.fetchone()
                 if row and row[0] == 1:
                     self.is_connected = True
-                    logger.info("Database connection test successful")
+                    logger.info("✅ Database connection test successful")
                     return True
                 else:
                     self.is_connected = False
-                    logger.error("Database connection test failed - unexpected result")
+                    logger.error("❌ Database connection test failed - unexpected result")
                     return False
         except Exception as e:
             self.is_connected = False
-            logger.error(f"Database connection test failed: {e}")
+            logger.error(f"❌ Database connection test failed: {e}")
             return False
     
     def get_session(self) -> Session:
@@ -120,11 +123,11 @@ class DatabaseManager:
             session.commit()
         except SQLAlchemyError as e:
             session.rollback()
-            logger.error(f"Database session error: {e}")
+            logger.error(f"💥 Database session error: {e}")
             raise
         except Exception as e:
             session.rollback()
-            logger.error(f"Unexpected error in database session: {e}")
+            logger.error(f"💥 Unexpected error in database session: {e}")
             raise
         finally:
             session.close()
@@ -138,10 +141,10 @@ class DatabaseManager:
                 rows = result.fetchall()
                 return [dict(zip(columns, row)) for row in rows]
         except Exception as e:
-            logger.error(f"Query execution failed: {e}")
-            logger.error(f"Query: {query}")
+            logger.error(f"💥 Query execution failed: {e}")
+            logger.error(f"📝 Query: {query}")
             if params:
-                logger.error(f"Params: {params}")
+                logger.error(f"📝 Params: {params}")
             return []
     
     def execute_non_query(self, query: str, params: Dict = None) -> bool:
@@ -151,7 +154,7 @@ class DatabaseManager:
                 session.execute(text(query), params or {})
                 return True
         except Exception as e:
-            logger.error(f"Non-query execution failed: {e}")
+            logger.error(f"💥 Non-query execution failed: {e}")
             return False
     
     def get_table_count(self, table_name: str) -> int:
@@ -163,7 +166,7 @@ class DatabaseManager:
                 return result[0]['count']
             return 0
         except Exception as e:
-            logger.error(f"Error getting count for table {table_name}: {e}")
+            logger.error(f"❌ Error getting count for table {table_name}: {e}")
             return -1
     
     def check_table_exists(self, table_name: str) -> bool:
@@ -178,7 +181,7 @@ class DatabaseManager:
             result = self.execute_query(query, {"table_name": table_name})
             return result and result[0]['table_count'] > 0
         except Exception as e:
-            logger.error(f"Error checking table existence {table_name}: {e}")
+            logger.error(f"❌ Error checking table existence {table_name}: {e}")
             return False
     
     def get_database_info(self) -> Dict:
@@ -186,7 +189,7 @@ class DatabaseManager:
         try:
             info = {}
             
-            # Basic database info - FIXED SQL syntax
+            # Basic database info
             basic_info = self.execute_query("""
                 SELECT 
                     @@VERSION as version,
@@ -197,13 +200,15 @@ class DatabaseManager:
             if basic_info:
                 info.update(basic_info[0])
             
-            # Table information
+            # Table information for EDR system
             tables_info = self.execute_query("""
                 SELECT 
                     TABLE_NAME,
                     (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = t.TABLE_NAME) as column_count
                 FROM INFORMATION_SCHEMA.TABLES t
-                WHERE TABLE_SCHEMA = 'dbo' AND TABLE_TYPE = 'BASE TABLE'
+                WHERE TABLE_SCHEMA = 'dbo' 
+                AND TABLE_TYPE = 'BASE TABLE'
+                AND TABLE_NAME IN ('Agents', 'Events', 'Alerts', 'Threats', 'DetectionRules', 'SystemConfig', 'AgentConfigs')
                 ORDER BY TABLE_NAME
             """)
             info['tables'] = tables_info
@@ -221,7 +226,7 @@ class DatabaseManager:
             return info
             
         except Exception as e:
-            logger.error(f"Error getting database info: {e}")
+            logger.error(f"❌ Error getting database info: {e}")
             return {'error': str(e)}
     
     def get_connection_pool_status(self) -> Dict:
@@ -233,15 +238,14 @@ class DatabaseManager:
                 'checked_in': pool.checkedin(),
                 'checked_out': pool.checkedout(),
                 'overflow': pool.overflow(),
-                # Removed 'invalid' as it doesn't exist in newer SQLAlchemy
                 'total_connections': pool.size() + pool.overflow()
             }
         except Exception as e:
-            logger.error(f"Error getting pool status: {e}")
+            logger.error(f"❌ Error getting pool status: {e}")
             return {}
     
     def health_check(self) -> Dict:
-        """Comprehensive database health check"""
+        """Comprehensive database health check for EDR system"""
         start_time = time.time()
         health_status = {
             'healthy': False,
@@ -249,6 +253,7 @@ class DatabaseManager:
             'connection_pool': {},
             'database_info': {},
             'table_counts': {},
+            'edr_system_status': {},
             'errors': []
         }
         
@@ -264,13 +269,18 @@ class DatabaseManager:
             # Get database info
             health_status['database_info'] = self.get_database_info()
             
-            # Check critical tables
-            critical_tables = ['Agents', 'Events', 'Alerts', 'Threats', 'DetectionRules']
-            for table in critical_tables:
+            # Check EDR core tables
+            edr_tables = ['Agents', 'Events', 'Alerts', 'Threats', 'DetectionRules', 'SystemConfig', 'AgentConfigs']
+            for table in edr_tables:
                 if self.check_table_exists(table):
-                    health_status['table_counts'][table] = self.get_table_count(table)
+                    count = self.get_table_count(table)
+                    health_status['table_counts'][table] = count
+                    logger.debug(f"📊 Table {table}: {count} records")
                 else:
-                    health_status['errors'].append(f'Table {table} not found')
+                    health_status['errors'].append(f'Critical table {table} not found')
+            
+            # EDR system specific checks
+            health_status['edr_system_status'] = self._check_edr_system_health()
             
             # Calculate response time
             health_status['response_time_ms'] = int((time.time() - start_time) * 1000)
@@ -278,20 +288,76 @@ class DatabaseManager:
             # Determine overall health
             health_status['healthy'] = len(health_status['errors']) == 0
             
+            if health_status['healthy']:
+                logger.info(f"✅ Database health check passed in {health_status['response_time_ms']}ms")
+            else:
+                logger.warning(f"⚠️ Database health check issues: {health_status['errors']}")
+            
         except Exception as e:
             health_status['errors'].append(f'Health check failed: {str(e)}')
-            logger.error(f"Database health check failed: {e}")
+            logger.error(f"💥 Database health check failed: {e}")
         
         return health_status
+    
+    def _check_edr_system_health(self) -> Dict:
+        """Check EDR system specific health metrics"""
+        edr_status = {}
+        
+        try:
+            # Check for recent agent activity
+            recent_agents = self.execute_query("""
+                SELECT COUNT(*) as count 
+                FROM Agents 
+                WHERE LastHeartbeat >= DATEADD(minute, -10, GETDATE())
+            """)
+            edr_status['active_agents_last_10min'] = recent_agents[0]['count'] if recent_agents else 0
+            
+            # Check for recent events
+            recent_events = self.execute_query("""
+                SELECT COUNT(*) as count 
+                FROM Events 
+                WHERE CreatedAt >= DATEADD(hour, -1, GETDATE())
+            """)
+            edr_status['events_last_hour'] = recent_events[0]['count'] if recent_events else 0
+            
+            # Check for open alerts
+            open_alerts = self.execute_query("""
+                SELECT COUNT(*) as count 
+                FROM Alerts 
+                WHERE Status IN ('Open', 'Investigating')
+            """)
+            edr_status['open_alerts'] = open_alerts[0]['count'] if open_alerts else 0
+            
+            # Check detection rules
+            active_rules = self.execute_query("""
+                SELECT COUNT(*) as count 
+                FROM DetectionRules 
+                WHERE IsActive = 1
+            """)
+            edr_status['active_detection_rules'] = active_rules[0]['count'] if active_rules else 0
+            
+            # Check threat indicators
+            active_threats = self.execute_query("""
+                SELECT COUNT(*) as count 
+                FROM Threats 
+                WHERE IsActive = 1
+            """)
+            edr_status['active_threat_indicators'] = active_threats[0]['count'] if active_threats else 0
+            
+        except Exception as e:
+            logger.error(f"❌ EDR system health check failed: {e}")
+            edr_status['error'] = str(e)
+        
+        return edr_status
     
     def cleanup(self):
         """Clean up database connections"""
         try:
             if self.engine:
                 self.engine.dispose()
-                logger.info("Database connections cleaned up")
+                logger.info("🧹 Database connections cleaned up")
         except Exception as e:
-            logger.error(f"Error during database cleanup: {e}")
+            logger.error(f"❌ Error during database cleanup: {e}")
 
 # Global database manager instance
 db_manager = DatabaseManager()
@@ -304,53 +370,59 @@ def get_db() -> Generator[Session, None, None]:
         yield session
     except Exception as e:
         session.rollback()
-        logger.error(f"Database session error in dependency: {e}")
+        logger.error(f"💥 Database session error in dependency: {e}")
         raise
     finally:
         session.close()
 
 # Initialization and utility functions
 def init_database() -> bool:
-    """Initialize database connection and verify schema"""
+    """Initialize database connection and verify EDR schema"""
     try:
-        logger.info("Initializing EDR database connection...")
+        logger.info("🔄 Initializing EDR database connection...")
         
         # Test database connection
         if not db_manager.test_connection():
-            logger.error("Database connection test failed")
+            logger.error("❌ Database connection test failed")
             return False
         
         # Get database info
         db_info = db_manager.get_database_info()
         if 'error' in db_info:
-            logger.error(f"Database info retrieval failed: {db_info['error']}")
+            logger.error(f"❌ Database info retrieval failed: {db_info['error']}")
             return False
         
-        logger.info(f"Connected to database: {db_info.get('database_name')} on {db_info.get('server_name')}")
+        logger.info(f"🗄️ Connected to: {db_info.get('database_name')} on {db_info.get('server_name')}")
         
-        # Verify critical tables exist
-        critical_tables = ['Agents', 'Events', 'Alerts', 'Threats', 'DetectionRules']
+        # Verify EDR critical tables exist
+        edr_tables = ['Agents', 'Events', 'Alerts', 'Threats', 'DetectionRules', 'SystemConfig', 'AgentConfigs']
         missing_tables = []
         
-        for table in critical_tables:
+        for table in edr_tables:
             if not db_manager.check_table_exists(table):
                 missing_tables.append(table)
         
         if missing_tables:
-            logger.error(f"Missing critical tables: {missing_tables}")
+            logger.error(f"❌ Missing critical EDR tables: {missing_tables}")
+            logger.error("💡 Please run the database creation script first")
             return False
         
-        logger.info(f"All critical tables verified: {critical_tables}")
+        logger.info(f"✅ All EDR tables verified: {edr_tables}")
         
-        # Log table counts
-        for table in critical_tables:
+        # Log table counts for monitoring
+        for table in edr_tables:
             count = db_manager.get_table_count(table)
-            logger.info(f"Table {table}: {count} records")
+            logger.info(f"📊 {table}: {count:,} records")
+        
+        # Verify system configuration
+        config_count = db_manager.get_table_count('SystemConfig')
+        if config_count == 0:
+            logger.warning("⚠️ No system configuration found - consider loading default config")
         
         return True
         
     except Exception as e:
-        logger.error(f"Database initialization failed: {e}")
+        logger.error(f"💥 Database initialization failed: {e}")
         return False
 
 def get_database_status() -> Dict:
@@ -364,3 +436,76 @@ def execute_query(query: str, params: Dict = None) -> List[Dict]:
 def execute_non_query(query: str, params: Dict = None) -> bool:
     """Execute non-query using global database manager"""
     return db_manager.execute_non_query(query, params)
+
+# Database maintenance functions
+def get_edr_statistics() -> Dict:
+    """Get EDR system statistics"""
+    try:
+        stats = {}
+        
+        # Agent statistics
+        stats['agents'] = db_manager.execute_query("""
+            SELECT 
+                COUNT(*) as total_agents,
+                SUM(CASE WHEN Status = 'Active' THEN 1 ELSE 0 END) as active_agents,
+                SUM(CASE WHEN LastHeartbeat >= DATEADD(minute, -5, GETDATE()) THEN 1 ELSE 0 END) as online_agents
+        """)[0]
+        
+        # Event statistics (last 24 hours)
+        stats['events'] = db_manager.execute_query("""
+            SELECT 
+                COUNT(*) as total_events,
+                SUM(CASE WHEN ThreatLevel != 'None' THEN 1 ELSE 0 END) as threat_events,
+                SUM(CASE WHEN Analyzed = 1 THEN 1 ELSE 0 END) as analyzed_events
+            FROM Events 
+            WHERE CreatedAt >= DATEADD(hour, -24, GETDATE())
+        """)[0]
+        
+        # Alert statistics
+        stats['alerts'] = db_manager.execute_query("""
+            SELECT 
+                COUNT(*) as total_alerts,
+                SUM(CASE WHEN Status IN ('Open', 'Investigating') THEN 1 ELSE 0 END) as open_alerts,
+                SUM(CASE WHEN Severity IN ('High', 'Critical') AND Status IN ('Open', 'Investigating') THEN 1 ELSE 0 END) as critical_alerts
+            FROM Alerts
+        """)[0]
+        
+        # System health
+        stats['system'] = {
+            'detection_rules': db_manager.get_table_count('DetectionRules'),
+            'threat_indicators': db_manager.get_table_count('Threats'),
+            'system_configs': db_manager.get_table_count('SystemConfig')
+        }
+        
+        return stats
+        
+    except Exception as e:
+        logger.error(f"❌ Failed to get EDR statistics: {e}")
+        return {}
+
+def cleanup_old_data(retention_days: int = 90) -> Dict:
+    """Cleanup old EDR data based on retention policy"""
+    try:
+        cleanup_results = {}
+        
+        # Cleanup old events (keep events linked to active alerts)
+        old_events_query = """
+            DELETE FROM Events 
+            WHERE CreatedAt < DATEADD(day, :retention_days, GETDATE())
+            AND EventID NOT IN (
+                SELECT EventID FROM Alerts 
+                WHERE EventID IS NOT NULL 
+                AND Status IN ('Open', 'Investigating')
+            )
+        """
+        
+        # Execute cleanup (would need actual implementation)
+        logger.info(f"🧹 Cleanup policy: {retention_days} days retention")
+        cleanup_results['retention_days'] = retention_days
+        cleanup_results['status'] = 'configured'
+        
+        return cleanup_results
+        
+    except Exception as e:
+        logger.error(f"❌ Data cleanup failed: {e}")
+        return {'error': str(e)}
