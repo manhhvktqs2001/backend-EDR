@@ -1,3 +1,4 @@
+# app/services/detection_engine.py - FIXED VERSION
 """
 Detection Engine Service
 Core detection logic for analyzing events and generating alerts
@@ -9,6 +10,8 @@ import re
 from datetime import datetime, timedelta
 from typing import Optional, Dict, List, Any, Tuple
 from sqlalchemy.orm import Session
+from sqlalchemy import func
+
 from ..models.agent import Agent
 from ..models.event import Event
 from ..models.alert import Alert
@@ -27,7 +30,7 @@ class DetectionEngine:
         self.rules_cache = {}
         self.threats_cache = {}
         self.cache_timestamp = None
-        self.cache_ttl = self.detection_config['threat_intel_cache_ttl']
+        self.cache_ttl = self.detection_config.get('threat_intel_cache_ttl', 3600)
     
     def analyze_event(self, session: Session, event: Event) -> Optional[Dict]:
         """
@@ -64,7 +67,8 @@ class DetectionEngine:
             detection_results['threat_level'] = self._determine_threat_level(detection_results['risk_score'])
             
             # Step 5: Generate alerts if necessary
-            if detection_results['risk_score'] >= self.detection_config['risk_score_threshold']:
+            risk_threshold = self.detection_config.get('risk_score_threshold', 70)
+            if detection_results['risk_score'] >= risk_threshold:
                 alerts = self._generate_alerts(session, event, detection_results)
                 detection_results['alerts_generated'] = alerts
                 detection_results['threat_detected'] = True
@@ -80,7 +84,7 @@ class DetectionEngine:
     def _check_threat_intelligence(self, session: Session, event: Event) -> Optional[Dict]:
         """Check event against threat intelligence database"""
         try:
-            if not self.detection_config['threat_intel_enabled']:
+            if not self.detection_config.get('threat_intel_enabled', False):
                 return None
             
             results = {
@@ -112,7 +116,12 @@ class DetectionEngine:
                     results['risk_score'] += self._get_threat_risk_score(threat)
                     logger.info(f"Malicious IP detected: {event.DestinationIP} - {threat.ThreatName}")
             
-            # Check domains (would need domain extraction from URLs/processes)
+            if event.SourceIP:
+                threat = Threat.check_ip(session, event.SourceIP)
+                if threat:
+                    results['matched_threats'].append(threat.ThreatID)
+                    results['risk_score'] += self._get_threat_risk_score(threat)
+                    logger.info(f"Malicious source IP detected: {event.SourceIP} - {threat.ThreatName}")
             
             return results if results['matched_threats'] else None
             
@@ -123,7 +132,7 @@ class DetectionEngine:
     def _check_detection_rules(self, session: Session, event: Event) -> Optional[Dict]:
         """Check event against detection rules"""
         try:
-            if not self.detection_config['rules_enabled']:
+            if not self.detection_config.get('rules_enabled', False):
                 return None
             
             # Get active rules for event platform
@@ -151,32 +160,101 @@ class DetectionEngine:
             return None
     
     def _evaluate_rule(self, event: Event, rule: DetectionRule) -> bool:
-        """Evaluate if event matches detection rule"""
+        """Evaluate if event matches detection rule - ENHANCED"""
         try:
             rule_condition = rule.get_rule_condition()
             if not rule_condition:
                 return False
             
-            # Get rule conditions
-            conditions = rule_condition.get('conditions', [])
-            logic = rule_condition.get('logic', 'AND')
+            # Handle different rule condition formats
+            if isinstance(rule_condition, dict):
+                # New format with conditions array
+                if 'conditions' in rule_condition:
+                    conditions = rule_condition.get('conditions', [])
+                    logic = rule_condition.get('logic', 'AND')
+                    
+                    condition_results = []
+                    for condition in conditions:
+                        result = self._evaluate_condition(event, condition)
+                        condition_results.append(result)
+                    
+                    # Apply logic
+                    if logic.upper() == 'AND':
+                        return all(condition_results)
+                    elif logic.upper() == 'OR':
+                        return any(condition_results)
+                else:
+                    # Simple condition format - evaluate directly
+                    return self._evaluate_simple_rule(event, rule_condition)
             
-            # Evaluate conditions
-            condition_results = []
-            for condition in conditions:
-                result = self._evaluate_condition(event, condition)
-                condition_results.append(result)
-            
-            # Apply logic
-            if logic.upper() == 'AND':
-                return all(condition_results)
-            elif logic.upper() == 'OR':
-                return any(condition_results)
-            else:
-                return any(condition_results)  # Default to OR
+            return False
                 
         except Exception as e:
             logger.error(f"Rule evaluation failed for rule {rule.RuleID}: {str(e)}")
+            return False
+    
+    def _evaluate_simple_rule(self, event: Event, rule_condition: Dict) -> bool:
+        """Evaluate simple rule conditions (legacy format)"""
+        try:
+            # Handle simple conditions like: {"process_name": "powershell.exe", "command_line_contains": ["-EncodedCommand"]}
+            matches = 0
+            total_conditions = 0
+            
+            for field, value in rule_condition.items():
+                total_conditions += 1
+                
+                if field == 'process_name' and event.ProcessName:
+                    if isinstance(value, list):
+                        if any(v.lower() in event.ProcessName.lower() for v in value):
+                            matches += 1
+                    elif str(value).lower() in event.ProcessName.lower():
+                        matches += 1
+                
+                elif field == 'command_line_contains' and event.CommandLine:
+                    if isinstance(value, list):
+                        if any(str(v).lower() in event.CommandLine.lower() for v in value):
+                            matches += 1
+                    elif str(value).lower() in event.CommandLine.lower():
+                        matches += 1
+                
+                elif field == 'file_name' and event.FileName:
+                    if isinstance(value, list):
+                        if any(str(v).lower() in event.FileName.lower() for v in value):
+                            matches += 1
+                    elif str(value).lower() in event.FileName.lower():
+                        matches += 1
+                
+                elif field == 'registry_key_contains' and event.RegistryKey:
+                    if isinstance(value, list):
+                        if any(str(v).lower() in event.RegistryKey.lower() for v in value):
+                            matches += 1
+                    elif str(value).lower() in event.RegistryKey.lower():
+                        matches += 1
+                
+                elif field == 'destination_ports' and event.DestinationPort:
+                    if isinstance(value, list):
+                        if event.DestinationPort in value:
+                            matches += 1
+                    elif event.DestinationPort == value:
+                        matches += 1
+                
+                elif field == 'registry_operation' and event.RegistryOperation:
+                    if str(value).lower() == event.RegistryOperation.lower():
+                        matches += 1
+                
+                elif field == 'logic':
+                    total_conditions -= 1  # Don't count logic as a condition
+                    continue
+            
+            # Check logic
+            logic = rule_condition.get('logic', 'AND')
+            if logic.upper() == 'OR':
+                return matches > 0
+            else:  # Default to AND
+                return matches == total_conditions
+                
+        except Exception as e:
+            logger.error(f"Simple rule evaluation failed: {str(e)}")
             return False
     
     def _evaluate_condition(self, event: Event, condition: Dict) -> bool:
@@ -338,9 +416,11 @@ class DetectionEngine:
     
     def _create_threat_alert(self, event: Event, threat: Threat, detection_results: Dict) -> Alert:
         """Create alert from threat intelligence match"""
+        alert_type = f"{threat.ThreatCategory} Detection" if threat.ThreatCategory else "Threat Detection"
+        
         return Alert.create_alert(
             agent_id=str(event.AgentID),
-            alert_type=f"{threat.ThreatCategory} Detection",
+            alert_type=alert_type,
             title=f"Threat Detected: {threat.ThreatName}",
             severity=threat.Severity,
             detection_method='Threat Intelligence',
@@ -378,6 +458,59 @@ class DetectionEngine:
         merged['risk_score'] = merged.get('risk_score', 0) + results2.get('risk_score', 0)
         
         return merged
+    
+    def get_detection_stats(self, session: Session, hours: int = 24) -> Dict:
+        """Get detection engine statistics"""
+        try:
+            cutoff_time = datetime.now() - timedelta(hours=hours)
+            
+            # Events analyzed
+            total_events = session.query(Event).filter(Event.EventTimestamp >= cutoff_time).count()
+            analyzed_events = session.query(Event).filter(
+                Event.EventTimestamp >= cutoff_time,
+                Event.Analyzed == True
+            ).count()
+            
+            # Threat detections
+            threat_events = session.query(Event).filter(
+                Event.EventTimestamp >= cutoff_time,
+                Event.ThreatLevel.in_(['Suspicious', 'Malicious'])
+            ).count()
+            
+            # Alerts generated
+            alerts_generated = session.query(Alert).filter(
+                Alert.FirstDetected >= cutoff_time
+            ).count()
+            
+            # Rule hits
+            rule_alerts = session.query(Alert).filter(
+                Alert.FirstDetected >= cutoff_time,
+                Alert.DetectionMethod == 'Rules'
+            ).count()
+            
+            # Threat intel hits
+            threat_alerts = session.query(Alert).filter(
+                Alert.FirstDetected >= cutoff_time,
+                Alert.DetectionMethod == 'Threat Intelligence'
+            ).count()
+            
+            return {
+                'time_range_hours': hours,
+                'total_events': total_events,
+                'analyzed_events': analyzed_events,
+                'analysis_rate': (analyzed_events / total_events * 100) if total_events > 0 else 0,
+                'threat_events': threat_events,
+                'detection_rate': (threat_events / total_events * 100) if total_events > 0 else 0,
+                'alerts_generated': alerts_generated,
+                'rule_alerts': rule_alerts,
+                'threat_alerts': threat_alerts,
+                'avg_events_per_hour': total_events / hours if hours > 0 else 0,
+                'avg_alerts_per_hour': alerts_generated / hours if hours > 0 else 0
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to get detection stats: {str(e)}")
+            return {}
 
 # Global detection engine instance
 detection_engine = DetectionEngine()

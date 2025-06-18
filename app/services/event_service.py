@@ -1,3 +1,4 @@
+# app/services/event_service.py - COMPLETE FINAL VERSION
 """
 Event Processing Service
 Business logic for event collection, validation, and processing
@@ -7,14 +8,15 @@ import logging
 from datetime import datetime, timedelta
 from typing import Optional, Dict, List, Tuple, Any
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 from ..models.event import Event
 from ..models.agent import Agent
+from ..models.alert import Alert  # Added missing import
 from ..schemas.event import (
     EventSubmissionRequest, EventSubmissionResponse,
     EventBatchRequest, EventBatchResponse
 )
-from ..services.detection_engine import detection_engine
 from ..config import config
 
 logger = logging.getLogger('event_processing')
@@ -63,8 +65,11 @@ class EventService:
             threat_detected = False
             risk_score = 0
             
-            if self.detection_config['rules_enabled']:
+            if self.detection_config.get('rules_enabled', False):
                 try:
+                    # Import detection engine here to avoid circular imports
+                    from ..services.detection_engine import detection_engine
+                    
                     detection_results = detection_engine.analyze_event(session, event)
                     if detection_results:
                         threat_detected = detection_results.get('threat_detected', False)
@@ -128,6 +133,15 @@ class EventService:
             alerts_generated = []
             errors = []
             
+            # Import detection engine if needed
+            detection_engine = None
+            if self.detection_config.get('rules_enabled', False):
+                try:
+                    from ..services.detection_engine import detection_engine as de
+                    detection_engine = de
+                except ImportError as e:
+                    logger.warning(f"Could not import detection engine: {e}")
+            
             for event_data in batch_data.events:
                 try:
                     # Ensure agent_id matches batch agent_id
@@ -144,8 +158,8 @@ class EventService:
                     session.add(event)
                     session.flush()
                     
-                    # Run detection if enabled
-                    if self.detection_config['rules_enabled']:
+                    # Run detection if enabled and available
+                    if detection_engine:
                         try:
                             detection_results = detection_engine.analyze_event(session, event)
                             if detection_results and detection_results.get('alerts_generated'):
@@ -277,8 +291,6 @@ class EventService:
     def get_events_timeline(self, session: Session, hours: int = 24) -> List[Dict]:
         """Get events timeline for dashboard"""
         try:
-            from sqlalchemy import func
-            
             cutoff_time = datetime.now() - timedelta(hours=hours)
             
             timeline_data = session.query(
@@ -422,7 +434,7 @@ class EventService:
         return suspicious_patterns
     
     def cleanup_old_events(self, session: Session, retention_days: int = 30) -> Tuple[int, str]:
-        """Clean up old events based on retention policy"""
+        """Clean up old events based on retention policy - FIXED VERSION"""
         try:
             cutoff_date = datetime.now() - timedelta(days=retention_days)
             
@@ -434,10 +446,21 @@ class EventService:
             if events_to_delete == 0:
                 return 0, "No events to clean up"
             
-            # Delete old events
+            # Delete old events (avoid deleting events linked to active alerts)
+            # Import Alert here to avoid circular import
+            from ..models.alert import Alert
+            
+            # Get event IDs that are linked to active alerts
+            active_alert_event_ids = session.query(Alert.EventID).filter(
+                Alert.Status.in_(['Open', 'Investigating']),
+                Alert.EventID.isnot(None)
+            ).subquery()
+            
+            # Delete events not linked to active alerts
             deleted_count = session.query(Event).filter(
-                Event.CreatedAt < cutoff_date
-            ).delete()
+                Event.CreatedAt < cutoff_date,
+                ~Event.EventID.in_(active_alert_event_ids)
+            ).delete(synchronize_session=False)
             
             session.commit()
             
@@ -456,6 +479,118 @@ class EventService:
             return Event.get_events_summary(session, hours)
         except Exception as e:
             logger.error(f"Failed to get event statistics: {str(e)}")
+            return {}
+    
+    def process_event_correlation(self, session: Session, event: Event) -> Dict:
+        """Process event correlation with other events"""
+        try:
+            correlation_results = {
+                'correlated_events': [],
+                'correlation_score': 0,
+                'patterns_detected': []
+            }
+            
+            # Look for similar events in time window
+            time_window = timedelta(minutes=5)
+            start_time = event.EventTimestamp - time_window
+            end_time = event.EventTimestamp + time_window
+            
+            similar_events = session.query(Event).filter(
+                Event.EventID != event.EventID,
+                Event.AgentID == event.AgentID,
+                Event.EventTimestamp.between(start_time, end_time)
+            ).all()
+            
+            # Correlation logic
+            for similar_event in similar_events:
+                correlation_score = self._calculate_event_correlation(event, similar_event)
+                if correlation_score > 0.5:  # Threshold for correlation
+                    correlation_results['correlated_events'].append({
+                        'event_id': similar_event.EventID,
+                        'correlation_score': correlation_score,
+                        'event_type': similar_event.EventType
+                    })
+            
+            correlation_results['correlation_score'] = len(correlation_results['correlated_events'])
+            
+            return correlation_results
+            
+        except Exception as e:
+            logger.error(f"Event correlation failed: {str(e)}")
+            return {}
+    
+    def _calculate_event_correlation(self, event1: Event, event2: Event) -> float:
+        """Calculate correlation score between two events"""
+        try:
+            score = 0.0
+            
+            # Same event type
+            if event1.EventType == event2.EventType:
+                score += 0.3
+            
+            # Same process name
+            if event1.ProcessName and event2.ProcessName:
+                if event1.ProcessName.lower() == event2.ProcessName.lower():
+                    score += 0.4
+            
+            # Similar file paths
+            if event1.FilePath and event2.FilePath:
+                if event1.FilePath.lower() in event2.FilePath.lower() or event2.FilePath.lower() in event1.FilePath.lower():
+                    score += 0.3
+            
+            # Same network destination
+            if event1.DestinationIP and event2.DestinationIP:
+                if event1.DestinationIP == event2.DestinationIP:
+                    score += 0.5
+            
+            return min(score, 1.0)  # Cap at 1.0
+            
+        except Exception as e:
+            logger.error(f"Correlation calculation failed: {str(e)}")
+            return 0.0
+    
+    def get_event_volume_stats(self, session: Session, hours: int = 24) -> Dict:
+        """Get event volume statistics"""
+        try:
+            cutoff_time = datetime.now() - timedelta(hours=hours)
+            
+            # Total events
+            total_events = session.query(Event).filter(Event.EventTimestamp >= cutoff_time).count()
+            
+            # Events per agent
+            events_per_agent = session.query(
+                Event.AgentID,
+                func.count(Event.EventID).label('event_count')
+            ).filter(
+                Event.EventTimestamp >= cutoff_time
+            ).group_by(Event.AgentID).all()
+            
+            # Events per hour
+            events_per_hour = session.query(
+                func.datepart('hour', Event.EventTimestamp).label('hour'),
+                func.count(Event.EventID).label('event_count')
+            ).filter(
+                Event.EventTimestamp >= cutoff_time
+            ).group_by(
+                func.datepart('hour', Event.EventTimestamp)
+            ).order_by('hour').all()
+            
+            return {
+                'total_events': total_events,
+                'events_per_hour': total_events / hours if hours > 0 else 0,
+                'peak_hour': max(events_per_hour, key=lambda x: x.event_count).hour if events_per_hour else None,
+                'agent_distribution': [
+                    {'agent_id': str(agent_id), 'event_count': count}
+                    for agent_id, count in events_per_agent
+                ],
+                'hourly_distribution': [
+                    {'hour': hour, 'event_count': count}
+                    for hour, count in events_per_hour
+                ]
+            }
+            
+        except Exception as e:
+            logger.error(f"Event volume stats failed: {str(e)}")
             return {}
 
 # Global service instance
