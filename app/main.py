@@ -1,4 +1,4 @@
-# app/main.py - EDR Server Main Application
+# app/main.py - EDR Server Main Application (Database Schema Compliant)
 """
 EDR System - Main FastAPI Application
 Agent Communication Server running on 192.168.20.85:5000
@@ -206,8 +206,7 @@ async def system_status():
                 "response_time_ms": db_status.get('response_time_ms', 0)
             },
             "performance": {
-                "database_response_ms": db_status.get('response_time_ms', 0),
-                "connection_pool": db_status.get('connection_pool', {})
+                "database_response_ms": db_status.get('response_time_ms', 0)
             },
             "configuration": {
                 "allowed_network": config['network']['allowed_agent_network'],

@@ -1,3 +1,4 @@
+# app/models/detection_rule.py - Complete Detection Rule Model (Database Schema Compliant)
 """
 Detection Rule Model - DetectionRules table mapping
 Represents detection rules for the EDR engine
@@ -5,8 +6,7 @@ Represents detection rules for the EDR engine
 
 from datetime import datetime
 from typing import Optional, Dict, List, Any
-from sqlalchemy import Column, String, DateTime, Integer, Boolean, Text, Numeric
-from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
+from sqlalchemy import Column, String, DateTime, Integer, Boolean, Text
 from sqlalchemy.sql import func
 import json
 
@@ -17,34 +17,34 @@ class DetectionRule(Base):
     
     __tablename__ = 'DetectionRules'
     
-    # Primary Key
+    # Primary Key - matches INT IDENTITY(1,1) PRIMARY KEY exactly
     RuleID = Column(Integer, primary_key=True)
     
-    # Rule Identification
+    # Rule Identification - matches database schema exactly
     RuleName = Column(String(100), nullable=False, unique=True)
     RuleType = Column(String(50), nullable=False)
     RuleCategory = Column(String(50))
     
-    # Rule Logic (JSON Format)
+    # Rule Logic (JSON Format) - matches NVARCHAR(MAX) NOT NULL
     RuleCondition = Column(Text, nullable=False)
     
-    # Alert Configuration
+    # Alert Configuration - matches database schema exactly
     AlertTitle = Column(String(255), nullable=False)
     AlertDescription = Column(Text)
     AlertSeverity = Column(String(20), nullable=False)
     AlertType = Column(String(100), nullable=False)
     
-    # MITRE ATT&CK Mapping
+    # MITRE ATT&CK Mapping - matches database schema exactly
     MitreTactic = Column(String(100))
     MitreTechnique = Column(String(100))
     
-    # Rule Metadata
+    # Rule Metadata - matches database schema exactly
     Platform = Column(String(50), default='All')
     Priority = Column(Integer, default=50)
     IsActive = Column(Boolean, default=True)
     TestMode = Column(Boolean, default=False)
     
-    # Metadata
+    # Metadata - matches DEFAULT GETDATE()
     CreatedAt = Column(DateTime, default=func.getdate())
     UpdatedAt = Column(DateTime, default=func.getdate(), onupdate=func.getdate())
     

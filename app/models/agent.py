@@ -1,4 +1,4 @@
-# app/models/agent.py - Complete Agent Model
+# app/models/agent.py - Complete Agent Model (Database Schema Compliant)
 """
 Agent Model - Agents table mapping
 Represents endpoint agents in the EDR system (Updated for simplified schema)
@@ -9,7 +9,6 @@ from typing import Optional, Dict, List
 from sqlalchemy import Column, String, DateTime, Boolean, Numeric, Integer, or_
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship
 from uuid import uuid4
 
 from ..database import Base
@@ -19,10 +18,10 @@ class Agent(Base):
     
     __tablename__ = 'Agents'
     
-    # Primary Key
+    # Primary Key - matches UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID()
     AgentID = Column(UNIQUEIDENTIFIER, primary_key=True, default=uuid4)
     
-    # Basic Information
+    # Basic Information - matches NOT NULL constraints
     HostName = Column(String(255), nullable=False, unique=True)
     IPAddress = Column(String(45), nullable=False)
     MACAddress = Column(String(17))
@@ -37,21 +36,21 @@ class Agent(Base):
     AgentVersion = Column(String(20), default='1.0.0')
     InstallPath = Column(String(500))
     
-    # Status & Health
+    # Status & Health - matches DEFAULT values exactly
     Status = Column(String(20), default='Active')
     LastHeartbeat = Column(DateTime, default=func.getdate())
     FirstSeen = Column(DateTime, default=func.getdate())
     
-    # Performance Metrics
+    # Performance Metrics - matches DECIMAL(5,2) DEFAULT 0.0
     CPUUsage = Column(Numeric(5, 2), default=0.0)
     MemoryUsage = Column(Numeric(5, 2), default=0.0)
     DiskUsage = Column(Numeric(5, 2), default=0.0)
     NetworkLatency = Column(Integer, default=0)
     
-    # Configuration
+    # Configuration - matches BIT DEFAULT 1
     MonitoringEnabled = Column(Boolean, default=True)
     
-    # Metadata
+    # Metadata - matches DEFAULT GETDATE()
     CreatedAt = Column(DateTime, default=func.getdate())
     UpdatedAt = Column(DateTime, default=func.getdate(), onupdate=func.getdate())
     

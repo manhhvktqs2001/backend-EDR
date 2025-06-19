@@ -1,3 +1,4 @@
+# app/models/event.py - Complete Event Model (Database Schema Compliant)
 """
 Event Model - Events table mapping
 Represents security events from endpoint agents
@@ -8,7 +9,6 @@ from typing import Optional, Dict, List, Any
 from sqlalchemy import Column, String, DateTime, Boolean, Integer, BigInteger, Text
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.sql import func
-from sqlalchemy.orm import relationship
 import json
 
 from ..database import Base
@@ -18,17 +18,17 @@ class Event(Base):
     
     __tablename__ = 'Events'
     
-    # Primary Key
+    # Primary Key - matches BIGINT IDENTITY(1,1) PRIMARY KEY exactly
     EventID = Column(BigInteger, primary_key=True)
     AgentID = Column(UNIQUEIDENTIFIER, nullable=False)
     
-    # Event Classification
+    # Event Classification - matches schema column names exactly
     EventType = Column(String(50), nullable=False)
     EventAction = Column(String(50), nullable=False)
     EventTimestamp = Column(DateTime, nullable=False)
     Severity = Column(String(20), default='Info')
     
-    # Process Events
+    # Process Events - matches database schema column names exactly
     ProcessID = Column(Integer)
     ProcessName = Column(String(255))
     ProcessPath = Column(String(500))
@@ -38,7 +38,7 @@ class Event(Base):
     ProcessUser = Column(String(100))
     ProcessHash = Column(String(128))
     
-    # File Events
+    # File Events - matches database schema column names exactly
     FilePath = Column(String(500))
     FileName = Column(String(255))
     FileSize = Column(BigInteger)
@@ -46,7 +46,7 @@ class Event(Base):
     FileExtension = Column(String(10))
     FileOperation = Column(String(20))
     
-    # Network Events
+    # Network Events - matches database schema column names exactly
     SourceIP = Column(String(45))
     DestinationIP = Column(String(45))
     SourcePort = Column(Integer)
@@ -54,26 +54,27 @@ class Event(Base):
     Protocol = Column(String(10))
     Direction = Column(String(10))
     
-    # Registry Events
+    # Registry Events - matches database schema column names exactly
     RegistryKey = Column(String(500))
     RegistryValueName = Column(String(255))
     RegistryValueData = Column(Text)
     RegistryOperation = Column(String(20))
     
-    # Authentication Events
+    # Authentication Events - matches database schema column names exactly
     LoginUser = Column(String(100))
     LoginType = Column(String(50))
     LoginResult = Column(String(20))
     
-    # Detection Status
+    # Detection Status - matches database schema exactly
     ThreatLevel = Column(String(20), default='None')
     RiskScore = Column(Integer, default=0)
     Analyzed = Column(Boolean, default=False)
     AnalyzedAt = Column(DateTime)
     
-    # Raw Data
+    # Raw Data - matches database schema
     RawEventData = Column(Text)
     
+    # Metadata - matches DEFAULT GETDATE()
     CreatedAt = Column(DateTime, default=func.getdate())
     
     def __repr__(self):

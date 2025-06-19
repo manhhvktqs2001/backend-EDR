@@ -1,7 +1,7 @@
-# run_server.py - EDR Server Launcher (Updated)
+# run_server.py - EDR Server Launcher (Fixed and Complete)
 """
 EDR Agent Communication Server Launcher
-Updated for simplified database schema (no authentication)
+Database schema compliant with comprehensive error handling
 """
 
 import os
@@ -15,44 +15,27 @@ from pathlib import Path
 project_root = Path(__file__).resolve().parent
 sys.path.insert(0, str(project_root))
 
-# Import configuration after path setup
-try:
-    from app.config import config, get_database_url, get_edr_info
-    from app.database import init_database
-except ImportError as e:
-    print(f"❌ Import error: {e}")
-    print("Make sure all required files exist and app structure is correct")
-    sys.exit(1)
-
 def setup_logging():
-    """Setup logging configuration for EDR system"""
-    try:
-        # Configure logging using the config
-        logging.config.dictConfig(config['logging'])
-        logger = logging.getLogger(__name__)
-        logger.info("✅ Logging configured successfully")
-        return logger
-    except Exception as e:
-        # Fallback to basic logging if config fails
-        logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            handlers=[
-                logging.StreamHandler(sys.stdout),
-                logging.FileHandler('edr_server.log', encoding='utf-8')
-            ]
-        )
-        logger = logging.getLogger(__name__)
-        logger.error(f"⚠️ Failed to configure advanced logging: {e}")
-        logger.info("📝 Using fallback logging configuration")
-        return logger
+    """Setup basic logging for startup"""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler('edr_server.log', encoding='utf-8')
+        ]
+    )
+    return logging.getLogger(__name__)
 
 def print_edr_banner(logger):
     """Print EDR server banner with configuration info"""
-    edr_info = get_edr_info()
-    server_config = config['server']
-    
-    banner = f"""
+    try:
+        from app.config import config, get_edr_info
+        
+        edr_info = get_edr_info()
+        server_config = config['server']
+        
+        banner = f"""
 ════════════════════════════════════════════════════════════════
 🛡️  EDR AGENT COMMUNICATION SERVER - {edr_info['version']}
 ════════════════════════════════════════════════════════════════
@@ -87,7 +70,6 @@ def print_edr_banner(logger):
 📡 API Endpoints:
    • Health Check: http://{server_config['bind_host']}:{server_config['bind_port']}/health
    • API Documentation: http://{server_config['bind_host']}:{server_config['bind_port']}/docs
-   • Agent Discovery: http://{server_config['bind_host']}:{server_config['bind_port']}/api/discover
    • Agent Registration: POST /api/v1/agents/register
    • Agent Heartbeat: POST /api/v1/agents/heartbeat
    • Event Submission: POST /api/v1/events/submit
@@ -95,54 +77,45 @@ def print_edr_banner(logger):
 
 🎯 Features Enabled:
 {chr(10).join([f'   • {feature.replace("_", " ").title()}: ✅' for feature, enabled in edr_info['features_enabled'].items() if enabled])}
-
-📊 Monitoring:
-   • Log Files: {config['paths']['logs']}
-   • Performance Pool: {config['performance']['database_pool_size']} connections
-   • Cache TTL: {config['performance']['cache_ttl']}s
 ════════════════════════════════════════════════════════════════
 """
-    
-    # Print to console
-    print(banner)
-    
-    # Log the startup info
-    logger.info("🛡️ EDR Agent Communication Server Starting Up")
-    logger.info(f"🌐 Binding to: {server_config['bind_host']}:{server_config['bind_port']}")
-    logger.info(f"🗄️ Database: {config['database']['server']}/{config['database']['database']}")
-    logger.info(f"🛡️ Detection Engine: {'Enabled' if config['detection']['rules_enabled'] else 'Disabled'}")
-    logger.info(f"📊 Threat Intelligence: {'Enabled' if config['detection']['threat_intel_enabled'] else 'Disabled'}")
+        
+        print(banner)
+        logger.info("🛡️ EDR Agent Communication Server Starting Up")
+        
+    except Exception as e:
+        print(f"❌ Error printing banner: {e}")
 
 def check_environment(logger):
     """Check environment and dependencies"""
     logger.info("🔍 Performing environment checks...")
     
-    # Check required directories
-    for path_name, path in config['paths'].items():
-        if not path.exists():
-            logger.info(f"📁 Creating directory: {path}")
-            path.mkdir(parents=True, exist_ok=True)
-        else:
-            logger.debug(f"📁 Directory exists: {path}")
-    
-    # Check database configuration
-    logger.info("🗄️ Testing database connection...")
     try:
+        from app.config import config
+        from app.database import init_database
+        
+        # Check required directories
+        for path_name, path in config['paths'].items():
+            if not path.exists():
+                logger.info(f"📁 Creating directory: {path}")
+                path.mkdir(parents=True, exist_ok=True)
+        
+        # Check database configuration
+        logger.info("🗄️ Testing database connection...")
         if not init_database():
             logger.error("❌ Database initialization failed")
             return False
+        
         logger.info("✅ Database connection successful")
-    except Exception as e:
-        logger.error(f"❌ Database error: {e}")
+        logger.info("✅ Environment check completed successfully")
+        return True
+        
+    except ImportError as e:
+        logger.error(f"❌ Missing required modules: {e}")
         return False
-    
-    # Check feature flags
-    logger.info("🎯 Checking feature configuration...")
-    enabled_features = [k for k, v in config['features'].items() if v]
-    logger.info(f"✅ {len(enabled_features)} features enabled: {', '.join(enabled_features[:5])}{'...' if len(enabled_features) > 5 else ''}")
-    
-    logger.info("✅ Environment check completed successfully")
-    return True
+    except Exception as e:
+        logger.error(f"❌ Environment check failed: {e}")
+        return False
 
 def get_database_info(logger):
     """Get and display database information"""
@@ -183,6 +156,68 @@ def get_database_info(logger):
     
     return True
 
+def test_database_schema():
+    """Test database schema compliance"""
+    try:
+        from app.database import db_manager
+        from app.models.agent import Agent
+        from app.models.event import Event
+        from app.models.alert import Alert
+        from datetime import datetime
+        
+        logger = logging.getLogger(__name__)
+        logger.info("🧪 Testing database schema compliance...")
+        
+        with db_manager.get_db_session() as session:
+            # Test agent operations
+            test_agent = Agent.create_agent(
+                hostname="TEST-SCHEMA-001",
+                ip_address="192.168.20.200",
+                operating_system="Windows 11 Pro"
+            )
+            session.add(test_agent)
+            session.commit()
+            logger.info(f"✅ Agent test successful: {test_agent.AgentID}")
+            
+            # Test event operations
+            test_event = Event.create_event(
+                agent_id=str(test_agent.AgentID),
+                event_type="Process",
+                event_action="Create",
+                event_timestamp=datetime.now(),
+                ProcessName="test.exe",
+                ProcessID=9999
+            )
+            session.add(test_event)
+            session.commit()
+            logger.info(f"✅ Event test successful: {test_event.EventID}")
+            
+            # Test alert operations
+            test_alert = Alert.create_alert(
+                agent_id=str(test_agent.AgentID),
+                alert_type="Test Alert",
+                title="Schema Test Alert",
+                severity="Low",
+                detection_method="Test",
+                EventID=test_event.EventID
+            )
+            session.add(test_alert)
+            session.commit()
+            logger.info(f"✅ Alert test successful: {test_alert.AlertID}")
+            
+            # Cleanup test data
+            session.delete(test_alert)
+            session.delete(test_event)
+            session.delete(test_agent)
+            session.commit()
+            
+            logger.info("✅ Database schema test completed successfully")
+            return True
+            
+    except Exception as e:
+        logger.error(f"❌ Database schema test failed: {e}")
+        return False
+
 def main():
     """Main server entry point"""
     try:
@@ -202,6 +237,14 @@ def main():
         if not get_database_info(logger):
             logger.error("❌ Database check failed - cannot start server")
             sys.exit(1)
+        
+        # Test database schema
+        if not test_database_schema():
+            logger.error("❌ Database schema test failed - cannot start server")
+            sys.exit(1)
+        
+        # Import configuration after checks
+        from app.config import config
         
         # Final startup checks
         server_config = config['server']
@@ -240,12 +283,8 @@ def main():
         print("   • app/main.py")
         print("   • app/config.py")
         print("   • app/database.py")
-        print("   • app/api/__init__.py")
-        print("   • app/api/v1/__init__.py")
-        print("   • app/models/__init__.py")
-        print("   • app/schemas/__init__.py")
-        print("   • app/services/__init__.py")
-        print("   • app/utils/__init__.py")
+        print("   • All model files in app/models/")
+        print("   • All API files in app/api/v1/")
         sys.exit(1)
     except Exception as e:
         print(f"❌ Server startup failed: {e}")

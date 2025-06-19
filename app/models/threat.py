@@ -1,3 +1,4 @@
+# app/models/threat.py - Complete Threat Model (Database Schema Compliant)
 """
 Threat Model - Threats table mapping
 Represents threat intelligence indicators
@@ -15,10 +16,10 @@ class Threat(Base):
     
     __tablename__ = 'Threats'
     
-    # Primary Key
+    # Primary Key - matches INT IDENTITY(1,1) PRIMARY KEY exactly
     ThreatID = Column(Integer, primary_key=True)
     
-    # Basic Information
+    # Basic Information - matches database schema column names exactly
     ThreatName = Column(String(255), nullable=False)
     ThreatType = Column(String(50), nullable=False)
     ThreatValue = Column(Text, nullable=False)
@@ -26,19 +27,19 @@ class Threat(Base):
     Severity = Column(String(20), nullable=False, default='Medium')
     Description = Column(Text)
     
-    # MITRE ATT&CK Framework
+    # MITRE ATT&CK Framework - matches database schema exactly
     MitreTactic = Column(String(100))
     MitreTechnique = Column(String(100))
     
-    # Source Information
+    # Source Information - matches database schema exactly
     Platform = Column(String(50), default='All')
     ThreatSource = Column(String(100))
     Confidence = Column(Numeric(3, 2), default=0.5)
     
-    # Status
+    # Status - matches BIT DEFAULT 1
     IsActive = Column(Boolean, default=True)
     
-    # Metadata
+    # Metadata - matches DEFAULT GETDATE()
     CreatedAt = Column(DateTime, default=func.getdate())
     UpdatedAt = Column(DateTime, default=func.getdate(), onupdate=func.getdate())
     
