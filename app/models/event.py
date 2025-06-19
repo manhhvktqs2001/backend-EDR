@@ -1,7 +1,7 @@
-# app/models/event.py - Complete Event Model (Database Schema Compliant)
+# app/models/event.py - FIXED VERSION (loại bỏ OUTPUT clause)
 """
 Event Model - Events table mapping
-Represents security events from endpoint agents
+Represents security events from endpoint agents (Fixed for trigger compatibility)
 """
 
 from datetime import datetime, timedelta
@@ -74,7 +74,7 @@ class Event(Base):
     # Raw Data - matches database schema
     RawEventData = Column(Text)
     
-    # Metadata - matches DEFAULT GETDATE()
+    # Metadata - matches DEFAULT GETDATE() - REMOVED OUTPUT CLAUSE
     CreatedAt = Column(DateTime, default=func.getdate())
     
     def __repr__(self):
@@ -212,7 +212,7 @@ class Event(Base):
         self.ThreatLevel = threat_level
         self.RiskScore = risk_score
         self.Analyzed = True
-        self.AnalyzedAt = func.getdate()
+        self.AnalyzedAt = datetime.now()  # Changed from func.getdate() to avoid trigger issues
     
     def set_raw_data(self, raw_data: Dict):
         """Set raw event data as JSON"""
@@ -233,7 +233,7 @@ class Event(Base):
     @classmethod
     def create_event(cls, agent_id: str, event_type: str, event_action: str, 
                     event_timestamp: datetime, **kwargs):
-        """Create new event instance with validation"""
+        """Create new event instance with validation - FIXED for trigger compatibility"""
         # Validate required fields
         if not agent_id:
             raise ValueError("Agent ID is required")
@@ -249,6 +249,7 @@ class Event(Base):
         if event_type not in valid_types:
             raise ValueError(f"Invalid event type: {event_type}. Must be one of {valid_types}")
         
+        # Create event without OUTPUT clause dependencies
         event = cls(
             AgentID=agent_id,
             EventType=event_type,
