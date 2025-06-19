@@ -1,7 +1,7 @@
-# app/config.py - EDR Server Configuration (Updated)
+# app/config.py - EDR Server Configuration (FIXED for Network Database)
 """
 EDR Server Configuration
-Complete configuration for Agent Communication Server (No Authentication Version)
+Complete configuration for Agent Communication Server - FIXED for network database access
 """
 
 import os
@@ -12,25 +12,30 @@ from typing import List
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Database Configuration - EDR_System database (simplified)
+# Database Configuration - FIXED for network access
 DATABASE_CONFIG = {
-    'server': os.getenv('DB_SERVER', 'MANH'),
+    'server': os.getenv('DB_SERVER', '192.168.20.85,1433'),  # FIXED: Include port
     'database': os.getenv('DB_DATABASE', 'EDR_System'),
     'driver': os.getenv('DB_DRIVER', 'ODBC Driver 17 for SQL Server'),
     'timeout': int(os.getenv('DB_TIMEOUT', '30')),
     'trusted_connection': os.getenv('DB_TRUSTED_CONNECTION', 'true').lower() == 'true',
-    'autocommit': True
+    'autocommit': True,
+    # Network connection optimizations
+    'login_timeout': 30,
+    'connection_timeout': 30,
+    'encrypt': False,  # For internal network
+    'trust_server_certificate': True  # For internal network
 }
 
-# Server Configuration - Agent Communication Server
+# Server Configuration - Production ready
 SERVER_CONFIG = {
     'bind_host': os.getenv('SERVER_HOST', '192.168.20.85'),
     'bind_port': int(os.getenv('SERVER_PORT', '5000')),
-    'debug': os.getenv('SERVER_DEBUG', 'true').lower() == 'true',
-    'reload': os.getenv('SERVER_RELOAD', 'true').lower() == 'true',
-    'workers': int(os.getenv('SERVER_WORKERS', '1')),
+    'debug': os.getenv('SERVER_DEBUG', 'false').lower() == 'true',
+    'reload': os.getenv('SERVER_RELOAD', 'false').lower() == 'true',
+    'workers': int(os.getenv('SERVER_WORKERS', '4')),  # FIXED: More workers for production
     'title': 'EDR Agent Communication Server',
-    'description': 'Agent Registration, Event Collection & Detection Engine (No Auth Version)',
+    'description': 'Agent Registration, Event Collection & Detection Engine (Production)',
     'version': '2.0.0'
 }
 
@@ -86,7 +91,7 @@ DETECTION_CONFIG = {
 # Alert Configuration (Simplified)
 ALERT_CONFIG = {
     'default_severity': os.getenv('DEFAULT_SEVERITY', 'Medium'),
-    'auto_escalation_enabled': os.getenv('AUTO_ESCALATION_ENABLED', 'false').lower() == 'true',  # Disabled without users
+    'auto_escalation_enabled': os.getenv('AUTO_ESCALATION_ENABLED', 'false').lower() == 'true',
     'escalation_threshold_minutes': int(os.getenv('ESCALATION_THRESHOLD_MINUTES', '60')),
     'alert_retention_days': int(os.getenv('ALERT_RETENTION_DAYS', '90')),
     'max_alerts_per_hour': int(os.getenv('MAX_ALERTS_PER_HOUR', '100')),
@@ -96,18 +101,18 @@ ALERT_CONFIG = {
     'auto_resolve_days': 30
 }
 
-# Performance Configuration
+# Performance Configuration - OPTIMIZED for production
 PERFORMANCE_CONFIG = {
-    'database_pool_size': int(os.getenv('DATABASE_POOL_SIZE', '10')),
-    'database_max_overflow': int(os.getenv('DATABASE_MAX_OVERFLOW', '20')),
+    'database_pool_size': int(os.getenv('DATABASE_POOL_SIZE', '20')),  # FIXED: Increased
+    'database_max_overflow': int(os.getenv('DATABASE_MAX_OVERFLOW', '30')),  # FIXED: Increased
     'database_pool_timeout': int(os.getenv('DATABASE_POOL_TIMEOUT', '30')),
     'cache_enabled': os.getenv('CACHE_ENABLED', 'true').lower() == 'true',
     'cache_ttl': int(os.getenv('CACHE_TTL', '300')),
     'batch_processing_enabled': os.getenv('BATCH_PROCESSING_ENABLED', 'true').lower() == 'true',
     'batch_processing_interval': int(os.getenv('BATCH_PROCESSING_INTERVAL', '5')),
     'background_tasks_enabled': True,
-    'memory_limit_mb': 2048,
-    'max_concurrent_requests': 100
+    'memory_limit_mb': 4096,  # FIXED: Increased for production
+    'max_concurrent_requests': 200  # FIXED: Increased
 }
 
 # Paths Configuration
@@ -129,7 +134,7 @@ for path in PATHS.values():
 # Logging configuration with Unicode support
 def get_logging_config():
     """Get logging configuration for EDR system"""
-    log_level = os.getenv('LOG_LEVEL', 'INFO')
+    log_level = os.getenv('LOG_LEVEL', 'INFO')  # FIXED: INFO for production
     
     # Check if running on Windows
     is_windows = sys.platform.startswith('win')
@@ -161,7 +166,7 @@ def get_logging_config():
             },
             'file_main': {
                 'class': 'logging.handlers.RotatingFileHandler',
-                'level': 'DEBUG',
+                'level': 'INFO',  # FIXED: INFO for production
                 'formatter': 'detailed',
                 'filename': str(PATHS['logs'] / 'edr_server.log'),
                 'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),
@@ -208,7 +213,7 @@ def get_logging_config():
         'loggers': {
             '': {  # Root logger
                 'handlers': ['console', 'file_main'],
-                'level': 'DEBUG',
+                'level': 'INFO',  # FIXED: INFO for production
                 'propagate': False,
             },
             'uvicorn': {
@@ -242,7 +247,7 @@ def get_logging_config():
 # Environment Configuration
 def get_environment_config():
     """Get configuration based on environment"""
-    env = os.getenv('EDR_ENV', 'development')
+    env = os.getenv('EDR_ENV', 'production')  # FIXED: Default to production
     
     if env == 'production':
         # Production settings
@@ -289,9 +294,9 @@ FEATURES = {
 
 # EDR System Specific Configuration
 EDR_CONFIG = {
-    'system_name': 'EDR Security Platform (No Auth)',
+    'system_name': 'EDR Security Platform (Production)',
     'system_version': '2.0.0',
-    'deployment_type': 'simplified',
+    'deployment_type': 'production',
     'max_agents_per_network': 1000,
     'event_retention_days': 365,
     'alert_retention_days': 90,
@@ -326,15 +331,29 @@ def get_config():
 # Global config instance
 config = get_config()
 
-# Helper functions
+# Helper functions - FIXED for network database
 def get_database_url():
-    """Get database connection URL for SQL Server"""
+    """Get database connection URL for SQL Server with network support"""
     db_config = DATABASE_CONFIG
-    return (
-        f"mssql+pyodbc://@{db_config['server']}/{db_config['database']}?"
-        f"driver={db_config['driver'].replace(' ', '+')}&"
-        f"trusted_connection=yes&autocommit=true"
-    )
+    
+    # Handle server with port (already included in server config)
+    server = db_config['server']
+    
+    # Enhanced connection parameters for network access
+    connection_params = [
+        f"driver={db_config['driver'].replace(' ', '+')}", 
+        "trusted_connection=yes",
+        "autocommit=true",
+        f"timeout={db_config['timeout']}",
+        f"login_timeout={db_config['login_timeout']}",
+        f"connection_timeout={db_config['connection_timeout']}",
+        "encrypt=no",  # For internal network
+        "trustservercertificate=yes"  # For internal network
+    ]
+    
+    connection_string = "&".join(connection_params)
+    
+    return f"mssql+pyodbc://@{server}/{db_config['database']}?{connection_string}"
 
 def is_development():
     """Check if running in development mode"""

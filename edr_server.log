@@ -1927,3 +1927,2093 @@ WHERE [Agents].[HostName] LIKE ?
 2025-06-19 19:54:16,938 - __main__ - INFO -    • Check /docs for API documentation once server starts
 2025-06-19 19:54:16,938 - __main__ - INFO -    • Check /health for system status
 2025-06-19 19:54:16,938 - __main__ - INFO - 🚀 Starting EDR Agent Communication Server...
+2025-06-19 20:06:02,014 - app.database - INFO - 🔄 Shutting down database connections...
+2025-06-19 20:06:02,016 - app.database - INFO - 🧹 Database engine disposed successfully
+2025-06-19 20:06:02,017 - app.database - INFO - 🧹 Database cleanup completed
+2025-06-19 20:06:02,017 - app.database - INFO - ✅ Database shutdown completed
+2025-06-19 20:06:04,812 - __main__ - INFO - 🚀 EDR Agent Communication Server - Network Production Startup
+2025-06-19 20:06:04,815 - __main__ - INFO - 🛡️ EDR Agent Communication Server Starting Up
+2025-06-19 20:06:04,816 - __main__ - INFO - 🔍 Performing environment checks...
+2025-06-19 20:06:04,816 - __main__ - INFO - 🌐 Testing network connectivity to SQL Server: MANH
+2025-06-19 20:06:06,865 - __main__ - ERROR - ❌ Cannot connect to SQL Server at MANH:1433
+2025-06-19 20:06:06,865 - __main__ - ERROR - 💡 Possible issues:
+2025-06-19 20:06:06,866 - __main__ - ERROR -    • SQL Server is not running
+2025-06-19 20:06:06,866 - __main__ - ERROR -    • Firewall is blocking the connection
+2025-06-19 20:06:06,866 - __main__ - ERROR -    • Wrong server address or port
+2025-06-19 20:06:06,866 - __main__ - ERROR -    • Network connectivity issues
+2025-06-19 20:06:06,866 - __main__ - ERROR - ❌ Environment check failed - cannot start server
+2025-06-19 20:06:06,866 - __main__ - ERROR - 💡 Please check:
+2025-06-19 20:06:06,867 - __main__ - ERROR -    • SQL Server is running and accessible
+2025-06-19 20:06:06,867 - __main__ - ERROR -    • Network connectivity to database server
+2025-06-19 20:06:06,867 - __main__ - ERROR -    • Firewall settings
+2025-06-19 20:06:06,867 - __main__ - ERROR -    • Database exists and permissions are correct
+2025-06-19 20:09:52,063 - __main__ - INFO - 🚀 EDR Agent Communication Server - Network Production Startup
+2025-06-19 20:09:52,075 - __main__ - INFO - 🛡️ EDR Agent Communication Server Starting Up
+2025-06-19 20:09:52,075 - __main__ - INFO - 🔍 Performing environment checks...
+2025-06-19 20:09:52,075 - __main__ - INFO - 🌐 Testing network connectivity to SQL Server: MANH
+2025-06-19 20:09:54,103 - __main__ - ERROR - ❌ Cannot connect to SQL Server at MANH:1433
+2025-06-19 20:09:54,103 - __main__ - ERROR - 💡 Possible issues:
+2025-06-19 20:09:54,104 - __main__ - ERROR -    • SQL Server is not running
+2025-06-19 20:09:54,104 - __main__ - ERROR -    • Firewall is blocking the connection
+2025-06-19 20:09:54,104 - __main__ - ERROR -    • Wrong server address or port
+2025-06-19 20:09:54,104 - __main__ - ERROR -    • Network connectivity issues
+2025-06-19 20:09:54,105 - __main__ - ERROR - ❌ Environment check failed - cannot start server
+2025-06-19 20:09:54,105 - __main__ - ERROR - 💡 Please check:
+2025-06-19 20:09:54,105 - __main__ - ERROR -    • SQL Server is running and accessible
+2025-06-19 20:09:54,105 - __main__ - ERROR -    • Network connectivity to database server
+2025-06-19 20:09:54,105 - __main__ - ERROR -    • Firewall settings
+2025-06-19 20:09:54,105 - __main__ - ERROR -    • Database exists and permissions are correct
+2025-06-19 20:10:01,214 - __main__ - INFO - 🚀 EDR Agent Communication Server - Network Production Startup
+2025-06-19 20:10:01,226 - __main__ - INFO - 🛡️ EDR Agent Communication Server Starting Up
+2025-06-19 20:10:01,226 - __main__ - INFO - 🔍 Performing environment checks...
+2025-06-19 20:10:01,227 - __main__ - INFO - 🌐 Testing network connectivity to SQL Server: MANH
+2025-06-19 20:10:03,292 - __main__ - ERROR - ❌ Cannot connect to SQL Server at MANH:1433
+2025-06-19 20:10:03,293 - __main__ - ERROR - 💡 Possible issues:
+2025-06-19 20:10:03,293 - __main__ - ERROR -    • SQL Server is not running
+2025-06-19 20:10:03,293 - __main__ - ERROR -    • Firewall is blocking the connection
+2025-06-19 20:10:03,293 - __main__ - ERROR -    • Wrong server address or port
+2025-06-19 20:10:03,294 - __main__ - ERROR -    • Network connectivity issues
+2025-06-19 20:10:03,294 - __main__ - ERROR - ❌ Environment check failed - cannot start server
+2025-06-19 20:10:03,294 - __main__ - ERROR - 💡 Please check:
+2025-06-19 20:10:03,294 - __main__ - ERROR -    • SQL Server is running and accessible
+2025-06-19 20:10:03,294 - __main__ - ERROR -    • Network connectivity to database server
+2025-06-19 20:10:03,294 - __main__ - ERROR -    • Firewall settings
+2025-06-19 20:10:03,294 - __main__ - ERROR -    • Database exists and permissions are correct
+2025-06-19 20:10:46,165 - __main__ - INFO - 🚀 EDR Agent Communication Server - Startup Initiated
+2025-06-19 20:10:46,169 - __main__ - INFO - 🛡️ EDR Agent Communication Server Starting Up
+2025-06-19 20:10:46,169 - __main__ - INFO - 🔍 Performing environment checks...
+2025-06-19 20:10:46,414 - app.database - INFO - 🔗 Initializing database connection to: MANH/EDR_System
+2025-06-19 20:10:46,429 - app.database - INFO - ✅ Database engine initialized successfully
+2025-06-19 20:10:46,429 - __main__ - INFO - 🗄️ Testing database connection...
+2025-06-19 20:10:46,429 - app.database - INFO - 🔄 Initializing EDR database connection...
+2025-06-19 20:10:46,488 - sqlalchemy.engine.Engine - INFO - SELECT CAST(SERVERPROPERTY('ProductVersion') AS VARCHAR)
+2025-06-19 20:10:46,488 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-06-19 20:10:46,489 - sqlalchemy.engine.Engine - INFO - SELECT schema_name()
+2025-06-19 20:10:46,490 - sqlalchemy.engine.Engine - INFO - [generated in 0.00032s] ()
+2025-06-19 20:10:46,500 - sqlalchemy.engine.Engine - INFO - SELECT CAST('test max support' AS NVARCHAR(max))
+2025-06-19 20:10:46,500 - sqlalchemy.engine.Engine - INFO - [generated in 0.00043s] ()
+2025-06-19 20:10:46,501 - sqlalchemy.engine.Engine - INFO - SELECT 1 FROM fn_listextendedproperty(default, default, default, default, default, default, default)
+2025-06-19 20:10:46,501 - sqlalchemy.engine.Engine - INFO - [generated in 0.00037s] ()
+2025-06-19 20:10:46,544 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,544 - sqlalchemy.engine.Engine - INFO - 
+                        SELECT 
+                            1 as test, 
+                            GETDATE() as server_time,
+                            @@VERSION as version,
+                            @@SERVERNAME as server_name,
+                            DB_NAME() as database_name
+                    
+2025-06-19 20:10:46,545 - sqlalchemy.engine.Engine - INFO - [generated in 0.00082s] ()
+2025-06-19 20:10:46,545 - app.database - INFO - ✅ Database connection test successful (attempt 1/5)
+2025-06-19 20:10:46,545 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-06-19 20:10:46,546 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,547 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,547 - sqlalchemy.engine.Engine - INFO - [generated in 0.00028s] ()
+2025-06-19 20:10:46,548 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT 
+                        @@VERSION as version,
+                        DB_NAME() as database_name,
+                        @@SERVERNAME as server_name,
+                        GETDATE() as current_datetime,
+                        @@SPID as session_id,
+                        HOST_NAME() as host_name,
+                        SUSER_NAME() as user_name,
+                        @@CONNECTIONS as total_connections,
+                        @@CPU_BUSY as cpu_busy,
+                        @@IDLE as idle_time
+                
+2025-06-19 20:10:46,548 - sqlalchemy.engine.Engine - INFO - [generated in 0.00035s] ()
+2025-06-19 20:10:46,554 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,555 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,555 - sqlalchemy.engine.Engine - INFO - [cached since 0.008103s ago] ()
+2025-06-19 20:10:46,555 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,556 - sqlalchemy.engine.Engine - INFO - [generated in 0.00030s] ('Agents', 'dbo')
+2025-06-19 20:10:46,566 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,567 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,568 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,568 - sqlalchemy.engine.Engine - INFO - [cached since 0.02111s ago] ()
+2025-06-19 20:10:46,568 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Agents]
+2025-06-19 20:10:46,569 - sqlalchemy.engine.Engine - INFO - [generated in 0.00026s] ()
+2025-06-19 20:10:46,570 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,571 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,572 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,572 - sqlalchemy.engine.Engine - INFO - [cached since 0.02522s ago] ()
+2025-06-19 20:10:46,572 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,573 - sqlalchemy.engine.Engine - INFO - [cached since 0.01731s ago] ('Events', 'dbo')
+2025-06-19 20:10:46,573 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,574 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,575 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,575 - sqlalchemy.engine.Engine - INFO - [cached since 0.02833s ago] ()
+2025-06-19 20:10:46,576 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Events]
+2025-06-19 20:10:46,576 - sqlalchemy.engine.Engine - INFO - [generated in 0.00025s] ()
+2025-06-19 20:10:46,579 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,580 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,580 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,581 - sqlalchemy.engine.Engine - INFO - [cached since 0.03397s ago] ()
+2025-06-19 20:10:46,581 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,582 - sqlalchemy.engine.Engine - INFO - [cached since 0.02613s ago] ('Alerts', 'dbo')
+2025-06-19 20:10:46,582 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,583 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,583 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,583 - sqlalchemy.engine.Engine - INFO - [cached since 0.0366s ago] ()
+2025-06-19 20:10:46,584 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Alerts]
+2025-06-19 20:10:46,584 - sqlalchemy.engine.Engine - INFO - [generated in 0.00018s] ()
+2025-06-19 20:10:46,586 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,587 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,587 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,587 - sqlalchemy.engine.Engine - INFO - [cached since 0.04047s ago] ()
+2025-06-19 20:10:46,588 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,588 - sqlalchemy.engine.Engine - INFO - [cached since 0.03242s ago] ('Threats', 'dbo')
+2025-06-19 20:10:46,596 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,598 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,598 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,598 - sqlalchemy.engine.Engine - INFO - [cached since 0.05176s ago] ()
+2025-06-19 20:10:46,599 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Threats]
+2025-06-19 20:10:46,599 - sqlalchemy.engine.Engine - INFO - [generated in 0.00023s] ()
+2025-06-19 20:10:46,601 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,601 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,602 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,602 - sqlalchemy.engine.Engine - INFO - [cached since 0.05522s ago] ()
+2025-06-19 20:10:46,603 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,603 - sqlalchemy.engine.Engine - INFO - [cached since 0.04744s ago] ('DetectionRules', 'dbo')
+2025-06-19 20:10:46,610 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,612 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,612 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,612 - sqlalchemy.engine.Engine - INFO - [cached since 0.06549s ago] ()
+2025-06-19 20:10:46,613 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [DetectionRules]
+2025-06-19 20:10:46,613 - sqlalchemy.engine.Engine - INFO - [generated in 0.00026s] ()
+2025-06-19 20:10:46,614 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,616 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,616 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,616 - sqlalchemy.engine.Engine - INFO - [cached since 0.06955s ago] ()
+2025-06-19 20:10:46,617 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,617 - sqlalchemy.engine.Engine - INFO - [cached since 0.06173s ago] ('SystemConfig', 'dbo')
+2025-06-19 20:10:46,626 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,627 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,627 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,627 - sqlalchemy.engine.Engine - INFO - [cached since 0.08072s ago] ()
+2025-06-19 20:10:46,628 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [SystemConfig]
+2025-06-19 20:10:46,628 - sqlalchemy.engine.Engine - INFO - [generated in 0.00024s] ()
+2025-06-19 20:10:46,629 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,630 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,630 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,631 - sqlalchemy.engine.Engine - INFO - [cached since 0.08385s ago] ()
+2025-06-19 20:10:46,631 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,631 - sqlalchemy.engine.Engine - INFO - [cached since 0.07581s ago] ('AgentConfigs', 'dbo')
+2025-06-19 20:10:46,632 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,632 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,633 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,633 - sqlalchemy.engine.Engine - INFO - [cached since 0.08599s ago] ()
+2025-06-19 20:10:46,633 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [AgentConfigs]
+2025-06-19 20:10:46,633 - sqlalchemy.engine.Engine - INFO - [generated in 0.00019s] ()
+2025-06-19 20:10:46,635 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,636 - sqlalchemy.engine.Engine - INFO - 
+                        SELECT 
+                            SUM(CAST(FILEPROPERTY(name, 'SpaceUsed') AS bigint) * 8192.) / 1024 / 1024 as used_space_mb,
+                            SUM(CAST(size AS bigint) * 8192.) / 1024 / 1024 as allocated_space_mb
+                        FROM sys.database_files 
+                        WHERE type_desc = 'ROWS'
+                    
+2025-06-19 20:10:46,636 - sqlalchemy.engine.Engine - INFO - [generated in 0.00050s] ()
+2025-06-19 20:10:46,643 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,644 - app.database - INFO - 🗄️ Connected to: EDR_System on Manh
+2025-06-19 20:10:46,644 - app.database - INFO - 📊 SQL Server Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64...
+2025-06-19 20:10:46,644 - app.database - INFO - 👤 Connection User: Manh\manhh
+2025-06-19 20:10:46,644 - app.database - INFO - 🖥️ Host: MANH
+2025-06-19 20:10:46,645 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,645 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,645 - sqlalchemy.engine.Engine - INFO - [cached since 0.09862s ago] ()
+2025-06-19 20:10:46,646 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,646 - sqlalchemy.engine.Engine - INFO - [cached since 0.09056s ago] ('Agents', 'dbo')
+2025-06-19 20:10:46,647 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,647 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,647 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,648 - sqlalchemy.engine.Engine - INFO - [cached since 0.1009s ago] ()
+2025-06-19 20:10:46,648 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,648 - sqlalchemy.engine.Engine - INFO - [cached since 0.09291s ago] ('Events', 'dbo')
+2025-06-19 20:10:46,649 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,649 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,650 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,650 - sqlalchemy.engine.Engine - INFO - [cached since 0.1032s ago] ()
+2025-06-19 20:10:46,650 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,651 - sqlalchemy.engine.Engine - INFO - [cached since 0.09508s ago] ('Alerts', 'dbo')
+2025-06-19 20:10:46,651 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,652 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,652 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,653 - sqlalchemy.engine.Engine - INFO - [cached since 0.1059s ago] ()
+2025-06-19 20:10:46,653 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,654 - sqlalchemy.engine.Engine - INFO - [cached since 0.09811s ago] ('Threats', 'dbo')
+2025-06-19 20:10:46,654 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,655 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,655 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,656 - sqlalchemy.engine.Engine - INFO - [cached since 0.109s ago] ()
+2025-06-19 20:10:46,656 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,657 - sqlalchemy.engine.Engine - INFO - [cached since 0.1015s ago] ('DetectionRules', 'dbo')
+2025-06-19 20:10:46,658 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,659 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,659 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,660 - sqlalchemy.engine.Engine - INFO - [cached since 0.113s ago] ()
+2025-06-19 20:10:46,660 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,661 - sqlalchemy.engine.Engine - INFO - [cached since 0.1052s ago] ('SystemConfig', 'dbo')
+2025-06-19 20:10:46,661 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,663 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,663 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,663 - sqlalchemy.engine.Engine - INFO - [cached since 0.1164s ago] ()
+2025-06-19 20:10:46,664 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,664 - sqlalchemy.engine.Engine - INFO - [cached since 0.1087s ago] ('AgentConfigs', 'dbo')
+2025-06-19 20:10:46,665 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,665 - app.database - INFO - ✅ All EDR tables verified: ['Agents', 'Events', 'Alerts', 'Threats', 'DetectionRules', 'SystemConfig', 'AgentConfigs']
+2025-06-19 20:10:46,666 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,666 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,666 - sqlalchemy.engine.Engine - INFO - [cached since 0.1193s ago] ()
+2025-06-19 20:10:46,666 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Agents]
+2025-06-19 20:10:46,667 - sqlalchemy.engine.Engine - INFO - [cached since 0.09819s ago] ()
+2025-06-19 20:10:46,667 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,667 - app.database - INFO - 📊 Agents: 0 records
+2025-06-19 20:10:46,668 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,668 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,668 - sqlalchemy.engine.Engine - INFO - [cached since 0.1218s ago] ()
+2025-06-19 20:10:46,669 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Events]
+2025-06-19 20:10:46,669 - sqlalchemy.engine.Engine - INFO - [cached since 0.09364s ago] ()
+2025-06-19 20:10:46,670 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,670 - app.database - INFO - 📊 Events: 0 records
+2025-06-19 20:10:46,671 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,671 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,671 - sqlalchemy.engine.Engine - INFO - [cached since 0.1247s ago] ()
+2025-06-19 20:10:46,673 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Alerts]
+2025-06-19 20:10:46,673 - sqlalchemy.engine.Engine - INFO - [cached since 0.08936s ago] ()
+2025-06-19 20:10:46,674 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,674 - app.database - INFO - 📊 Alerts: 0 records
+2025-06-19 20:10:46,675 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,675 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,675 - sqlalchemy.engine.Engine - INFO - [cached since 0.1287s ago] ()
+2025-06-19 20:10:46,676 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Threats]
+2025-06-19 20:10:46,676 - sqlalchemy.engine.Engine - INFO - [cached since 0.07703s ago] ()
+2025-06-19 20:10:46,677 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,677 - app.database - INFO - 📊 Threats: 12 records
+2025-06-19 20:10:46,678 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,678 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,678 - sqlalchemy.engine.Engine - INFO - [cached since 0.1313s ago] ()
+2025-06-19 20:10:46,678 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [DetectionRules]
+2025-06-19 20:10:46,679 - sqlalchemy.engine.Engine - INFO - [cached since 0.06596s ago] ()
+2025-06-19 20:10:46,679 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,680 - app.database - INFO - 📊 DetectionRules: 7 records
+2025-06-19 20:10:46,680 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,680 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,681 - sqlalchemy.engine.Engine - INFO - [cached since 0.1339s ago] ()
+2025-06-19 20:10:46,681 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [SystemConfig]
+2025-06-19 20:10:46,681 - sqlalchemy.engine.Engine - INFO - [cached since 0.05329s ago] ()
+2025-06-19 20:10:46,682 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,682 - app.database - INFO - 📊 SystemConfig: 10 records
+2025-06-19 20:10:46,682 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,683 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,683 - sqlalchemy.engine.Engine - INFO - [cached since 0.1362s ago] ()
+2025-06-19 20:10:46,683 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [AgentConfigs]
+2025-06-19 20:10:46,684 - sqlalchemy.engine.Engine - INFO - [cached since 0.0505s ago] ()
+2025-06-19 20:10:46,684 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,685 - app.database - INFO - 📊 AgentConfigs: 0 records
+2025-06-19 20:10:46,685 - app.database - INFO - 📈 Total EDR records: 29
+2025-06-19 20:10:46,685 - __main__ - INFO - ✅ Database connection successful
+2025-06-19 20:10:46,685 - __main__ - INFO - ✅ Environment check completed successfully
+2025-06-19 20:10:46,685 - __main__ - INFO - 📊 Retrieving database information...
+2025-06-19 20:10:46,686 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,686 - sqlalchemy.engine.Engine - INFO - 
+                        SELECT 
+                            1 as test, 
+                            GETDATE() as server_time,
+                            @@VERSION as version,
+                            @@SERVERNAME as server_name,
+                            DB_NAME() as database_name
+                    
+2025-06-19 20:10:46,686 - sqlalchemy.engine.Engine - INFO - [cached since 0.1426s ago] ()
+2025-06-19 20:10:46,687 - app.database - INFO - ✅ Database connection test successful (attempt 1/5)
+2025-06-19 20:10:46,688 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-06-19 20:10:46,688 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,689 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,689 - sqlalchemy.engine.Engine - INFO - [cached since 0.1425s ago] ()
+2025-06-19 20:10:46,690 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT 
+                        @@VERSION as version,
+                        DB_NAME() as database_name,
+                        @@SERVERNAME as server_name,
+                        GETDATE() as current_datetime,
+                        @@SPID as session_id,
+                        HOST_NAME() as host_name,
+                        SUSER_NAME() as user_name,
+                        @@CONNECTIONS as total_connections,
+                        @@CPU_BUSY as cpu_busy,
+                        @@IDLE as idle_time
+                
+2025-06-19 20:10:46,691 - sqlalchemy.engine.Engine - INFO - [cached since 0.1431s ago] ()
+2025-06-19 20:10:46,692 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,692 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,692 - sqlalchemy.engine.Engine - INFO - [cached since 0.1456s ago] ()
+2025-06-19 20:10:46,693 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,693 - sqlalchemy.engine.Engine - INFO - [cached since 0.1377s ago] ('Agents', 'dbo')
+2025-06-19 20:10:46,694 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,695 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,695 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,695 - sqlalchemy.engine.Engine - INFO - [cached since 0.1483s ago] ()
+2025-06-19 20:10:46,696 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Agents]
+2025-06-19 20:10:46,696 - sqlalchemy.engine.Engine - INFO - [cached since 0.1274s ago] ()
+2025-06-19 20:10:46,696 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,697 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,697 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,697 - sqlalchemy.engine.Engine - INFO - [cached since 0.1507s ago] ()
+2025-06-19 20:10:46,698 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,698 - sqlalchemy.engine.Engine - INFO - [cached since 0.1426s ago] ('Events', 'dbo')
+2025-06-19 20:10:46,698 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,699 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,699 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,699 - sqlalchemy.engine.Engine - INFO - [cached since 0.1528s ago] ()
+2025-06-19 20:10:46,700 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Events]
+2025-06-19 20:10:46,700 - sqlalchemy.engine.Engine - INFO - [cached since 0.1245s ago] ()
+2025-06-19 20:10:46,701 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,701 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,701 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,702 - sqlalchemy.engine.Engine - INFO - [cached since 0.155s ago] ()
+2025-06-19 20:10:46,702 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,703 - sqlalchemy.engine.Engine - INFO - [cached since 0.1471s ago] ('Alerts', 'dbo')
+2025-06-19 20:10:46,703 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,704 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,704 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,704 - sqlalchemy.engine.Engine - INFO - [cached since 0.1576s ago] ()
+2025-06-19 20:10:46,705 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Alerts]
+2025-06-19 20:10:46,705 - sqlalchemy.engine.Engine - INFO - [cached since 0.1213s ago] ()
+2025-06-19 20:10:46,706 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,706 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,707 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,707 - sqlalchemy.engine.Engine - INFO - [cached since 0.1605s ago] ()
+2025-06-19 20:10:46,708 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,708 - sqlalchemy.engine.Engine - INFO - [cached since 0.1526s ago] ('Threats', 'dbo')
+2025-06-19 20:10:46,709 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,709 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,710 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,710 - sqlalchemy.engine.Engine - INFO - [cached since 0.1631s ago] ()
+2025-06-19 20:10:46,710 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Threats]
+2025-06-19 20:10:46,711 - sqlalchemy.engine.Engine - INFO - [cached since 0.1114s ago] ()
+2025-06-19 20:10:46,711 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,712 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,712 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,712 - sqlalchemy.engine.Engine - INFO - [cached since 0.1657s ago] ()
+2025-06-19 20:10:46,713 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,713 - sqlalchemy.engine.Engine - INFO - [cached since 0.1579s ago] ('DetectionRules', 'dbo')
+2025-06-19 20:10:46,714 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,715 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,715 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,715 - sqlalchemy.engine.Engine - INFO - [cached since 0.1687s ago] ()
+2025-06-19 20:10:46,716 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [DetectionRules]
+2025-06-19 20:10:46,716 - sqlalchemy.engine.Engine - INFO - [cached since 0.1034s ago] ()
+2025-06-19 20:10:46,717 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,717 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,717 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,718 - sqlalchemy.engine.Engine - INFO - [cached since 0.171s ago] ()
+2025-06-19 20:10:46,718 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,718 - sqlalchemy.engine.Engine - INFO - [cached since 0.163s ago] ('SystemConfig', 'dbo')
+2025-06-19 20:10:46,719 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,720 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,720 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,720 - sqlalchemy.engine.Engine - INFO - [cached since 0.1735s ago] ()
+2025-06-19 20:10:46,721 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [SystemConfig]
+2025-06-19 20:10:46,721 - sqlalchemy.engine.Engine - INFO - [cached since 0.09313s ago] ()
+2025-06-19 20:10:46,722 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,722 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,722 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,723 - sqlalchemy.engine.Engine - INFO - [cached since 0.1759s ago] ()
+2025-06-19 20:10:46,723 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,723 - sqlalchemy.engine.Engine - INFO - [cached since 0.1679s ago] ('AgentConfigs', 'dbo')
+2025-06-19 20:10:46,724 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,725 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,725 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,725 - sqlalchemy.engine.Engine - INFO - [cached since 0.1782s ago] ()
+2025-06-19 20:10:46,725 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [AgentConfigs]
+2025-06-19 20:10:46,726 - sqlalchemy.engine.Engine - INFO - [cached since 0.09238s ago] ()
+2025-06-19 20:10:46,726 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,726 - sqlalchemy.engine.Engine - INFO - 
+                        SELECT 
+                            SUM(CAST(FILEPROPERTY(name, 'SpaceUsed') AS bigint) * 8192.) / 1024 / 1024 as used_space_mb,
+                            SUM(CAST(size AS bigint) * 8192.) / 1024 / 1024 as allocated_space_mb
+                        FROM sys.database_files 
+                        WHERE type_desc = 'ROWS'
+                    
+2025-06-19 20:10:46,726 - sqlalchemy.engine.Engine - INFO - [cached since 0.09092s ago] ()
+2025-06-19 20:10:46,727 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,728 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,728 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,728 - sqlalchemy.engine.Engine - INFO - [cached since 0.1815s ago] ()
+2025-06-19 20:10:46,729 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,729 - sqlalchemy.engine.Engine - INFO - [cached since 0.1735s ago] ('Agents', 'dbo')
+2025-06-19 20:10:46,729 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,730 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,730 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,730 - sqlalchemy.engine.Engine - INFO - [cached since 0.1837s ago] ()
+2025-06-19 20:10:46,731 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Agents]
+2025-06-19 20:10:46,731 - sqlalchemy.engine.Engine - INFO - [cached since 0.1626s ago] ()
+2025-06-19 20:10:46,731 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,732 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,732 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,732 - sqlalchemy.engine.Engine - INFO - [cached since 0.1856s ago] ()
+2025-06-19 20:10:46,733 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,733 - sqlalchemy.engine.Engine - INFO - [cached since 0.1778s ago] ('Events', 'dbo')
+2025-06-19 20:10:46,734 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,734 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,735 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,735 - sqlalchemy.engine.Engine - INFO - [cached since 0.1882s ago] ()
+2025-06-19 20:10:46,736 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Events]
+2025-06-19 20:10:46,736 - sqlalchemy.engine.Engine - INFO - [cached since 0.1603s ago] ()
+2025-06-19 20:10:46,736 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,737 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,737 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,738 - sqlalchemy.engine.Engine - INFO - [cached since 0.1909s ago] ()
+2025-06-19 20:10:46,738 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,738 - sqlalchemy.engine.Engine - INFO - [cached since 0.1829s ago] ('Alerts', 'dbo')
+2025-06-19 20:10:46,739 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,740 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,740 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,740 - sqlalchemy.engine.Engine - INFO - [cached since 0.1933s ago] ()
+2025-06-19 20:10:46,741 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Alerts]
+2025-06-19 20:10:46,741 - sqlalchemy.engine.Engine - INFO - [cached since 0.1569s ago] ()
+2025-06-19 20:10:46,741 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,742 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,742 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,742 - sqlalchemy.engine.Engine - INFO - [cached since 0.1954s ago] ()
+2025-06-19 20:10:46,743 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,743 - sqlalchemy.engine.Engine - INFO - [cached since 0.1875s ago] ('Threats', 'dbo')
+2025-06-19 20:10:46,743 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,744 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,744 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,745 - sqlalchemy.engine.Engine - INFO - [cached since 0.1979s ago] ()
+2025-06-19 20:10:46,745 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Threats]
+2025-06-19 20:10:46,745 - sqlalchemy.engine.Engine - INFO - [cached since 0.1461s ago] ()
+2025-06-19 20:10:46,746 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,746 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,746 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,747 - sqlalchemy.engine.Engine - INFO - [cached since 0.1998s ago] ()
+2025-06-19 20:10:46,747 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,747 - sqlalchemy.engine.Engine - INFO - [cached since 0.1918s ago] ('DetectionRules', 'dbo')
+2025-06-19 20:10:46,748 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,748 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,749 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,749 - sqlalchemy.engine.Engine - INFO - [cached since 0.2023s ago] ()
+2025-06-19 20:10:46,749 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [DetectionRules]
+2025-06-19 20:10:46,750 - sqlalchemy.engine.Engine - INFO - [cached since 0.137s ago] ()
+2025-06-19 20:10:46,750 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,751 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,751 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,752 - sqlalchemy.engine.Engine - INFO - [cached since 0.2048s ago] ()
+2025-06-19 20:10:46,752 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,752 - sqlalchemy.engine.Engine - INFO - [cached since 0.1969s ago] ('SystemConfig', 'dbo')
+2025-06-19 20:10:46,753 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,754 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,754 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,755 - sqlalchemy.engine.Engine - INFO - [cached since 0.2079s ago] ()
+2025-06-19 20:10:46,755 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [SystemConfig]
+2025-06-19 20:10:46,755 - sqlalchemy.engine.Engine - INFO - [cached since 0.1275s ago] ()
+2025-06-19 20:10:46,756 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,757 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,757 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,757 - sqlalchemy.engine.Engine - INFO - [cached since 0.2104s ago] ()
+2025-06-19 20:10:46,758 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:10:46,758 - sqlalchemy.engine.Engine - INFO - [cached since 0.2024s ago] ('AgentConfigs', 'dbo')
+2025-06-19 20:10:46,758 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,759 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,759 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,759 - sqlalchemy.engine.Engine - INFO - [cached since 0.2127s ago] ()
+2025-06-19 20:10:46,760 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [AgentConfigs]
+2025-06-19 20:10:46,760 - sqlalchemy.engine.Engine - INFO - [cached since 0.1269s ago] ()
+2025-06-19 20:10:46,760 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,761 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,761 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,761 - sqlalchemy.engine.Engine - INFO - [cached since 0.2145s ago] ()
+2025-06-19 20:10:46,762 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT COUNT(*) as count 
+                    FROM Agents 
+                    WHERE LastHeartbeat >= DATEADD(minute, -10, GETDATE())
+                    AND Status = 'Active'
+                
+2025-06-19 20:10:46,762 - sqlalchemy.engine.Engine - INFO - [generated in 0.00027s] ()
+2025-06-19 20:10:46,763 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT COUNT(*) as count 
+                    FROM Events 
+                    WHERE CreatedAt >= DATEADD(hour, -1, GETDATE())
+                
+2025-06-19 20:10:46,764 - sqlalchemy.engine.Engine - INFO - [generated in 0.00036s] ()
+2025-06-19 20:10:46,765 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT COUNT(*) as count 
+                    FROM Alerts 
+                    WHERE Status IN ('Open', 'Investigating')
+                
+2025-06-19 20:10:46,765 - sqlalchemy.engine.Engine - INFO - [generated in 0.00031s] ()
+2025-06-19 20:10:46,766 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT COUNT(*) as count 
+                    FROM Alerts 
+                    WHERE Status IN ('Open', 'Investigating')
+                    AND Severity IN ('High', 'Critical')
+                
+2025-06-19 20:10:46,767 - sqlalchemy.engine.Engine - INFO - [generated in 0.00041s] ()
+2025-06-19 20:10:46,770 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT COUNT(*) as count 
+                    FROM DetectionRules 
+                    WHERE IsActive = 1
+                
+2025-06-19 20:10:46,771 - sqlalchemy.engine.Engine - INFO - [generated in 0.00061s] ()
+2025-06-19 20:10:46,772 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT COUNT(*) as count 
+                    FROM Threats 
+                    WHERE IsActive = 1
+                
+2025-06-19 20:10:46,773 - sqlalchemy.engine.Engine - INFO - [generated in 0.00030s] ()
+2025-06-19 20:10:46,774 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,775 - app.database - INFO - ✅ Database health check passed in 89ms
+2025-06-19 20:10:46,775 - __main__ - INFO - ✅ Database connected: EDR_System on Manh
+2025-06-19 20:10:46,775 - __main__ - INFO - ⏱️ Response time: 89ms
+2025-06-19 20:10:46,775 - __main__ - INFO - 📊 Agents: 0 records
+2025-06-19 20:10:46,775 - __main__ - INFO - 📊 Events: 0 records
+2025-06-19 20:10:46,775 - __main__ - INFO - 📊 Alerts: 0 records
+2025-06-19 20:10:46,776 - __main__ - INFO - 📊 Threats: 12 records
+2025-06-19 20:10:46,776 - __main__ - INFO - 📊 DetectionRules: 7 records
+2025-06-19 20:10:46,776 - __main__ - INFO - 📊 SystemConfig: 10 records
+2025-06-19 20:10:46,776 - __main__ - INFO - 📊 AgentConfigs: 0 records
+2025-06-19 20:10:46,776 - __main__ - INFO - 🔄 Active agents (last 10min): 0
+2025-06-19 20:10:46,777 - __main__ - INFO - 📈 Events (last hour): 0
+2025-06-19 20:10:46,777 - __main__ - INFO - 🚨 Open alerts: 0
+2025-06-19 20:10:46,777 - __main__ - INFO - 🛡️ Active detection rules: 7
+2025-06-19 20:10:46,777 - __main__ - INFO - 🔍 Active threat indicators: 12
+2025-06-19 20:10:46,795 - __main__ - INFO - 🧪 Testing database schema compliance...
+2025-06-19 20:10:46,796 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,796 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:10:46,797 - sqlalchemy.engine.Engine - INFO - [cached since 0.2499s ago] ()
+2025-06-19 20:10:46,805 - sqlalchemy.engine.Engine - INFO - SELECT [Agents].[AgentID] AS [Agents_AgentID], [Agents].[HostName] AS [Agents_HostName], [Agents].[IPAddress] AS [Agents_IPAddress], [Agents].[MACAddress] AS [Agents_MACAddress], [Agents].[OperatingSystem] AS [Agents_OperatingSystem], [Agents].[OSVersion] AS [Agents_OSVersion], [Agents].[Architecture] AS [Agents_Architecture], [Agents].[Domain] AS [Agents_Domain], [Agents].[AgentVersion] AS [Agents_AgentVersion], [Agents].[InstallPath] AS [Agents_InstallPath], [Agents].[Status] AS [Agents_Status], [Agents].[LastHeartbeat] AS [Agents_LastHeartbeat], [Agents].[FirstSeen] AS [Agents_FirstSeen], [Agents].[CPUUsage] AS [Agents_CPUUsage], [Agents].[MemoryUsage] AS [Agents_MemoryUsage], [Agents].[DiskUsage] AS [Agents_DiskUsage], [Agents].[NetworkLatency] AS [Agents_NetworkLatency], [Agents].[MonitoringEnabled] AS [Agents_MonitoringEnabled], [Agents].[CreatedAt] AS [Agents_CreatedAt], [Agents].[UpdatedAt] AS [Agents_UpdatedAt] 
+FROM [Agents] 
+WHERE [Agents].[HostName] LIKE ?
+2025-06-19 20:10:46,805 - sqlalchemy.engine.Engine - INFO - [generated in 0.00065s] ('TEST-SCHEMA-%',)
+2025-06-19 20:10:46,811 - sqlalchemy.engine.Engine - INFO - INSERT INTO [Agents] ([AgentID], [HostName], [IPAddress], [MACAddress], [OperatingSystem], [OSVersion], [Architecture], [Domain], [AgentVersion], [InstallPath], [Status], [LastHeartbeat], [FirstSeen], [CPUUsage], [MemoryUsage], [DiskUsage], [NetworkLatency], [MonitoringEnabled], [CreatedAt], [UpdatedAt]) OUTPUT inserted.[LastHeartbeat], inserted.[FirstSeen], inserted.[CreatedAt], inserted.[UpdatedAt] VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), getdate(), ?, ?, ?, ?, ?, getdate(), getdate())
+2025-06-19 20:10:46,811 - sqlalchemy.engine.Engine - INFO - [generated in 0.00058s] (UUID('b9e601d0-e5ad-4331-8f28-7d4f21254d46'), 'TEST-SCHEMA-1750338646-b08b7bfd', '192.168.20.200', None, 'Windows 11 Pro', None, None, None, '1.0.0', None, 'Active', 0.0, 0.0, 0.0, 0, 1)
+2025-06-19 20:10:46,815 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,816 - __main__ - INFO - ✅ Agent test successful: b9e601d0-e5ad-4331-8f28-7d4f21254d46
+2025-06-19 20:10:46,817 - __main__ - INFO - ✅ Test hostname: TEST-SCHEMA-1750338646-b08b7bfd
+2025-06-19 20:10:46,817 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:10:46,818 - sqlalchemy.engine.Engine - INFO - DELETE FROM [Agents] WHERE [Agents].[AgentID] = ?
+2025-06-19 20:10:46,818 - sqlalchemy.engine.Engine - INFO - [generated in 0.00028s] (UUID('b9e601d0-e5ad-4331-8f28-7d4f21254d46'),)
+2025-06-19 20:10:46,827 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:10:46,827 - __main__ - INFO - 🧹 Test agent cleaned up
+2025-06-19 20:10:46,828 - __main__ - INFO - ✅ Database schema test completed successfully
+2025-06-19 20:10:46,828 - __main__ - INFO - ⚠️ Event table testing skipped due to trigger compatibility
+2025-06-19 20:10:46,828 - __main__ - INFO - 🎯 Final startup preparations...
+2025-06-19 20:10:46,828 - __main__ - INFO - 🌐 Server will bind to: 192.168.20.85:5000
+2025-06-19 20:10:46,829 - __main__ - INFO - 🔄 Reload mode: Enabled
+2025-06-19 20:10:46,829 - __main__ - INFO - 🐛 Debug mode: Enabled
+2025-06-19 20:10:46,829 - __main__ - INFO - 🔧 IMPORTANT NOTES:
+2025-06-19 20:10:46,829 - __main__ - INFO -    • Trigger issues have been resolved
+2025-06-19 20:10:46,829 - __main__ - INFO -    • Server should start successfully now
+2025-06-19 20:10:46,829 - __main__ - INFO -    • Check /docs for API documentation once server starts
+2025-06-19 20:10:46,830 - __main__ - INFO -    • Check /health for system status
+2025-06-19 20:10:46,830 - __main__ - INFO - 🚀 Starting EDR Agent Communication Server...
+2025-06-19 20:12:20,380 - app.database - INFO - 🔄 Shutting down database connections...
+2025-06-19 20:12:20,382 - app.database - INFO - 🧹 Database engine disposed successfully
+2025-06-19 20:12:20,382 - app.database - INFO - 🧹 Database cleanup completed
+2025-06-19 20:12:20,382 - app.database - INFO - ✅ Database shutdown completed
+2025-06-19 20:12:24,444 - __main__ - INFO - 🚀 EDR Agent Communication Server - Local SQL Startup
+2025-06-19 20:12:24,448 - __main__ - INFO - 🛡️ EDR Agent Communication Server Starting Up
+2025-06-19 20:12:24,449 - __main__ - INFO - 🔍 Performing environment checks...
+2025-06-19 20:12:24,449 - __main__ - INFO - 🔍 Checking SQL Server services...
+2025-06-19 20:12:24,473 - __main__ - INFO - ✅ MSSQLSERVER is running
+2025-06-19 20:12:24,511 - __main__ - WARNING - ⚠️ SQLBrowser exists but not running
+2025-06-19 20:12:24,511 - __main__ - INFO - ✅ Found 1 running SQL Server service(s)
+2025-06-19 20:12:24,511 - __main__ - INFO - 🔍 Testing local SQL Server connections...
+2025-06-19 20:12:24,511 - __main__ - INFO - 🔌 Testing: localhost
+2025-06-19 20:12:24,612 - __main__ - INFO - ✅ SUCCESS! Connected to SQL Server via: localhost
+2025-06-19 20:12:24,612 - __main__ - INFO -    SQL Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8...
+2025-06-19 20:12:24,613 - __main__ - INFO - ✅ EDR_System database found
+2025-06-19 20:12:24,613 - __main__ - INFO - 🎯 Using SQL Server: localhost
+2025-06-19 20:12:24,869 - app.database - INFO - 🔗 Initializing database connection to: MANH/EDR_System
+2025-06-19 20:12:24,884 - app.database - INFO - ✅ Database engine initialized successfully
+2025-06-19 20:12:24,884 - __main__ - INFO - 🗄️ Initializing database...
+2025-06-19 20:12:24,884 - app.database - INFO - 🔄 Initializing EDR database connection...
+2025-06-19 20:12:24,914 - sqlalchemy.engine.Engine - INFO - SELECT CAST(SERVERPROPERTY('ProductVersion') AS VARCHAR)
+2025-06-19 20:12:24,915 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-06-19 20:12:24,916 - sqlalchemy.engine.Engine - INFO - SELECT schema_name()
+2025-06-19 20:12:24,916 - sqlalchemy.engine.Engine - INFO - [generated in 0.00039s] ()
+2025-06-19 20:12:24,927 - sqlalchemy.engine.Engine - INFO - SELECT CAST('test max support' AS NVARCHAR(max))
+2025-06-19 20:12:24,928 - sqlalchemy.engine.Engine - INFO - [generated in 0.00049s] ()
+2025-06-19 20:12:24,928 - sqlalchemy.engine.Engine - INFO - SELECT 1 FROM fn_listextendedproperty(default, default, default, default, default, default, default)
+2025-06-19 20:12:24,929 - sqlalchemy.engine.Engine - INFO - [generated in 0.00030s] ()
+2025-06-19 20:12:24,979 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:24,979 - sqlalchemy.engine.Engine - INFO - 
+                        SELECT 
+                            1 as test, 
+                            GETDATE() as server_time,
+                            @@VERSION as version,
+                            @@SERVERNAME as server_name,
+                            DB_NAME() as database_name
+                    
+2025-06-19 20:12:24,980 - sqlalchemy.engine.Engine - INFO - [generated in 0.00080s] ()
+2025-06-19 20:12:24,980 - app.database - INFO - ✅ Database connection test successful (attempt 1/5)
+2025-06-19 20:12:24,980 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-06-19 20:12:24,982 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:24,982 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:24,982 - sqlalchemy.engine.Engine - INFO - [generated in 0.00027s] ()
+2025-06-19 20:12:24,983 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT 
+                        @@VERSION as version,
+                        DB_NAME() as database_name,
+                        @@SERVERNAME as server_name,
+                        GETDATE() as current_datetime,
+                        @@SPID as session_id,
+                        HOST_NAME() as host_name,
+                        SUSER_NAME() as user_name,
+                        @@CONNECTIONS as total_connections,
+                        @@CPU_BUSY as cpu_busy,
+                        @@IDLE as idle_time
+                
+2025-06-19 20:12:24,983 - sqlalchemy.engine.Engine - INFO - [generated in 0.00044s] ()
+2025-06-19 20:12:24,990 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:24,991 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:24,991 - sqlalchemy.engine.Engine - INFO - [cached since 0.009123s ago] ()
+2025-06-19 20:12:24,992 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:24,992 - sqlalchemy.engine.Engine - INFO - [generated in 0.00033s] ('Agents', 'dbo')
+2025-06-19 20:12:25,005 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,007 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,008 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,008 - sqlalchemy.engine.Engine - INFO - [cached since 0.02605s ago] ()
+2025-06-19 20:12:25,009 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Agents]
+2025-06-19 20:12:25,009 - sqlalchemy.engine.Engine - INFO - [generated in 0.00024s] ()
+2025-06-19 20:12:25,011 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,012 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,012 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,012 - sqlalchemy.engine.Engine - INFO - [cached since 0.03043s ago] ()
+2025-06-19 20:12:25,013 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,013 - sqlalchemy.engine.Engine - INFO - [cached since 0.02138s ago] ('Events', 'dbo')
+2025-06-19 20:12:25,014 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,015 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,016 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,016 - sqlalchemy.engine.Engine - INFO - [cached since 0.03387s ago] ()
+2025-06-19 20:12:25,017 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Events]
+2025-06-19 20:12:25,017 - sqlalchemy.engine.Engine - INFO - [generated in 0.00051s] ()
+2025-06-19 20:12:25,022 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,023 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,023 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,023 - sqlalchemy.engine.Engine - INFO - [cached since 0.04145s ago] ()
+2025-06-19 20:12:25,024 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,024 - sqlalchemy.engine.Engine - INFO - [cached since 0.03232s ago] ('Alerts', 'dbo')
+2025-06-19 20:12:25,025 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,026 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,026 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,026 - sqlalchemy.engine.Engine - INFO - [cached since 0.04432s ago] ()
+2025-06-19 20:12:25,027 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Alerts]
+2025-06-19 20:12:25,027 - sqlalchemy.engine.Engine - INFO - [generated in 0.00028s] ()
+2025-06-19 20:12:25,029 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,030 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,030 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,031 - sqlalchemy.engine.Engine - INFO - [cached since 0.0486s ago] ()
+2025-06-19 20:12:25,032 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,032 - sqlalchemy.engine.Engine - INFO - [cached since 0.03982s ago] ('Threats', 'dbo')
+2025-06-19 20:12:25,060 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,061 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,062 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,062 - sqlalchemy.engine.Engine - INFO - [cached since 0.07986s ago] ()
+2025-06-19 20:12:25,063 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Threats]
+2025-06-19 20:12:25,063 - sqlalchemy.engine.Engine - INFO - [generated in 0.00033s] ()
+2025-06-19 20:12:25,066 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,067 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,068 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,068 - sqlalchemy.engine.Engine - INFO - [cached since 0.08617s ago] ()
+2025-06-19 20:12:25,069 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,070 - sqlalchemy.engine.Engine - INFO - [cached since 0.07779s ago] ('DetectionRules', 'dbo')
+2025-06-19 20:12:25,087 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,088 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,089 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,089 - sqlalchemy.engine.Engine - INFO - [cached since 0.107s ago] ()
+2025-06-19 20:12:25,090 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [DetectionRules]
+2025-06-19 20:12:25,090 - sqlalchemy.engine.Engine - INFO - [generated in 0.00034s] ()
+2025-06-19 20:12:25,092 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,093 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,093 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,093 - sqlalchemy.engine.Engine - INFO - [cached since 0.1114s ago] ()
+2025-06-19 20:12:25,094 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,095 - sqlalchemy.engine.Engine - INFO - [cached since 0.1027s ago] ('SystemConfig', 'dbo')
+2025-06-19 20:12:25,109 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,110 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,111 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,111 - sqlalchemy.engine.Engine - INFO - [cached since 0.1287s ago] ()
+2025-06-19 20:12:25,112 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [SystemConfig]
+2025-06-19 20:12:25,112 - sqlalchemy.engine.Engine - INFO - [generated in 0.00037s] ()
+2025-06-19 20:12:25,114 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,116 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,116 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,117 - sqlalchemy.engine.Engine - INFO - [cached since 0.1346s ago] ()
+2025-06-19 20:12:25,117 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,118 - sqlalchemy.engine.Engine - INFO - [cached since 0.1258s ago] ('AgentConfigs', 'dbo')
+2025-06-19 20:12:25,119 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,120 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,120 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,120 - sqlalchemy.engine.Engine - INFO - [cached since 0.1384s ago] ()
+2025-06-19 20:12:25,121 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [AgentConfigs]
+2025-06-19 20:12:25,121 - sqlalchemy.engine.Engine - INFO - [generated in 0.00036s] ()
+2025-06-19 20:12:25,123 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,124 - sqlalchemy.engine.Engine - INFO - 
+                        SELECT 
+                            SUM(CAST(FILEPROPERTY(name, 'SpaceUsed') AS bigint) * 8192.) / 1024 / 1024 as used_space_mb,
+                            SUM(CAST(size AS bigint) * 8192.) / 1024 / 1024 as allocated_space_mb
+                        FROM sys.database_files 
+                        WHERE type_desc = 'ROWS'
+                    
+2025-06-19 20:12:25,125 - sqlalchemy.engine.Engine - INFO - [generated in 0.00041s] ()
+2025-06-19 20:12:25,134 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,135 - app.database - INFO - 🗄️ Connected to: EDR_System on Manh
+2025-06-19 20:12:25,135 - app.database - INFO - 📊 SQL Server Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64...
+2025-06-19 20:12:25,135 - app.database - INFO - 👤 Connection User: Manh\manhh
+2025-06-19 20:12:25,135 - app.database - INFO - 🖥️ Host: MANH
+2025-06-19 20:12:25,136 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,136 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,136 - sqlalchemy.engine.Engine - INFO - [cached since 0.1542s ago] ()
+2025-06-19 20:12:25,137 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,137 - sqlalchemy.engine.Engine - INFO - [cached since 0.1451s ago] ('Agents', 'dbo')
+2025-06-19 20:12:25,150 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,151 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,151 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,152 - sqlalchemy.engine.Engine - INFO - [cached since 0.1697s ago] ()
+2025-06-19 20:12:25,152 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,153 - sqlalchemy.engine.Engine - INFO - [cached since 0.1605s ago] ('Events', 'dbo')
+2025-06-19 20:12:25,153 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,154 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,154 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,154 - sqlalchemy.engine.Engine - INFO - [cached since 0.1722s ago] ()
+2025-06-19 20:12:25,155 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,155 - sqlalchemy.engine.Engine - INFO - [cached since 0.1631s ago] ('Alerts', 'dbo')
+2025-06-19 20:12:25,156 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,157 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,157 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,157 - sqlalchemy.engine.Engine - INFO - [cached since 0.1751s ago] ()
+2025-06-19 20:12:25,158 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,158 - sqlalchemy.engine.Engine - INFO - [cached since 0.1661s ago] ('Threats', 'dbo')
+2025-06-19 20:12:25,167 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,168 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,168 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,169 - sqlalchemy.engine.Engine - INFO - [cached since 0.1867s ago] ()
+2025-06-19 20:12:25,169 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,170 - sqlalchemy.engine.Engine - INFO - [cached since 0.1775s ago] ('DetectionRules', 'dbo')
+2025-06-19 20:12:25,209 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,210 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,210 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,210 - sqlalchemy.engine.Engine - INFO - [cached since 0.2283s ago] ()
+2025-06-19 20:12:25,211 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,211 - sqlalchemy.engine.Engine - INFO - [cached since 0.2191s ago] ('SystemConfig', 'dbo')
+2025-06-19 20:12:25,212 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,212 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,213 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,213 - sqlalchemy.engine.Engine - INFO - [cached since 0.2307s ago] ()
+2025-06-19 20:12:25,213 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,213 - sqlalchemy.engine.Engine - INFO - [cached since 0.2214s ago] ('AgentConfigs', 'dbo')
+2025-06-19 20:12:25,214 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,214 - app.database - INFO - ✅ All EDR tables verified: ['Agents', 'Events', 'Alerts', 'Threats', 'DetectionRules', 'SystemConfig', 'AgentConfigs']
+2025-06-19 20:12:25,215 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,215 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,216 - sqlalchemy.engine.Engine - INFO - [cached since 0.2336s ago] ()
+2025-06-19 20:12:25,216 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Agents]
+2025-06-19 20:12:25,216 - sqlalchemy.engine.Engine - INFO - [cached since 0.2077s ago] ()
+2025-06-19 20:12:25,218 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,219 - app.database - INFO - 📊 Agents: 0 records
+2025-06-19 20:12:25,220 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,220 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,221 - sqlalchemy.engine.Engine - INFO - [cached since 0.2387s ago] ()
+2025-06-19 20:12:25,221 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Events]
+2025-06-19 20:12:25,222 - sqlalchemy.engine.Engine - INFO - [cached since 0.2051s ago] ()
+2025-06-19 20:12:25,224 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,225 - app.database - INFO - 📊 Events: 0 records
+2025-06-19 20:12:25,226 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,226 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,227 - sqlalchemy.engine.Engine - INFO - [cached since 0.2445s ago] ()
+2025-06-19 20:12:25,227 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Alerts]
+2025-06-19 20:12:25,227 - sqlalchemy.engine.Engine - INFO - [cached since 0.2005s ago] ()
+2025-06-19 20:12:25,229 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,230 - app.database - INFO - 📊 Alerts: 0 records
+2025-06-19 20:12:25,230 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,231 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,231 - sqlalchemy.engine.Engine - INFO - [cached since 0.249s ago] ()
+2025-06-19 20:12:25,232 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Threats]
+2025-06-19 20:12:25,232 - sqlalchemy.engine.Engine - INFO - [cached since 0.1696s ago] ()
+2025-06-19 20:12:25,234 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,235 - app.database - INFO - 📊 Threats: 12 records
+2025-06-19 20:12:25,235 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,236 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,236 - sqlalchemy.engine.Engine - INFO - [cached since 0.2539s ago] ()
+2025-06-19 20:12:25,237 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [DetectionRules]
+2025-06-19 20:12:25,237 - sqlalchemy.engine.Engine - INFO - [cached since 0.1473s ago] ()
+2025-06-19 20:12:25,239 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,239 - app.database - INFO - 📊 DetectionRules: 7 records
+2025-06-19 20:12:25,240 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,240 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,240 - sqlalchemy.engine.Engine - INFO - [cached since 0.2583s ago] ()
+2025-06-19 20:12:25,241 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [SystemConfig]
+2025-06-19 20:12:25,241 - sqlalchemy.engine.Engine - INFO - [cached since 0.1299s ago] ()
+2025-06-19 20:12:25,243 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,243 - app.database - INFO - 📊 SystemConfig: 10 records
+2025-06-19 20:12:25,244 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,244 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,245 - sqlalchemy.engine.Engine - INFO - [cached since 0.2626s ago] ()
+2025-06-19 20:12:25,245 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [AgentConfigs]
+2025-06-19 20:12:25,245 - sqlalchemy.engine.Engine - INFO - [cached since 0.1243s ago] ()
+2025-06-19 20:12:25,247 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,247 - app.database - INFO - 📊 AgentConfigs: 0 records
+2025-06-19 20:12:25,247 - app.database - INFO - 📈 Total EDR records: 29
+2025-06-19 20:12:25,248 - __main__ - INFO - ✅ Database connection successful
+2025-06-19 20:12:25,248 - __main__ - INFO - ✅ Environment check completed successfully
+2025-06-19 20:12:25,248 - __main__ - INFO - 📊 Retrieving database information...
+2025-06-19 20:12:25,249 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,249 - sqlalchemy.engine.Engine - INFO - 
+                        SELECT 
+                            1 as test, 
+                            GETDATE() as server_time,
+                            @@VERSION as version,
+                            @@SERVERNAME as server_name,
+                            DB_NAME() as database_name
+                    
+2025-06-19 20:12:25,250 - sqlalchemy.engine.Engine - INFO - [cached since 0.2708s ago] ()
+2025-06-19 20:12:25,251 - app.database - INFO - ✅ Database connection test successful (attempt 1/5)
+2025-06-19 20:12:25,251 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-06-19 20:12:25,252 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,252 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,252 - sqlalchemy.engine.Engine - INFO - [cached since 0.2703s ago] ()
+2025-06-19 20:12:25,253 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT 
+                        @@VERSION as version,
+                        DB_NAME() as database_name,
+                        @@SERVERNAME as server_name,
+                        GETDATE() as current_datetime,
+                        @@SPID as session_id,
+                        HOST_NAME() as host_name,
+                        SUSER_NAME() as user_name,
+                        @@CONNECTIONS as total_connections,
+                        @@CPU_BUSY as cpu_busy,
+                        @@IDLE as idle_time
+                
+2025-06-19 20:12:25,253 - sqlalchemy.engine.Engine - INFO - [cached since 0.2703s ago] ()
+2025-06-19 20:12:25,254 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,255 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,255 - sqlalchemy.engine.Engine - INFO - [cached since 0.2731s ago] ()
+2025-06-19 20:12:25,256 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,256 - sqlalchemy.engine.Engine - INFO - [cached since 0.2642s ago] ('Agents', 'dbo')
+2025-06-19 20:12:25,272 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,273 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,273 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,274 - sqlalchemy.engine.Engine - INFO - [cached since 0.2917s ago] ()
+2025-06-19 20:12:25,274 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Agents]
+2025-06-19 20:12:25,274 - sqlalchemy.engine.Engine - INFO - [cached since 0.2657s ago] ()
+2025-06-19 20:12:25,276 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,277 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,277 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,278 - sqlalchemy.engine.Engine - INFO - [cached since 0.2957s ago] ()
+2025-06-19 20:12:25,278 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,279 - sqlalchemy.engine.Engine - INFO - [cached since 0.2867s ago] ('Events', 'dbo')
+2025-06-19 20:12:25,279 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,280 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,281 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,281 - sqlalchemy.engine.Engine - INFO - [cached since 0.2989s ago] ()
+2025-06-19 20:12:25,282 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Events]
+2025-06-19 20:12:25,282 - sqlalchemy.engine.Engine - INFO - [cached since 0.2653s ago] ()
+2025-06-19 20:12:25,286 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,287 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,288 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,289 - sqlalchemy.engine.Engine - INFO - [cached since 0.3065s ago] ()
+2025-06-19 20:12:25,289 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,290 - sqlalchemy.engine.Engine - INFO - [cached since 0.2978s ago] ('Alerts', 'dbo')
+2025-06-19 20:12:25,291 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,292 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,292 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,293 - sqlalchemy.engine.Engine - INFO - [cached since 0.3106s ago] ()
+2025-06-19 20:12:25,293 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Alerts]
+2025-06-19 20:12:25,294 - sqlalchemy.engine.Engine - INFO - [cached since 0.2668s ago] ()
+2025-06-19 20:12:25,296 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,297 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,297 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,297 - sqlalchemy.engine.Engine - INFO - [cached since 0.3153s ago] ()
+2025-06-19 20:12:25,298 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,299 - sqlalchemy.engine.Engine - INFO - [cached since 0.3065s ago] ('Threats', 'dbo')
+2025-06-19 20:12:25,333 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,334 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,334 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,335 - sqlalchemy.engine.Engine - INFO - [cached since 0.3525s ago] ()
+2025-06-19 20:12:25,335 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Threats]
+2025-06-19 20:12:25,335 - sqlalchemy.engine.Engine - INFO - [cached since 0.2727s ago] ()
+2025-06-19 20:12:25,337 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,338 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,338 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,339 - sqlalchemy.engine.Engine - INFO - [cached since 0.3567s ago] ()
+2025-06-19 20:12:25,340 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,340 - sqlalchemy.engine.Engine - INFO - [cached since 0.3478s ago] ('DetectionRules', 'dbo')
+2025-06-19 20:12:25,355 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,357 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,357 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,359 - sqlalchemy.engine.Engine - INFO - [cached since 0.3768s ago] ()
+2025-06-19 20:12:25,361 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [DetectionRules]
+2025-06-19 20:12:25,361 - sqlalchemy.engine.Engine - INFO - [cached since 0.2713s ago] ()
+2025-06-19 20:12:25,364 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,366 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,366 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,367 - sqlalchemy.engine.Engine - INFO - [cached since 0.3847s ago] ()
+2025-06-19 20:12:25,368 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,368 - sqlalchemy.engine.Engine - INFO - [cached since 0.376s ago] ('SystemConfig', 'dbo')
+2025-06-19 20:12:25,383 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,385 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,385 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,385 - sqlalchemy.engine.Engine - INFO - [cached since 0.4032s ago] ()
+2025-06-19 20:12:25,386 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [SystemConfig]
+2025-06-19 20:12:25,386 - sqlalchemy.engine.Engine - INFO - [cached since 0.2746s ago] ()
+2025-06-19 20:12:25,389 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,391 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,393 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,393 - sqlalchemy.engine.Engine - INFO - [cached since 0.4109s ago] ()
+2025-06-19 20:12:25,394 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,394 - sqlalchemy.engine.Engine - INFO - [cached since 0.4019s ago] ('AgentConfigs', 'dbo')
+2025-06-19 20:12:25,395 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,396 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,397 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,397 - sqlalchemy.engine.Engine - INFO - [cached since 0.4149s ago] ()
+2025-06-19 20:12:25,397 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [AgentConfigs]
+2025-06-19 20:12:25,398 - sqlalchemy.engine.Engine - INFO - [cached since 0.2765s ago] ()
+2025-06-19 20:12:25,399 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,400 - sqlalchemy.engine.Engine - INFO - 
+                        SELECT 
+                            SUM(CAST(FILEPROPERTY(name, 'SpaceUsed') AS bigint) * 8192.) / 1024 / 1024 as used_space_mb,
+                            SUM(CAST(size AS bigint) * 8192.) / 1024 / 1024 as allocated_space_mb
+                        FROM sys.database_files 
+                        WHERE type_desc = 'ROWS'
+                    
+2025-06-19 20:12:25,400 - sqlalchemy.engine.Engine - INFO - [cached since 0.2757s ago] ()
+2025-06-19 20:12:25,408 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,409 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,410 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,410 - sqlalchemy.engine.Engine - INFO - [cached since 0.4278s ago] ()
+2025-06-19 20:12:25,410 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,411 - sqlalchemy.engine.Engine - INFO - [cached since 0.4188s ago] ('Agents', 'dbo')
+2025-06-19 20:12:25,421 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,422 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,423 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,423 - sqlalchemy.engine.Engine - INFO - [cached since 0.4409s ago] ()
+2025-06-19 20:12:25,423 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Agents]
+2025-06-19 20:12:25,424 - sqlalchemy.engine.Engine - INFO - [cached since 0.4149s ago] ()
+2025-06-19 20:12:25,425 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,426 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,427 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,427 - sqlalchemy.engine.Engine - INFO - [cached since 0.4448s ago] ()
+2025-06-19 20:12:25,428 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,428 - sqlalchemy.engine.Engine - INFO - [cached since 0.4358s ago] ('Events', 'dbo')
+2025-06-19 20:12:25,428 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,429 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,429 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,430 - sqlalchemy.engine.Engine - INFO - [cached since 0.4477s ago] ()
+2025-06-19 20:12:25,430 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Events]
+2025-06-19 20:12:25,430 - sqlalchemy.engine.Engine - INFO - [cached since 0.4139s ago] ()
+2025-06-19 20:12:25,434 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,435 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,435 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,435 - sqlalchemy.engine.Engine - INFO - [cached since 0.4533s ago] ()
+2025-06-19 20:12:25,436 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,436 - sqlalchemy.engine.Engine - INFO - [cached since 0.4443s ago] ('Alerts', 'dbo')
+2025-06-19 20:12:25,438 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,439 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,439 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,439 - sqlalchemy.engine.Engine - INFO - [cached since 0.4573s ago] ()
+2025-06-19 20:12:25,440 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Alerts]
+2025-06-19 20:12:25,440 - sqlalchemy.engine.Engine - INFO - [cached since 0.4132s ago] ()
+2025-06-19 20:12:25,442 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,443 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,443 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,443 - sqlalchemy.engine.Engine - INFO - [cached since 0.4612s ago] ()
+2025-06-19 20:12:25,444 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,444 - sqlalchemy.engine.Engine - INFO - [cached since 0.4519s ago] ('Threats', 'dbo')
+2025-06-19 20:12:25,453 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,454 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,454 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,455 - sqlalchemy.engine.Engine - INFO - [cached since 0.4726s ago] ()
+2025-06-19 20:12:25,455 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Threats]
+2025-06-19 20:12:25,455 - sqlalchemy.engine.Engine - INFO - [cached since 0.3928s ago] ()
+2025-06-19 20:12:25,457 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,458 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,458 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,458 - sqlalchemy.engine.Engine - INFO - [cached since 0.4761s ago] ()
+2025-06-19 20:12:25,459 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,459 - sqlalchemy.engine.Engine - INFO - [cached since 0.4671s ago] ('DetectionRules', 'dbo')
+2025-06-19 20:12:25,468 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,469 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,469 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,470 - sqlalchemy.engine.Engine - INFO - [cached since 0.4875s ago] ()
+2025-06-19 20:12:25,470 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [DetectionRules]
+2025-06-19 20:12:25,470 - sqlalchemy.engine.Engine - INFO - [cached since 0.3808s ago] ()
+2025-06-19 20:12:25,472 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,473 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,473 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,473 - sqlalchemy.engine.Engine - INFO - [cached since 0.4911s ago] ()
+2025-06-19 20:12:25,474 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,474 - sqlalchemy.engine.Engine - INFO - [cached since 0.4819s ago] ('SystemConfig', 'dbo')
+2025-06-19 20:12:25,474 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,475 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,476 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,476 - sqlalchemy.engine.Engine - INFO - [cached since 0.4939s ago] ()
+2025-06-19 20:12:25,476 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [SystemConfig]
+2025-06-19 20:12:25,477 - sqlalchemy.engine.Engine - INFO - [cached since 0.3652s ago] ()
+2025-06-19 20:12:25,477 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,478 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,478 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,478 - sqlalchemy.engine.Engine - INFO - [cached since 0.4963s ago] ()
+2025-06-19 20:12:25,479 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:12:25,479 - sqlalchemy.engine.Engine - INFO - [cached since 0.4871s ago] ('AgentConfigs', 'dbo')
+2025-06-19 20:12:25,480 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,480 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,481 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,481 - sqlalchemy.engine.Engine - INFO - [cached since 0.4989s ago] ()
+2025-06-19 20:12:25,482 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [AgentConfigs]
+2025-06-19 20:12:25,482 - sqlalchemy.engine.Engine - INFO - [cached since 0.3607s ago] ()
+2025-06-19 20:12:25,483 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,484 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,484 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,484 - sqlalchemy.engine.Engine - INFO - [cached since 0.5024s ago] ()
+2025-06-19 20:12:25,485 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT COUNT(*) as count 
+                    FROM Agents 
+                    WHERE LastHeartbeat >= DATEADD(minute, -10, GETDATE())
+                    AND Status = 'Active'
+                
+2025-06-19 20:12:25,485 - sqlalchemy.engine.Engine - INFO - [generated in 0.00033s] ()
+2025-06-19 20:12:25,489 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT COUNT(*) as count 
+                    FROM Events 
+                    WHERE CreatedAt >= DATEADD(hour, -1, GETDATE())
+                
+2025-06-19 20:12:25,489 - sqlalchemy.engine.Engine - INFO - [generated in 0.00036s] ()
+2025-06-19 20:12:25,492 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT COUNT(*) as count 
+                    FROM Alerts 
+                    WHERE Status IN ('Open', 'Investigating')
+                
+2025-06-19 20:12:25,492 - sqlalchemy.engine.Engine - INFO - [generated in 0.00046s] ()
+2025-06-19 20:12:25,494 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT COUNT(*) as count 
+                    FROM Alerts 
+                    WHERE Status IN ('Open', 'Investigating')
+                    AND Severity IN ('High', 'Critical')
+                
+2025-06-19 20:12:25,494 - sqlalchemy.engine.Engine - INFO - [generated in 0.00035s] ()
+2025-06-19 20:12:25,499 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT COUNT(*) as count 
+                    FROM DetectionRules 
+                    WHERE IsActive = 1
+                
+2025-06-19 20:12:25,499 - sqlalchemy.engine.Engine - INFO - [generated in 0.00052s] ()
+2025-06-19 20:12:25,502 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT COUNT(*) as count 
+                    FROM Threats 
+                    WHERE IsActive = 1
+                
+2025-06-19 20:12:25,502 - sqlalchemy.engine.Engine - INFO - [generated in 0.00043s] ()
+2025-06-19 20:12:25,504 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,504 - app.database - INFO - ✅ Database health check passed in 255ms
+2025-06-19 20:12:25,504 - __main__ - INFO - ✅ Database connected: EDR_System on Manh
+2025-06-19 20:12:25,505 - __main__ - INFO - ⏱️ Response time: 255ms
+2025-06-19 20:12:25,505 - __main__ - INFO - 📊 Agents: 0 records
+2025-06-19 20:12:25,505 - __main__ - INFO - 📊 Events: 0 records
+2025-06-19 20:12:25,505 - __main__ - INFO - 📊 Alerts: 0 records
+2025-06-19 20:12:25,505 - __main__ - INFO - 📊 Threats: 12 records
+2025-06-19 20:12:25,505 - __main__ - INFO - 📊 DetectionRules: 7 records
+2025-06-19 20:12:25,506 - __main__ - INFO - 📊 SystemConfig: 10 records
+2025-06-19 20:12:25,506 - __main__ - INFO - 📊 AgentConfigs: 0 records
+2025-06-19 20:12:25,506 - __main__ - INFO - 🔄 Active agents (last 10min): 0
+2025-06-19 20:12:25,506 - __main__ - INFO - 📈 Events (last hour): 0
+2025-06-19 20:12:25,506 - __main__ - INFO - 🚨 Open alerts: 0
+2025-06-19 20:12:25,506 - __main__ - INFO - 🛡️ Active detection rules: 7
+2025-06-19 20:12:25,506 - __main__ - INFO - 🔍 Active threat indicators: 12
+2025-06-19 20:12:25,528 - __main__ - INFO - 🧪 Testing database schema compliance...
+2025-06-19 20:12:25,529 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,529 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:12:25,529 - sqlalchemy.engine.Engine - INFO - [cached since 0.5474s ago] ()
+2025-06-19 20:12:25,540 - sqlalchemy.engine.Engine - INFO - SELECT [Agents].[AgentID] AS [Agents_AgentID], [Agents].[HostName] AS [Agents_HostName], [Agents].[IPAddress] AS [Agents_IPAddress], [Agents].[MACAddress] AS [Agents_MACAddress], [Agents].[OperatingSystem] AS [Agents_OperatingSystem], [Agents].[OSVersion] AS [Agents_OSVersion], [Agents].[Architecture] AS [Agents_Architecture], [Agents].[Domain] AS [Agents_Domain], [Agents].[AgentVersion] AS [Agents_AgentVersion], [Agents].[InstallPath] AS [Agents_InstallPath], [Agents].[Status] AS [Agents_Status], [Agents].[LastHeartbeat] AS [Agents_LastHeartbeat], [Agents].[FirstSeen] AS [Agents_FirstSeen], [Agents].[CPUUsage] AS [Agents_CPUUsage], [Agents].[MemoryUsage] AS [Agents_MemoryUsage], [Agents].[DiskUsage] AS [Agents_DiskUsage], [Agents].[NetworkLatency] AS [Agents_NetworkLatency], [Agents].[MonitoringEnabled] AS [Agents_MonitoringEnabled], [Agents].[CreatedAt] AS [Agents_CreatedAt], [Agents].[UpdatedAt] AS [Agents_UpdatedAt] 
+FROM [Agents] 
+WHERE [Agents].[HostName] LIKE ?
+2025-06-19 20:12:25,541 - sqlalchemy.engine.Engine - INFO - [generated in 0.00065s] ('TEST-SCHEMA-%',)
+2025-06-19 20:12:25,548 - sqlalchemy.engine.Engine - INFO - INSERT INTO [Agents] ([AgentID], [HostName], [IPAddress], [MACAddress], [OperatingSystem], [OSVersion], [Architecture], [Domain], [AgentVersion], [InstallPath], [Status], [LastHeartbeat], [FirstSeen], [CPUUsage], [MemoryUsage], [DiskUsage], [NetworkLatency], [MonitoringEnabled], [CreatedAt], [UpdatedAt]) OUTPUT inserted.[LastHeartbeat], inserted.[FirstSeen], inserted.[CreatedAt], inserted.[UpdatedAt] VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), getdate(), ?, ?, ?, ?, ?, getdate(), getdate())
+2025-06-19 20:12:25,548 - sqlalchemy.engine.Engine - INFO - [generated in 0.00081s] (UUID('a2691cd7-fd64-4ad7-bd31-26f19d5f4a90'), 'TEST-SCHEMA-1750338745-5e646ccb', '192.168.20.200', None, 'Windows 11 Pro', None, None, None, '1.0.0', None, 'Active', 0.0, 0.0, 0.0, 0, 1)
+2025-06-19 20:12:25,555 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,556 - __main__ - INFO - ✅ Agent test successful: a2691cd7-fd64-4ad7-bd31-26f19d5f4a90
+2025-06-19 20:12:25,556 - __main__ - INFO - ✅ Test hostname: TEST-SCHEMA-1750338745-5e646ccb
+2025-06-19 20:12:25,557 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:12:25,558 - sqlalchemy.engine.Engine - INFO - DELETE FROM [Agents] WHERE [Agents].[AgentID] = ?
+2025-06-19 20:12:25,558 - sqlalchemy.engine.Engine - INFO - [generated in 0.00033s] (UUID('a2691cd7-fd64-4ad7-bd31-26f19d5f4a90'),)
+2025-06-19 20:12:25,572 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:12:25,575 - __main__ - INFO - 🧹 Test agent cleaned up
+2025-06-19 20:12:25,575 - __main__ - INFO - ✅ Database schema test completed successfully
+2025-06-19 20:12:25,576 - __main__ - INFO - 🎯 Final startup preparations...
+2025-06-19 20:12:25,576 - __main__ - INFO - 🌐 Server will bind to: 192.168.20.85:5000
+2025-06-19 20:12:25,576 - __main__ - INFO - 🔄 Reload mode: Enabled
+2025-06-19 20:12:25,576 - __main__ - INFO - 🐛 Debug mode: Enabled
+2025-06-19 20:12:25,576 - __main__ - INFO - 🔧 LOCAL SQL SERVER MODE:
+2025-06-19 20:12:25,576 - __main__ - INFO -    • Connected to local SQL Server instance
+2025-06-19 20:12:25,577 - __main__ - INFO -    • Using Windows Authentication
+2025-06-19 20:12:25,577 - __main__ - INFO -    • EDR_System database ready
+2025-06-19 20:12:25,577 - __main__ - INFO -    • All services operational
+2025-06-19 20:12:25,577 - __main__ - INFO - 🚀 Starting EDR Agent Communication Server...
+2025-06-19 20:14:24,902 - app.database - INFO - 🔄 Shutting down database connections...
+2025-06-19 20:14:24,904 - app.database - INFO - 🧹 Database engine disposed successfully
+2025-06-19 20:14:24,904 - app.database - INFO - 🧹 Database cleanup completed
+2025-06-19 20:14:24,905 - app.database - INFO - ✅ Database shutdown completed
+2025-06-19 20:14:30,749 - __main__ - INFO - 🚀 EDR Agent Communication Server - Local SQL Startup
+2025-06-19 20:14:30,753 - __main__ - INFO - 🛡️ EDR Agent Communication Server Starting Up
+2025-06-19 20:14:30,753 - __main__ - INFO - 🔍 Performing environment checks...
+2025-06-19 20:14:30,754 - __main__ - INFO - 🔍 Checking SQL Server services...
+2025-06-19 20:14:30,774 - __main__ - INFO - ✅ MSSQLSERVER is running
+2025-06-19 20:14:30,801 - __main__ - WARNING - ⚠️ SQLBrowser exists but not running
+2025-06-19 20:14:30,802 - __main__ - INFO - ✅ Found 1 running SQL Server service(s)
+2025-06-19 20:14:30,802 - __main__ - INFO - 🔍 Testing local SQL Server connections...
+2025-06-19 20:14:30,802 - __main__ - INFO - 🔌 Testing: localhost
+2025-06-19 20:14:30,920 - __main__ - INFO - ✅ SUCCESS! Connected to SQL Server via: localhost
+2025-06-19 20:14:30,920 - __main__ - INFO -    SQL Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8...
+2025-06-19 20:14:30,920 - __main__ - INFO - ✅ EDR_System database found
+2025-06-19 20:14:30,921 - __main__ - INFO - 🎯 Using SQL Server: localhost
+2025-06-19 20:14:31,248 - app.database - INFO - 🔗 Initializing database connection to: MANH/EDR_System
+2025-06-19 20:14:31,269 - app.database - INFO - ✅ Database engine initialized successfully
+2025-06-19 20:14:31,269 - __main__ - INFO - 🗄️ Initializing database...
+2025-06-19 20:14:31,270 - app.database - INFO - 🔄 Initializing EDR database connection...
+2025-06-19 20:14:31,282 - sqlalchemy.engine.Engine - INFO - SELECT CAST(SERVERPROPERTY('ProductVersion') AS VARCHAR)
+2025-06-19 20:14:31,283 - sqlalchemy.engine.Engine - INFO - [raw sql] ()
+2025-06-19 20:14:31,284 - sqlalchemy.engine.Engine - INFO - SELECT schema_name()
+2025-06-19 20:14:31,285 - sqlalchemy.engine.Engine - INFO - [generated in 0.00045s] ()
+2025-06-19 20:14:31,295 - sqlalchemy.engine.Engine - INFO - SELECT CAST('test max support' AS NVARCHAR(max))
+2025-06-19 20:14:31,295 - sqlalchemy.engine.Engine - INFO - [generated in 0.00045s] ()
+2025-06-19 20:14:31,296 - sqlalchemy.engine.Engine - INFO - SELECT 1 FROM fn_listextendedproperty(default, default, default, default, default, default, default)
+2025-06-19 20:14:31,296 - sqlalchemy.engine.Engine - INFO - [generated in 0.00038s] ()
+2025-06-19 20:14:31,354 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,354 - sqlalchemy.engine.Engine - INFO - 
+                        SELECT 
+                            1 as test, 
+                            GETDATE() as server_time,
+                            @@VERSION as version,
+                            @@SERVERNAME as server_name,
+                            DB_NAME() as database_name
+                    
+2025-06-19 20:14:31,355 - sqlalchemy.engine.Engine - INFO - [generated in 0.00103s] ()
+2025-06-19 20:14:31,355 - app.database - INFO - ✅ Database connection test successful (attempt 1/5)
+2025-06-19 20:14:31,356 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-06-19 20:14:31,357 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,357 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,358 - sqlalchemy.engine.Engine - INFO - [generated in 0.00036s] ()
+2025-06-19 20:14:31,358 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT 
+                        @@VERSION as version,
+                        DB_NAME() as database_name,
+                        @@SERVERNAME as server_name,
+                        GETDATE() as current_datetime,
+                        @@SPID as session_id,
+                        HOST_NAME() as host_name,
+                        SUSER_NAME() as user_name,
+                        @@CONNECTIONS as total_connections,
+                        @@CPU_BUSY as cpu_busy,
+                        @@IDLE as idle_time
+                
+2025-06-19 20:14:31,359 - sqlalchemy.engine.Engine - INFO - [generated in 0.00038s] ()
+2025-06-19 20:14:31,365 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,366 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,366 - sqlalchemy.engine.Engine - INFO - [cached since 0.008439s ago] ()
+2025-06-19 20:14:31,367 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,367 - sqlalchemy.engine.Engine - INFO - [generated in 0.00041s] ('Agents', 'dbo')
+2025-06-19 20:14:31,379 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,380 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,380 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,381 - sqlalchemy.engine.Engine - INFO - [cached since 0.02321s ago] ()
+2025-06-19 20:14:31,381 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Agents]
+2025-06-19 20:14:31,381 - sqlalchemy.engine.Engine - INFO - [generated in 0.00026s] ()
+2025-06-19 20:14:31,383 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,384 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,384 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,385 - sqlalchemy.engine.Engine - INFO - [cached since 0.02741s ago] ()
+2025-06-19 20:14:31,385 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,386 - sqlalchemy.engine.Engine - INFO - [cached since 0.01905s ago] ('Events', 'dbo')
+2025-06-19 20:14:31,386 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,387 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,388 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,388 - sqlalchemy.engine.Engine - INFO - [cached since 0.03049s ago] ()
+2025-06-19 20:14:31,389 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Events]
+2025-06-19 20:14:31,389 - sqlalchemy.engine.Engine - INFO - [generated in 0.00034s] ()
+2025-06-19 20:14:31,393 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,394 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,394 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,394 - sqlalchemy.engine.Engine - INFO - [cached since 0.03695s ago] ()
+2025-06-19 20:14:31,395 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,395 - sqlalchemy.engine.Engine - INFO - [cached since 0.02859s ago] ('Alerts', 'dbo')
+2025-06-19 20:14:31,396 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,397 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,397 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,397 - sqlalchemy.engine.Engine - INFO - [cached since 0.03989s ago] ()
+2025-06-19 20:14:31,398 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Alerts]
+2025-06-19 20:14:31,398 - sqlalchemy.engine.Engine - INFO - [generated in 0.00024s] ()
+2025-06-19 20:14:31,400 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,401 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,401 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,401 - sqlalchemy.engine.Engine - INFO - [cached since 0.04396s ago] ()
+2025-06-19 20:14:31,402 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,402 - sqlalchemy.engine.Engine - INFO - [cached since 0.0356s ago] ('Threats', 'dbo')
+2025-06-19 20:14:31,413 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,414 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,414 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,414 - sqlalchemy.engine.Engine - INFO - [cached since 0.05702s ago] ()
+2025-06-19 20:14:31,415 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Threats]
+2025-06-19 20:14:31,415 - sqlalchemy.engine.Engine - INFO - [generated in 0.00028s] ()
+2025-06-19 20:14:31,417 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,418 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,418 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,418 - sqlalchemy.engine.Engine - INFO - [cached since 0.06087s ago] ()
+2025-06-19 20:14:31,419 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,419 - sqlalchemy.engine.Engine - INFO - [cached since 0.05265s ago] ('DetectionRules', 'dbo')
+2025-06-19 20:14:31,430 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,432 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,432 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,432 - sqlalchemy.engine.Engine - INFO - [cached since 0.07501s ago] ()
+2025-06-19 20:14:31,433 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [DetectionRules]
+2025-06-19 20:14:31,433 - sqlalchemy.engine.Engine - INFO - [generated in 0.00029s] ()
+2025-06-19 20:14:31,435 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,437 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,437 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,437 - sqlalchemy.engine.Engine - INFO - [cached since 0.07997s ago] ()
+2025-06-19 20:14:31,438 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,439 - sqlalchemy.engine.Engine - INFO - [cached since 0.07177s ago] ('SystemConfig', 'dbo')
+2025-06-19 20:14:31,448 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,450 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,450 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,450 - sqlalchemy.engine.Engine - INFO - [cached since 0.09282s ago] ()
+2025-06-19 20:14:31,451 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [SystemConfig]
+2025-06-19 20:14:31,451 - sqlalchemy.engine.Engine - INFO - [generated in 0.00035s] ()
+2025-06-19 20:14:31,453 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,454 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,455 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,455 - sqlalchemy.engine.Engine - INFO - [cached since 0.09746s ago] ()
+2025-06-19 20:14:31,456 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,456 - sqlalchemy.engine.Engine - INFO - [cached since 0.08937s ago] ('AgentConfigs', 'dbo')
+2025-06-19 20:14:31,457 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,458 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,458 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,458 - sqlalchemy.engine.Engine - INFO - [cached since 0.1009s ago] ()
+2025-06-19 20:14:31,459 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [AgentConfigs]
+2025-06-19 20:14:31,459 - sqlalchemy.engine.Engine - INFO - [generated in 0.00030s] ()
+2025-06-19 20:14:31,461 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,462 - sqlalchemy.engine.Engine - INFO - 
+                        SELECT 
+                            SUM(CAST(FILEPROPERTY(name, 'SpaceUsed') AS bigint) * 8192.) / 1024 / 1024 as used_space_mb,
+                            SUM(CAST(size AS bigint) * 8192.) / 1024 / 1024 as allocated_space_mb
+                        FROM sys.database_files 
+                        WHERE type_desc = 'ROWS'
+                    
+2025-06-19 20:14:31,462 - sqlalchemy.engine.Engine - INFO - [generated in 0.00058s] ()
+2025-06-19 20:14:31,473 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,473 - app.database - INFO - 🗄️ Connected to: EDR_System on Manh
+2025-06-19 20:14:31,474 - app.database - INFO - 📊 SQL Server Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64...
+2025-06-19 20:14:31,474 - app.database - INFO - 👤 Connection User: Manh\manhh
+2025-06-19 20:14:31,474 - app.database - INFO - 🖥️ Host: MANH
+2025-06-19 20:14:31,475 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,475 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,476 - sqlalchemy.engine.Engine - INFO - [cached since 0.1183s ago] ()
+2025-06-19 20:14:31,476 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,477 - sqlalchemy.engine.Engine - INFO - [cached since 0.1101s ago] ('Agents', 'dbo')
+2025-06-19 20:14:31,477 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,478 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,479 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,479 - sqlalchemy.engine.Engine - INFO - [cached since 0.1214s ago] ()
+2025-06-19 20:14:31,479 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,480 - sqlalchemy.engine.Engine - INFO - [cached since 0.1131s ago] ('Events', 'dbo')
+2025-06-19 20:14:31,481 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,481 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,482 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,482 - sqlalchemy.engine.Engine - INFO - [cached since 0.1247s ago] ()
+2025-06-19 20:14:31,483 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,483 - sqlalchemy.engine.Engine - INFO - [cached since 0.1162s ago] ('Alerts', 'dbo')
+2025-06-19 20:14:31,484 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,484 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,485 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,485 - sqlalchemy.engine.Engine - INFO - [cached since 0.1276s ago] ()
+2025-06-19 20:14:31,486 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,486 - sqlalchemy.engine.Engine - INFO - [cached since 0.1191s ago] ('Threats', 'dbo')
+2025-06-19 20:14:31,486 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,487 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,488 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,488 - sqlalchemy.engine.Engine - INFO - [cached since 0.1305s ago] ()
+2025-06-19 20:14:31,489 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,489 - sqlalchemy.engine.Engine - INFO - [cached since 0.1222s ago] ('DetectionRules', 'dbo')
+2025-06-19 20:14:31,490 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,491 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,491 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,491 - sqlalchemy.engine.Engine - INFO - [cached since 0.134s ago] ()
+2025-06-19 20:14:31,492 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,493 - sqlalchemy.engine.Engine - INFO - [cached since 0.1258s ago] ('SystemConfig', 'dbo')
+2025-06-19 20:14:31,493 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,494 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,494 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,495 - sqlalchemy.engine.Engine - INFO - [cached since 0.1372s ago] ()
+2025-06-19 20:14:31,495 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,496 - sqlalchemy.engine.Engine - INFO - [cached since 0.1289s ago] ('AgentConfigs', 'dbo')
+2025-06-19 20:14:31,496 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,497 - app.database - INFO - ✅ All EDR tables verified: ['Agents', 'Events', 'Alerts', 'Threats', 'DetectionRules', 'SystemConfig', 'AgentConfigs']
+2025-06-19 20:14:31,497 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,498 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,498 - sqlalchemy.engine.Engine - INFO - [cached since 0.1405s ago] ()
+2025-06-19 20:14:31,498 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Agents]
+2025-06-19 20:14:31,499 - sqlalchemy.engine.Engine - INFO - [cached since 0.1174s ago] ()
+2025-06-19 20:14:31,499 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,500 - app.database - INFO - 📊 Agents: 0 records
+2025-06-19 20:14:31,500 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,500 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,501 - sqlalchemy.engine.Engine - INFO - [cached since 0.1433s ago] ()
+2025-06-19 20:14:31,501 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Events]
+2025-06-19 20:14:31,502 - sqlalchemy.engine.Engine - INFO - [cached since 0.113s ago] ()
+2025-06-19 20:14:31,502 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,503 - app.database - INFO - 📊 Events: 0 records
+2025-06-19 20:14:31,504 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,504 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,504 - sqlalchemy.engine.Engine - INFO - [cached since 0.1468s ago] ()
+2025-06-19 20:14:31,505 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Alerts]
+2025-06-19 20:14:31,505 - sqlalchemy.engine.Engine - INFO - [cached since 0.1076s ago] ()
+2025-06-19 20:14:31,506 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,506 - app.database - INFO - 📊 Alerts: 0 records
+2025-06-19 20:14:31,507 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,507 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,507 - sqlalchemy.engine.Engine - INFO - [cached since 0.15s ago] ()
+2025-06-19 20:14:31,508 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Threats]
+2025-06-19 20:14:31,508 - sqlalchemy.engine.Engine - INFO - [cached since 0.09306s ago] ()
+2025-06-19 20:14:31,508 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,509 - app.database - INFO - 📊 Threats: 12 records
+2025-06-19 20:14:31,509 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,510 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,510 - sqlalchemy.engine.Engine - INFO - [cached since 0.1525s ago] ()
+2025-06-19 20:14:31,511 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [DetectionRules]
+2025-06-19 20:14:31,511 - sqlalchemy.engine.Engine - INFO - [cached since 0.07798s ago] ()
+2025-06-19 20:14:31,517 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,519 - app.database - INFO - 📊 DetectionRules: 7 records
+2025-06-19 20:14:31,523 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,524 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,524 - sqlalchemy.engine.Engine - INFO - [cached since 0.1668s ago] ()
+2025-06-19 20:14:31,525 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [SystemConfig]
+2025-06-19 20:14:31,526 - sqlalchemy.engine.Engine - INFO - [cached since 0.07555s ago] ()
+2025-06-19 20:14:31,527 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,529 - app.database - INFO - 📊 SystemConfig: 10 records
+2025-06-19 20:14:31,530 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,530 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,531 - sqlalchemy.engine.Engine - INFO - [cached since 0.1734s ago] ()
+2025-06-19 20:14:31,532 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [AgentConfigs]
+2025-06-19 20:14:31,533 - sqlalchemy.engine.Engine - INFO - [cached since 0.07373s ago] ()
+2025-06-19 20:14:31,534 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,536 - app.database - INFO - 📊 AgentConfigs: 0 records
+2025-06-19 20:14:31,536 - app.database - INFO - 📈 Total EDR records: 29
+2025-06-19 20:14:31,537 - __main__ - INFO - ✅ Database connection successful
+2025-06-19 20:14:31,540 - __main__ - INFO - ✅ Environment check completed successfully
+2025-06-19 20:14:31,541 - __main__ - INFO - 📊 Retrieving database information...
+2025-06-19 20:14:31,542 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,543 - sqlalchemy.engine.Engine - INFO - 
+                        SELECT 
+                            1 as test, 
+                            GETDATE() as server_time,
+                            @@VERSION as version,
+                            @@SERVERNAME as server_name,
+                            DB_NAME() as database_name
+                    
+2025-06-19 20:14:31,543 - sqlalchemy.engine.Engine - INFO - [cached since 0.1893s ago] ()
+2025-06-19 20:14:31,544 - app.database - INFO - ✅ Database connection test successful (attempt 1/5)
+2025-06-19 20:14:31,544 - sqlalchemy.engine.Engine - INFO - ROLLBACK
+2025-06-19 20:14:31,545 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,546 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,546 - sqlalchemy.engine.Engine - INFO - [cached since 0.1885s ago] ()
+2025-06-19 20:14:31,547 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT 
+                        @@VERSION as version,
+                        DB_NAME() as database_name,
+                        @@SERVERNAME as server_name,
+                        GETDATE() as current_datetime,
+                        @@SPID as session_id,
+                        HOST_NAME() as host_name,
+                        SUSER_NAME() as user_name,
+                        @@CONNECTIONS as total_connections,
+                        @@CPU_BUSY as cpu_busy,
+                        @@IDLE as idle_time
+                
+2025-06-19 20:14:31,547 - sqlalchemy.engine.Engine - INFO - [cached since 0.189s ago] ()
+2025-06-19 20:14:31,549 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,549 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,549 - sqlalchemy.engine.Engine - INFO - [cached since 0.1921s ago] ()
+2025-06-19 20:14:31,550 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,552 - sqlalchemy.engine.Engine - INFO - [cached since 0.1848s ago] ('Agents', 'dbo')
+2025-06-19 20:14:31,554 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,558 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,558 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,559 - sqlalchemy.engine.Engine - INFO - [cached since 0.2013s ago] ()
+2025-06-19 20:14:31,559 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Agents]
+2025-06-19 20:14:31,560 - sqlalchemy.engine.Engine - INFO - [cached since 0.1784s ago] ()
+2025-06-19 20:14:31,560 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,561 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,561 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,561 - sqlalchemy.engine.Engine - INFO - [cached since 0.204s ago] ()
+2025-06-19 20:14:31,562 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,562 - sqlalchemy.engine.Engine - INFO - [cached since 0.1955s ago] ('Events', 'dbo')
+2025-06-19 20:14:31,563 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,564 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,564 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,564 - sqlalchemy.engine.Engine - INFO - [cached since 0.207s ago] ()
+2025-06-19 20:14:31,565 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Events]
+2025-06-19 20:14:31,565 - sqlalchemy.engine.Engine - INFO - [cached since 0.1767s ago] ()
+2025-06-19 20:14:31,566 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,567 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,567 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,567 - sqlalchemy.engine.Engine - INFO - [cached since 0.2099s ago] ()
+2025-06-19 20:14:31,568 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,568 - sqlalchemy.engine.Engine - INFO - [cached since 0.2017s ago] ('Alerts', 'dbo')
+2025-06-19 20:14:31,569 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,570 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,571 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,571 - sqlalchemy.engine.Engine - INFO - [cached since 0.2136s ago] ()
+2025-06-19 20:14:31,572 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Alerts]
+2025-06-19 20:14:31,572 - sqlalchemy.engine.Engine - INFO - [cached since 0.174s ago] ()
+2025-06-19 20:14:31,572 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,573 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,573 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,574 - sqlalchemy.engine.Engine - INFO - [cached since 0.2164s ago] ()
+2025-06-19 20:14:31,574 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,575 - sqlalchemy.engine.Engine - INFO - [cached since 0.2079s ago] ('Threats', 'dbo')
+2025-06-19 20:14:31,575 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,576 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,576 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,577 - sqlalchemy.engine.Engine - INFO - [cached since 0.2193s ago] ()
+2025-06-19 20:14:31,577 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Threats]
+2025-06-19 20:14:31,578 - sqlalchemy.engine.Engine - INFO - [cached since 0.1625s ago] ()
+2025-06-19 20:14:31,578 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,579 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,579 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,579 - sqlalchemy.engine.Engine - INFO - [cached since 0.2217s ago] ()
+2025-06-19 20:14:31,580 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,580 - sqlalchemy.engine.Engine - INFO - [cached since 0.2131s ago] ('DetectionRules', 'dbo')
+2025-06-19 20:14:31,580 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,581 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,581 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,581 - sqlalchemy.engine.Engine - INFO - [cached since 0.224s ago] ()
+2025-06-19 20:14:31,582 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [DetectionRules]
+2025-06-19 20:14:31,582 - sqlalchemy.engine.Engine - INFO - [cached since 0.1491s ago] ()
+2025-06-19 20:14:31,583 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,584 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,584 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,584 - sqlalchemy.engine.Engine - INFO - [cached since 0.2269s ago] ()
+2025-06-19 20:14:31,585 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,585 - sqlalchemy.engine.Engine - INFO - [cached since 0.2185s ago] ('SystemConfig', 'dbo')
+2025-06-19 20:14:31,586 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,587 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,588 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,588 - sqlalchemy.engine.Engine - INFO - [cached since 0.2306s ago] ()
+2025-06-19 20:14:31,589 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [SystemConfig]
+2025-06-19 20:14:31,589 - sqlalchemy.engine.Engine - INFO - [cached since 0.138s ago] ()
+2025-06-19 20:14:31,589 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,590 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,590 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,591 - sqlalchemy.engine.Engine - INFO - [cached since 0.2334s ago] ()
+2025-06-19 20:14:31,591 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,592 - sqlalchemy.engine.Engine - INFO - [cached since 0.225s ago] ('AgentConfigs', 'dbo')
+2025-06-19 20:14:31,592 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,593 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,593 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,594 - sqlalchemy.engine.Engine - INFO - [cached since 0.2364s ago] ()
+2025-06-19 20:14:31,594 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [AgentConfigs]
+2025-06-19 20:14:31,595 - sqlalchemy.engine.Engine - INFO - [cached since 0.1356s ago] ()
+2025-06-19 20:14:31,595 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,596 - sqlalchemy.engine.Engine - INFO - 
+                        SELECT 
+                            SUM(CAST(FILEPROPERTY(name, 'SpaceUsed') AS bigint) * 8192.) / 1024 / 1024 as used_space_mb,
+                            SUM(CAST(size AS bigint) * 8192.) / 1024 / 1024 as allocated_space_mb
+                        FROM sys.database_files 
+                        WHERE type_desc = 'ROWS'
+                    
+2025-06-19 20:14:31,596 - sqlalchemy.engine.Engine - INFO - [cached since 0.1345s ago] ()
+2025-06-19 20:14:31,597 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,598 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,598 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,598 - sqlalchemy.engine.Engine - INFO - [cached since 0.2409s ago] ()
+2025-06-19 20:14:31,599 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,599 - sqlalchemy.engine.Engine - INFO - [cached since 0.2326s ago] ('Agents', 'dbo')
+2025-06-19 20:14:31,600 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,601 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,601 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,601 - sqlalchemy.engine.Engine - INFO - [cached since 0.2437s ago] ()
+2025-06-19 20:14:31,602 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Agents]
+2025-06-19 20:14:31,602 - sqlalchemy.engine.Engine - INFO - [cached since 0.2208s ago] ()
+2025-06-19 20:14:31,603 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,603 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,604 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,604 - sqlalchemy.engine.Engine - INFO - [cached since 0.2468s ago] ()
+2025-06-19 20:14:31,605 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,605 - sqlalchemy.engine.Engine - INFO - [cached since 0.2385s ago] ('Events', 'dbo')
+2025-06-19 20:14:31,606 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,607 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,607 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,607 - sqlalchemy.engine.Engine - INFO - [cached since 0.2499s ago] ()
+2025-06-19 20:14:31,608 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Events]
+2025-06-19 20:14:31,608 - sqlalchemy.engine.Engine - INFO - [cached since 0.2195s ago] ()
+2025-06-19 20:14:31,609 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,609 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,610 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,610 - sqlalchemy.engine.Engine - INFO - [cached since 0.2524s ago] ()
+2025-06-19 20:14:31,610 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,611 - sqlalchemy.engine.Engine - INFO - [cached since 0.2439s ago] ('Alerts', 'dbo')
+2025-06-19 20:14:31,611 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,612 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,612 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,613 - sqlalchemy.engine.Engine - INFO - [cached since 0.2553s ago] ()
+2025-06-19 20:14:31,613 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Alerts]
+2025-06-19 20:14:31,613 - sqlalchemy.engine.Engine - INFO - [cached since 0.2157s ago] ()
+2025-06-19 20:14:31,614 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,615 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,615 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,615 - sqlalchemy.engine.Engine - INFO - [cached since 0.2579s ago] ()
+2025-06-19 20:14:31,616 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,616 - sqlalchemy.engine.Engine - INFO - [cached since 0.2494s ago] ('Threats', 'dbo')
+2025-06-19 20:14:31,617 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,618 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,618 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,618 - sqlalchemy.engine.Engine - INFO - [cached since 0.2608s ago] ()
+2025-06-19 20:14:31,619 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [Threats]
+2025-06-19 20:14:31,619 - sqlalchemy.engine.Engine - INFO - [cached since 0.204s ago] ()
+2025-06-19 20:14:31,620 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,621 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,621 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,621 - sqlalchemy.engine.Engine - INFO - [cached since 0.2637s ago] ()
+2025-06-19 20:14:31,622 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,622 - sqlalchemy.engine.Engine - INFO - [cached since 0.2553s ago] ('DetectionRules', 'dbo')
+2025-06-19 20:14:31,623 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,623 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,624 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,624 - sqlalchemy.engine.Engine - INFO - [cached since 0.2667s ago] ()
+2025-06-19 20:14:31,625 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [DetectionRules]
+2025-06-19 20:14:31,625 - sqlalchemy.engine.Engine - INFO - [cached since 0.1916s ago] ()
+2025-06-19 20:14:31,625 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,626 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,626 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,626 - sqlalchemy.engine.Engine - INFO - [cached since 0.269s ago] ()
+2025-06-19 20:14:31,627 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,627 - sqlalchemy.engine.Engine - INFO - [cached since 0.2605s ago] ('SystemConfig', 'dbo')
+2025-06-19 20:14:31,628 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,629 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,629 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,629 - sqlalchemy.engine.Engine - INFO - [cached since 0.2719s ago] ()
+2025-06-19 20:14:31,630 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [SystemConfig]
+2025-06-19 20:14:31,630 - sqlalchemy.engine.Engine - INFO - [cached since 0.1793s ago] ()
+2025-06-19 20:14:31,631 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,632 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,632 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,632 - sqlalchemy.engine.Engine - INFO - [cached since 0.2747s ago] ()
+2025-06-19 20:14:31,633 - sqlalchemy.engine.Engine - INFO - 
+                SELECT COUNT(*) as table_count
+                FROM INFORMATION_SCHEMA.TABLES 
+                WHERE TABLE_NAME = ?
+                AND TABLE_SCHEMA = ?
+            
+2025-06-19 20:14:31,633 - sqlalchemy.engine.Engine - INFO - [cached since 0.2663s ago] ('AgentConfigs', 'dbo')
+2025-06-19 20:14:31,634 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,635 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,635 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,635 - sqlalchemy.engine.Engine - INFO - [cached since 0.2778s ago] ()
+2025-06-19 20:14:31,636 - sqlalchemy.engine.Engine - INFO - SELECT COUNT(*) as count FROM [AgentConfigs]
+2025-06-19 20:14:31,636 - sqlalchemy.engine.Engine - INFO - [cached since 0.1771s ago] ()
+2025-06-19 20:14:31,637 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,638 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,638 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,638 - sqlalchemy.engine.Engine - INFO - [cached since 0.2808s ago] ()
+2025-06-19 20:14:31,639 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT COUNT(*) as count 
+                    FROM Agents 
+                    WHERE LastHeartbeat >= DATEADD(minute, -10, GETDATE())
+                    AND Status = 'Active'
+                
+2025-06-19 20:14:31,639 - sqlalchemy.engine.Engine - INFO - [generated in 0.00034s] ()
+2025-06-19 20:14:31,641 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT COUNT(*) as count 
+                    FROM Events 
+                    WHERE CreatedAt >= DATEADD(hour, -1, GETDATE())
+                
+2025-06-19 20:14:31,641 - sqlalchemy.engine.Engine - INFO - [generated in 0.00038s] ()
+2025-06-19 20:14:31,643 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT COUNT(*) as count 
+                    FROM Alerts 
+                    WHERE Status IN ('Open', 'Investigating')
+                
+2025-06-19 20:14:31,643 - sqlalchemy.engine.Engine - INFO - [generated in 0.00035s] ()
+2025-06-19 20:14:31,645 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT COUNT(*) as count 
+                    FROM Alerts 
+                    WHERE Status IN ('Open', 'Investigating')
+                    AND Severity IN ('High', 'Critical')
+                
+2025-06-19 20:14:31,646 - sqlalchemy.engine.Engine - INFO - [generated in 0.00047s] ()
+2025-06-19 20:14:31,649 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT COUNT(*) as count 
+                    FROM DetectionRules 
+                    WHERE IsActive = 1
+                
+2025-06-19 20:14:31,649 - sqlalchemy.engine.Engine - INFO - [generated in 0.00056s] ()
+2025-06-19 20:14:31,651 - sqlalchemy.engine.Engine - INFO - 
+                    SELECT COUNT(*) as count 
+                    FROM Threats 
+                    WHERE IsActive = 1
+                
+2025-06-19 20:14:31,651 - sqlalchemy.engine.Engine - INFO - [generated in 0.00049s] ()
+2025-06-19 20:14:31,653 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,654 - app.database - INFO - ✅ Database health check passed in 112ms
+2025-06-19 20:14:31,654 - __main__ - INFO - ✅ Database connected: EDR_System on Manh
+2025-06-19 20:14:31,654 - __main__ - INFO - ⏱️ Response time: 112ms
+2025-06-19 20:14:31,654 - __main__ - INFO - 📊 Agents: 0 records
+2025-06-19 20:14:31,655 - __main__ - INFO - 📊 Events: 0 records
+2025-06-19 20:14:31,655 - __main__ - INFO - 📊 Alerts: 0 records
+2025-06-19 20:14:31,655 - __main__ - INFO - 📊 Threats: 12 records
+2025-06-19 20:14:31,655 - __main__ - INFO - 📊 DetectionRules: 7 records
+2025-06-19 20:14:31,655 - __main__ - INFO - 📊 SystemConfig: 10 records
+2025-06-19 20:14:31,655 - __main__ - INFO - 📊 AgentConfigs: 0 records
+2025-06-19 20:14:31,656 - __main__ - INFO - 🔄 Active agents (last 10min): 0
+2025-06-19 20:14:31,656 - __main__ - INFO - 📈 Events (last hour): 0
+2025-06-19 20:14:31,656 - __main__ - INFO - 🚨 Open alerts: 0
+2025-06-19 20:14:31,656 - __main__ - INFO - 🛡️ Active detection rules: 7
+2025-06-19 20:14:31,656 - __main__ - INFO - 🔍 Active threat indicators: 12
+2025-06-19 20:14:31,681 - __main__ - INFO - 🧪 Testing database schema compliance...
+2025-06-19 20:14:31,682 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,682 - sqlalchemy.engine.Engine - INFO - SELECT 1
+2025-06-19 20:14:31,682 - sqlalchemy.engine.Engine - INFO - [cached since 0.325s ago] ()
+2025-06-19 20:14:31,693 - sqlalchemy.engine.Engine - INFO - SELECT [Agents].[AgentID] AS [Agents_AgentID], [Agents].[HostName] AS [Agents_HostName], [Agents].[IPAddress] AS [Agents_IPAddress], [Agents].[MACAddress] AS [Agents_MACAddress], [Agents].[OperatingSystem] AS [Agents_OperatingSystem], [Agents].[OSVersion] AS [Agents_OSVersion], [Agents].[Architecture] AS [Agents_Architecture], [Agents].[Domain] AS [Agents_Domain], [Agents].[AgentVersion] AS [Agents_AgentVersion], [Agents].[InstallPath] AS [Agents_InstallPath], [Agents].[Status] AS [Agents_Status], [Agents].[LastHeartbeat] AS [Agents_LastHeartbeat], [Agents].[FirstSeen] AS [Agents_FirstSeen], [Agents].[CPUUsage] AS [Agents_CPUUsage], [Agents].[MemoryUsage] AS [Agents_MemoryUsage], [Agents].[DiskUsage] AS [Agents_DiskUsage], [Agents].[NetworkLatency] AS [Agents_NetworkLatency], [Agents].[MonitoringEnabled] AS [Agents_MonitoringEnabled], [Agents].[CreatedAt] AS [Agents_CreatedAt], [Agents].[UpdatedAt] AS [Agents_UpdatedAt] 
+FROM [Agents] 
+WHERE [Agents].[HostName] LIKE ?
+2025-06-19 20:14:31,693 - sqlalchemy.engine.Engine - INFO - [generated in 0.00074s] ('TEST-SCHEMA-%',)
+2025-06-19 20:14:31,699 - sqlalchemy.engine.Engine - INFO - INSERT INTO [Agents] ([AgentID], [HostName], [IPAddress], [MACAddress], [OperatingSystem], [OSVersion], [Architecture], [Domain], [AgentVersion], [InstallPath], [Status], [LastHeartbeat], [FirstSeen], [CPUUsage], [MemoryUsage], [DiskUsage], [NetworkLatency], [MonitoringEnabled], [CreatedAt], [UpdatedAt]) OUTPUT inserted.[LastHeartbeat], inserted.[FirstSeen], inserted.[CreatedAt], inserted.[UpdatedAt] VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate(), getdate(), ?, ?, ?, ?, ?, getdate(), getdate())
+2025-06-19 20:14:31,699 - sqlalchemy.engine.Engine - INFO - [generated in 0.00061s] (UUID('77b0d322-bfb2-4fd9-a36a-20937f074788'), 'TEST-SCHEMA-1750338871-fb9e699e', '192.168.20.200', None, 'Windows 11 Pro', None, None, None, '1.0.0', None, 'Active', 0.0, 0.0, 0.0, 0, 1)
+2025-06-19 20:14:31,704 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,704 - __main__ - INFO - ✅ Agent test successful: 77b0d322-bfb2-4fd9-a36a-20937f074788
+2025-06-19 20:14:31,705 - __main__ - INFO - ✅ Test hostname: TEST-SCHEMA-1750338871-fb9e699e
+2025-06-19 20:14:31,705 - sqlalchemy.engine.Engine - INFO - BEGIN (implicit)
+2025-06-19 20:14:31,707 - sqlalchemy.engine.Engine - INFO - DELETE FROM [Agents] WHERE [Agents].[AgentID] = ?
+2025-06-19 20:14:31,707 - sqlalchemy.engine.Engine - INFO - [generated in 0.00044s] (UUID('77b0d322-bfb2-4fd9-a36a-20937f074788'),)
+2025-06-19 20:14:31,717 - sqlalchemy.engine.Engine - INFO - COMMIT
+2025-06-19 20:14:31,719 - __main__ - INFO - 🧹 Test agent cleaned up
+2025-06-19 20:14:31,719 - __main__ - INFO - ✅ Database schema test completed successfully
+2025-06-19 20:14:31,719 - __main__ - INFO - 🎯 Final startup preparations...
+2025-06-19 20:14:31,719 - __main__ - INFO - 🌐 Server will bind to: 192.168.20.85:5000
+2025-06-19 20:14:31,720 - __main__ - INFO - 🔄 Reload mode: Enabled
+2025-06-19 20:14:31,720 - __main__ - INFO - 🐛 Debug mode: Enabled
+2025-06-19 20:14:31,720 - __main__ - INFO - 🔧 LOCAL SQL SERVER MODE:
+2025-06-19 20:14:31,720 - __main__ - INFO -    • Connected to local SQL Server instance
+2025-06-19 20:14:31,720 - __main__ - INFO -    • Using Windows Authentication
+2025-06-19 20:14:31,720 - __main__ - INFO -    • EDR_System database ready
+2025-06-19 20:14:31,720 - __main__ - INFO -    • All services operational
+2025-06-19 20:14:31,721 - __main__ - INFO - 🚀 Starting EDR Agent Communication Server...

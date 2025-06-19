@@ -1,7 +1,7 @@
-# run_server.py - EDR Server Launcher (Fixed for Unique Hostname)
+# run_server.py - EDR Server Launcher (Fixed for Local SQL Server)
 """
 EDR Agent Communication Server Launcher
-Fixed for unique hostname in database tests
+Fixed for local SQL Server connection
 """
 
 import os
@@ -11,6 +11,8 @@ import logging.config
 import uvicorn
 import uuid
 import time
+import socket
+import pyodbc
 from pathlib import Path
 
 # Add the project root to Python path
@@ -29,6 +31,120 @@ def setup_logging():
     )
     return logging.getLogger(__name__)
 
+def test_local_sql_connection(logger):
+    """Test different local SQL Server connection options"""
+    
+    logger.info("🔍 Testing local SQL Server connections...")
+    
+    # Different server names to try for local SQL Server
+    server_options = [
+        "localhost",
+        "127.0.0.1", 
+        ".",
+        "(local)",
+        "localhost\\SQLEXPRESS",
+        ".\\SQLEXPRESS",
+        "(local)\\SQLEXPRESS"
+    ]
+    
+    connection_strings = []
+    
+    for server in server_options:
+        conn_str = f"DRIVER={{ODBC Driver 17 for SQL Server}};SERVER={server};DATABASE=EDR_System;Trusted_Connection=yes;"
+        connection_strings.append((server, conn_str))
+    
+    # Test each connection string
+    for server_name, conn_str in connection_strings:
+        logger.info(f"🔌 Testing: {server_name}")
+        
+        try:
+            # Test connection with short timeout
+            conn = pyodbc.connect(conn_str, timeout=5)
+            cursor = conn.cursor()
+            cursor.execute("SELECT 1 as test, @@VERSION as version")
+            row = cursor.fetchone()
+            
+            # Check if EDR_System database exists
+            cursor.execute("SELECT name FROM sys.databases WHERE name = 'EDR_System'")
+            db_exists = cursor.fetchone()
+            
+            conn.close()
+            
+            logger.info(f"✅ SUCCESS! Connected to SQL Server via: {server_name}")
+            logger.info(f"   SQL Version: {row.version[:60]}...")
+            
+            if db_exists:
+                logger.info("✅ EDR_System database found")
+            else:
+                logger.warning("⚠️ EDR_System database not found - creating it...")
+                try:
+                    # Try to create database
+                    master_conn_str = conn_str.replace("DATABASE=EDR_System;", "DATABASE=master;")
+                    master_conn = pyodbc.connect(master_conn_str, timeout=5)
+                    master_cursor = master_conn.cursor()
+                    master_cursor.execute("CREATE DATABASE EDR_System")
+                    master_conn.commit()
+                    master_conn.close()
+                    logger.info("✅ EDR_System database created successfully")
+                except Exception as e:
+                    logger.error(f"❌ Failed to create database: {e}")
+            
+            # Update environment variable for successful connection
+            os.environ['DB_SERVER'] = server_name
+            logger.info(f"🎯 Using SQL Server: {server_name}")
+            return True
+            
+        except pyodbc.Error as e:
+            logger.debug(f"   ❌ Failed: {e}")
+            continue
+        except Exception as e:
+            logger.debug(f"   ❌ Error: {e}")
+            continue
+    
+    logger.error("❌ No working SQL Server connection found")
+    return False
+
+def check_sql_server_service():
+    """Check if SQL Server services are running"""
+    logger = logging.getLogger(__name__)
+    
+    logger.info("🔍 Checking SQL Server services...")
+    
+    services_to_check = [
+        "MSSQLSERVER",
+        "MSSQL$SQLEXPRESS", 
+        "SQLBrowser"
+    ]
+    
+    running_services = []
+    
+    for service in services_to_check:
+        try:
+            import subprocess
+            result = subprocess.run(
+                ["sc", "query", service], 
+                capture_output=True, 
+                text=True, 
+                timeout=5
+            )
+            
+            if "RUNNING" in result.stdout:
+                running_services.append(service)
+                logger.info(f"✅ {service} is running")
+            elif result.returncode == 0:
+                logger.warning(f"⚠️ {service} exists but not running")
+            
+        except Exception:
+            continue
+    
+    if running_services:
+        logger.info(f"✅ Found {len(running_services)} running SQL Server service(s)")
+        return True
+    else:
+        logger.error("❌ No SQL Server services running")
+        logger.error("💡 Start SQL Server service with: net start MSSQLSERVER")
+        return False
+
 def print_edr_banner(logger):
     """Print EDR server banner with configuration info"""
     try:
@@ -39,7 +155,7 @@ def print_edr_banner(logger):
         
         banner = f"""
 ════════════════════════════════════════════════════════════════
-🛡️  EDR AGENT COMMUNICATION SERVER - {edr_info['version']}
+🛡️  EDR AGENT COMMUNICATION SERVER - {edr_info['version']} (LOCAL)
 ════════════════════════════════════════════════════════════════
 🚀 Server Details:
    • Host: {server_config['bind_host']}:{server_config['bind_port']}
@@ -52,8 +168,8 @@ def print_edr_banner(logger):
    • Max Agents: {config['network']['max_agents']:,}
    • Agent URL: http://{server_config['bind_host']}:{server_config['bind_port']}
 
-🗄️  Database Configuration:
-   • Server: {config['database']['server']}
+🗄️  Database Configuration (LOCAL):
+   • Server: {config['database']['server']} (Auto-detected)
    • Database: {config['database']['database']}
    • Connection: Trusted ({config['database']['driver']})
 
@@ -93,6 +209,26 @@ def check_environment(logger):
     logger.info("🔍 Performing environment checks...")
     
     try:
+        # 1. Check SQL Server services first
+        if not check_sql_server_service():
+            logger.error("❌ SQL Server services not running")
+            logger.error("💡 Please start SQL Server service:")
+            logger.error("   net start MSSQLSERVER")
+            logger.error("   or")
+            logger.error("   net start \"MSSQL$SQLEXPRESS\"")
+            return False
+        
+        # 2. Test SQL Server connection
+        if not test_local_sql_connection(logger):
+            logger.error("❌ Cannot connect to local SQL Server")
+            logger.error("💡 Please check:")
+            logger.error("   • SQL Server is installed and running")
+            logger.error("   • Windows Authentication is enabled")
+            logger.error("   • Your user has access to SQL Server")
+            logger.error("   • Try connecting with SSMS first")
+            return False
+        
+        # 3. Import and test application configuration
         from app.config import config
         from app.database import init_database
         
@@ -102,8 +238,8 @@ def check_environment(logger):
                 logger.info(f"📁 Creating directory: {path}")
                 path.mkdir(parents=True, exist_ok=True)
         
-        # Check database configuration
-        logger.info("🗄️ Testing database connection...")
+        # Initialize database
+        logger.info("🗄️ Initializing database...")
         if not init_database():
             logger.error("❌ Database initialization failed")
             return False
@@ -217,12 +353,10 @@ def test_database_schema():
             logger.info("🧹 Test agent cleaned up")
             
             logger.info("✅ Database schema test completed successfully")
-            logger.info("⚠️ Event table testing skipped due to trigger compatibility")
             return True
             
     except Exception as e:
         logger.error(f"❌ Database schema test failed: {e}")
-        logger.error("💡 This may be due to database constraints or connection issues")
         # Don't fail startup for this - it's just a test
         logger.warning("⚠️ Continuing server startup despite test failure...")
         return True
@@ -232,7 +366,7 @@ def main():
     try:
         # Setup logging first
         logger = setup_logging()
-        logger.info("🚀 EDR Agent Communication Server - Startup Initiated")
+        logger.info("🚀 EDR Agent Communication Server - Local SQL Startup")
         
         # Print banner
         print_edr_banner(logger)
@@ -240,6 +374,11 @@ def main():
         # Check environment
         if not check_environment(logger):
             logger.error("❌ Environment check failed - cannot start server")
+            logger.error("💡 Quick fixes to try:")
+            logger.error("   1. Start SQL Server: net start MSSQLSERVER")
+            logger.error("   2. Or start SQL Express: net start \"MSSQL$SQLEXPRESS\"")
+            logger.error("   3. Connect with SSMS to verify SQL Server works")
+            logger.error("   4. Check Windows Authentication is enabled")
             sys.exit(1)
         
         # Get database info
@@ -261,11 +400,11 @@ def main():
         logger.info(f"🐛 Debug mode: {'Enabled' if server_config['debug'] else 'Disabled'}")
         
         # Important notes for user
-        logger.info("🔧 IMPORTANT NOTES:")
-        logger.info("   • Trigger issues have been resolved")
-        logger.info("   • Server should start successfully now")
-        logger.info("   • Check /docs for API documentation once server starts")
-        logger.info("   • Check /health for system status")
+        logger.info("🔧 LOCAL SQL SERVER MODE:")
+        logger.info("   • Connected to local SQL Server instance")
+        logger.info("   • Using Windows Authentication")
+        logger.info("   • EDR_System database ready")
+        logger.info("   • All services operational")
         
         # Start uvicorn server
         logger.info("🚀 Starting EDR Agent Communication Server...")
@@ -311,7 +450,7 @@ if __name__ == "__main__":
     # Set console title if on Windows
     if sys.platform.startswith('win'):
         try:
-            os.system('title EDR Agent Communication Server - Fixed Version')
+            os.system('title EDR Agent Communication Server - Local SQL Mode')
         except:
             pass
     

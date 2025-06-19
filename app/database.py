@@ -1,7 +1,7 @@
-# app/database.py - Complete Database Manager (Updated for New Schema)
+# app/database.py - Database Manager (FIXED for Network Connection)
 """
 Database Connection Manager for EDR Server
-SQLAlchemy integration with SQL Server - Updated for new simplified schema
+SQLAlchemy integration with SQL Server - FIXED for network database access
 """
 
 import logging
@@ -24,7 +24,7 @@ logger = logging.getLogger(__name__)
 Base = declarative_base()
 
 class DatabaseManager:
-    """Enhanced Database connection and session manager for EDR System"""
+    """Enhanced Database connection and session manager for EDR System with network support"""
     
     def __init__(self):
         self.engine = None
@@ -32,36 +32,41 @@ class DatabaseManager:
         self.metadata = None
         self.is_connected = False
         self._connection_attempts = 0
-        self._max_retries = 3
+        self._max_retries = 5  # FIXED: Increased retries for network
         self._last_health_check = None
         self._health_check_interval = 300  # 5 minutes
         self._initialize_engine()
     
     def _initialize_engine(self):
-        """Initialize SQLAlchemy engine with enhanced configuration"""
+        """Initialize SQLAlchemy engine with enhanced network configuration"""
         try:
             database_url = get_database_url()
             perf_config = config['performance']
             
             logger.info(f"🔗 Initializing database connection to: {config['database']['server']}/{config['database']['database']}")
             
-            # Enhanced engine configuration for EDR workload
+            # Network-optimized engine configuration
             self.engine = create_engine(
                 database_url,
                 poolclass=QueuePool,
                 pool_size=perf_config['database_pool_size'],
                 max_overflow=perf_config['database_max_overflow'],
                 pool_timeout=perf_config['database_pool_timeout'],
-                pool_pre_ping=True,  # Verify connections before use
-                pool_recycle=3600,   # Recycle connections every hour
-                echo=config['server']['debug'],  # Log SQL queries in debug mode
-                echo_pool=False,     # Don't log pool events unless debugging
+                pool_pre_ping=True,  # Essential for network connections
+                pool_recycle=1800,   # FIXED: Shorter recycle for network stability (30 min)
+                echo=config['server']['debug'],
+                echo_pool=False,
                 future=True,
-                isolation_level="READ_COMMITTED",  # Better for concurrent access
+                isolation_level="READ_COMMITTED",
                 connect_args={
                     "timeout": config['database']['timeout'],
                     "autocommit": False,
-                    "check_same_thread": False  # For SQLite compatibility if needed
+                    "check_same_thread": False,
+                    # FIXED: Network connection optimizations
+                    "login_timeout": config['database']['login_timeout'],
+                    "connection_timeout": config['database']['connection_timeout'],
+                    "packet_size": 4096,  # Optimize packet size for network
+                    "app_name": "EDR_Agent_Server"  # Identify connection in SQL Server
                 }
             )
             
@@ -95,26 +100,51 @@ class DatabaseManager:
             # Set connection properties for SQL Server
             try:
                 if hasattr(dbapi_connection, 'execute'):
-                    # Set connection timeout and other properties
+                    # FIXED: Enhanced connection settings for network stability
                     dbapi_connection.execute("SET LOCK_TIMEOUT 30000")  # 30 seconds
                     dbapi_connection.execute("SET QUERY_GOVERNOR_COST_LIMIT 0")  # No query cost limit
+                    dbapi_connection.execute("SET ARITHABORT ON")  # Better error handling
+                    dbapi_connection.execute("SET ANSI_NULLS ON")  # Standard compliance
+                    dbapi_connection.execute("SET QUOTED_IDENTIFIER ON")  # Standard compliance
             except Exception as e:
                 logger.debug(f"Could not set connection properties: {e}")
+        
+        @event.listens_for(self.engine, "checkout")
+        def receive_checkout(dbapi_connection, connection_record, connection_proxy):
+            logger.debug("📤 Connection checked out from pool")
+        
+        @event.listens_for(self.engine, "checkin")
+        def receive_checkin(dbapi_connection, connection_record):
+            logger.debug("📥 Connection checked in to pool")
+        
+        @event.listens_for(self.engine, "invalidate")
+        def receive_invalidate(dbapi_connection, connection_record, exception):
+            logger.warning(f"🔄 Connection invalidated: {exception}")
     
-    def test_connection(self, retry_count: int = 3) -> bool:
-        """Enhanced connection test with retry logic"""
+    def test_connection(self, retry_count: int = 5) -> bool:
+        """Enhanced connection test with retry logic for network"""
         for attempt in range(retry_count):
             try:
                 with self.engine.connect() as connection:
-                    # Test with a simple query
-                    result = connection.execute(text("SELECT 1 as test, GETDATE() as server_time"))
+                    # Enhanced test with server info
+                    result = connection.execute(text("""
+                        SELECT 
+                            1 as test, 
+                            GETDATE() as server_time,
+                            @@VERSION as version,
+                            @@SERVERNAME as server_name,
+                            DB_NAME() as database_name
+                    """))
                     row = result.fetchone()
                     
                     if row and row[0] == 1:
                         self.is_connected = True
                         server_time = row[1]
+                        server_name = row[3]
+                        database_name = row[4]
                         logger.info(f"✅ Database connection test successful (attempt {attempt + 1}/{retry_count})")
                         logger.debug(f"🕐 Server time: {server_time}")
+                        logger.debug(f"🖥️ Server: {server_name}, Database: {database_name}")
                         return True
                     else:
                         raise Exception("Unexpected test query result")
@@ -123,7 +153,9 @@ class DatabaseManager:
                 self.is_connected = False
                 logger.error(f"❌ Database connection test failed (attempt {attempt + 1}/{retry_count}): {e}")
                 if attempt < retry_count - 1:
-                    time.sleep(2 ** attempt)  # Exponential backoff
+                    wait_time = min(2 ** attempt, 10)  # Cap at 10 seconds
+                    logger.info(f"⏳ Waiting {wait_time} seconds before retry...")
+                    time.sleep(wait_time)
                     
         return False
     
@@ -134,8 +166,9 @@ class DatabaseManager:
         
         try:
             session = self.SessionLocal()
-            # Test the session
+            # Test the session with a simple query
             session.execute(text("SELECT 1"))
+            logger.debug("🔗 New database session established")
             return session
         except Exception as e:
             logger.error(f"Failed to create database session: {e}")
@@ -161,6 +194,15 @@ class DatabaseManager:
             if session:
                 session.rollback()
             logger.error(f"🔌 Database operational error: {e}")
+            # Check if it's a network-related error
+            error_str = str(e).lower()
+            if any(keyword in error_str for keyword in ['timeout', 'connection', 'network', 'tcp']):
+                logger.error("🌐 Network-related database error detected")
+                # Try to recreate engine for network issues
+                try:
+                    self._initialize_engine()
+                except Exception as reinit_error:
+                    logger.error(f"❌ Failed to reinitialize engine: {reinit_error}")
             raise DatabaseOperationalError(f"Database operation failed: {e}")
             
         except SQLAlchemyError as e:
@@ -219,7 +261,7 @@ class DatabaseManager:
             info = {}
             
             with self.get_db_session() as session:
-                # Basic database info
+                # Enhanced database info for network diagnosis
                 basic_info_query = """
                     SELECT 
                         @@VERSION as version,
@@ -228,7 +270,10 @@ class DatabaseManager:
                         GETDATE() as current_datetime,
                         @@SPID as session_id,
                         HOST_NAME() as host_name,
-                        SUSER_NAME() as user_name
+                        SUSER_NAME() as user_name,
+                        @@CONNECTIONS as total_connections,
+                        @@CPU_BUSY as cpu_busy,
+                        @@IDLE as idle_time
                 """
                 result = session.execute(text(basic_info_query))
                 row = result.fetchone()
@@ -240,7 +285,10 @@ class DatabaseManager:
                         'current_datetime': row.current_datetime.isoformat() if row.current_datetime else None,
                         'session_id': row.session_id,
                         'host_name': row.host_name,
-                        'user_name': row.user_name
+                        'user_name': row.user_name,
+                        'total_connections': row.total_connections,
+                        'cpu_busy': row.cpu_busy,
+                        'idle_time': row.idle_time
                     }
                 
                 # EDR system tables information
@@ -282,6 +330,8 @@ class DatabaseManager:
                         info['allocated_mb'] = row.allocated_space_mb
                 except Exception as e:
                     logger.debug(f"Could not get database size: {e}")
+                    info['size_mb'] = 0
+                    info['allocated_mb'] = 0
                 
             return info
             
@@ -290,7 +340,7 @@ class DatabaseManager:
             return {'error': str(e)}
     
     def health_check(self, force_check: bool = False) -> Dict:
-        """Comprehensive database health check for EDR system"""
+        """Comprehensive database health check for EDR system with network diagnostics"""
         start_time = time.time()
         health_status = {
             'healthy': False,
@@ -298,17 +348,29 @@ class DatabaseManager:
             'database_info': {},
             'table_counts': {},
             'edr_system_status': {},
+            'network_status': {},
             'errors': [],
             'warnings': [],
             'last_checked': datetime.now().isoformat()
         }
         
         try:
-            # Step 1: Test basic connection
+            # Step 1: Test basic connection with network diagnostics
             logger.debug("🔍 Testing database connection...")
+            connection_start = time.time()
             if not self.test_connection():
                 health_status['errors'].append('Database connection failed')
+                health_status['network_status'] = {
+                    'connection_time_ms': int((time.time() - connection_start) * 1000),
+                    'status': 'failed'
+                }
                 return health_status
+            
+            connection_time = int((time.time() - connection_start) * 1000)
+            health_status['network_status'] = {
+                'connection_time_ms': connection_time,
+                'status': 'success'
+            }
             
             # Step 2: Get database info
             logger.debug("🔍 Retrieving database information...")
@@ -340,7 +402,11 @@ class DatabaseManager:
             # Step 5: Calculate response time
             health_status['response_time_ms'] = int((time.time() - start_time) * 1000)
             
-            # Step 6: Determine overall health
+            # Step 6: Network performance analysis
+            if health_status['response_time_ms'] > 1000:
+                health_status['warnings'].append(f"Slow database response time: {health_status['response_time_ms']}ms")
+            
+            # Step 7: Determine overall health
             health_status['healthy'] = len(health_status['errors']) == 0
             
             # Log results
@@ -490,13 +556,15 @@ def get_db() -> Generator[Session, None, None]:
 
 # Initialization and utility functions
 def init_database() -> bool:
-    """Initialize database connection and verify EDR schema"""
+    """Initialize database connection and verify EDR schema with network support"""
     try:
         logger.info("🔄 Initializing EDR database connection...")
         
-        # Test database connection with retries
-        if not db_manager.test_connection(retry_count=3):
+        # Test database connection with retries for network
+        if not db_manager.test_connection(retry_count=5):
             logger.error("❌ Database connection test failed after retries")
+            logger.error("💡 Check network connectivity to SQL Server")
+            logger.error(f"💡 Verify SQL Server is running on {config['database']['server']}")
             return False
         
         # Get database info
@@ -507,6 +575,8 @@ def init_database() -> bool:
         
         logger.info(f"🗄️ Connected to: {db_info.get('database_name')} on {db_info.get('server_name')}")
         logger.info(f"📊 SQL Server Version: {db_info.get('version', 'Unknown')[:50]}...")
+        logger.info(f"👤 Connection User: {db_info.get('user_name', 'Unknown')}")
+        logger.info(f"🖥️ Host: {db_info.get('host_name', 'Unknown')}")
         
         # Verify EDR critical tables exist
         edr_tables = ['Agents', 'Events', 'Alerts', 'Threats', 'DetectionRules', 'SystemConfig', 'AgentConfigs']
@@ -541,6 +611,11 @@ def init_database() -> bool:
         
     except Exception as e:
         logger.error(f"💥 Database initialization failed: {e}")
+        logger.error("💡 Common issues:")
+        logger.error("   • SQL Server not running or not accessible")
+        logger.error("   • Firewall blocking connection")
+        logger.error("   • Authentication failure")
+        logger.error("   • Database does not exist")
         return False
 
 def get_database_status() -> Dict:
