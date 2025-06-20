@@ -4738,3 +4738,139 @@ WHERE [Agents].[HostName] LIKE ?
 2025-06-20 08:50:24,104 - __main__ - INFO - 🎯 Using detected server: localhost
 2025-06-20 08:50:24,104 - __main__ - INFO - 📦 Loading application configuration...
 2025-06-20 08:50:24,331 - app.database - INFO - 🔗 Initializing database connection to: 192.168.20.85,1433/EDR_System
+2025-06-20 08:54:53,501 - __main__ - INFO - 🚀 EDR Agent Communication Server - Local SQL Startup
+2025-06-20 08:54:53,505 - __main__ - INFO - 🛡️ EDR Agent Communication Server Starting Up
+2025-06-20 08:54:53,505 - __main__ - INFO - 🔍 Performing environment checks...
+2025-06-20 08:54:53,505 - __main__ - INFO - 🔍 Checking SQL Server services...
+2025-06-20 08:54:53,518 - __main__ - INFO - ✅ MSSQLSERVER is running
+2025-06-20 08:54:53,545 - __main__ - WARNING - ⚠️ SQLBrowser exists but not running
+2025-06-20 08:54:53,545 - __main__ - INFO - ✅ Found 1 running SQL Server service(s)
+2025-06-20 08:54:53,546 - __main__ - INFO - 🔍 Testing local SQL Server connections...
+2025-06-20 08:54:53,546 - __main__ - INFO - 🔌 Testing: localhost
+2025-06-20 08:54:53,635 - __main__ - INFO - ✅ SUCCESS! Connected to SQL Server via: localhost
+2025-06-20 08:54:53,635 - __main__ - INFO -    SQL Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8...
+2025-06-20 08:54:53,636 - __main__ - INFO - ✅ EDR_System database found
+2025-06-20 08:54:53,636 - __main__ - INFO - 🎯 Using SQL Server: localhost
+2025-06-20 08:54:53,931 - app.database - INFO - 🔗 Initializing database connection to: 192.168.20.85,1433/EDR_System
+2025-06-20 08:55:09,776 - app.database - WARNING - ⚠️ Original config failed: (pyodbc.OperationalError) ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]TCP Provider: No connection could be made because the target machine actively refused it.\r\n (10061) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Invalid connection string attribute (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (10061)')
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-06-20 08:55:09,776 - app.database - INFO - 🔄 Attempting auto-detection...
+2025-06-20 08:55:09,777 - app.database - INFO - 🔍 Auto-detecting SQL Server connection...
+2025-06-20 08:55:16,190 - app.database - INFO - ✅ Auto-detected working server: localhost
+2025-06-20 08:55:16,191 - app.database - INFO - 📊 Database: EDR_System
+2025-06-20 08:55:16,192 - app.database - INFO - ✅ Database engine initialized successfully
+2025-06-20 08:55:16,193 - __main__ - INFO - 🗄️ Initializing database...
+2025-06-20 08:55:16,193 - app.database - INFO - 🔄 Initializing EDR database connection...
+2025-06-20 08:55:16,208 - app.database - INFO - ✅ Database connection verified (attempt 1/2)
+2025-06-20 08:55:16,209 - app.database - INFO - 🕐 Server time: 2025-06-20 08:55:16.207000
+2025-06-20 08:55:16,209 - app.database - INFO - 🖥️ Server: Manh, Database: EDR_System
+2025-06-20 08:55:16,211 - app.database - INFO - ✅ Database connection verified (attempt 1/1)
+2025-06-20 08:55:16,211 - app.database - INFO - 🕐 Server time: 2025-06-20 08:55:16.210000
+2025-06-20 08:55:16,211 - app.database - INFO - 🖥️ Server: Manh, Database: EDR_System
+2025-06-20 08:55:16,254 - app.database - INFO - ✅ Database health check passed in 43ms
+2025-06-20 08:55:16,254 - app.database - INFO - 🎯 Using auto-detected server: localhost
+2025-06-20 08:55:16,254 - app.database - INFO - 📊 Database ready - 7 tables, 41 total records
+2025-06-20 08:55:16,255 - app.database - INFO - ⚡ Response time: 43ms
+2025-06-20 08:55:16,255 - app.database - INFO -    📋 Agents: 0 records
+2025-06-20 08:55:16,255 - app.database - INFO -    📋 Events: 0 records
+2025-06-20 08:55:16,255 - app.database - INFO -    📋 Alerts: 0 records
+2025-06-20 08:55:16,256 - app.database - INFO -    📋 Threats: 12 records
+2025-06-20 08:55:16,256 - app.database - INFO -    📋 DetectionRules: 7 records
+2025-06-20 08:55:16,256 - app.database - INFO -    📋 SystemConfig: 22 records
+2025-06-20 08:55:16,256 - app.database - INFO -    📋 AgentConfigs: 0 records
+2025-06-20 08:55:16,256 - __main__ - INFO - ✅ Database connection successful
+2025-06-20 08:55:16,257 - __main__ - INFO - ✅ Environment check completed successfully
+2025-06-20 08:55:16,257 - __main__ - INFO - 📊 Retrieving database information...
+2025-06-20 08:55:16,258 - app.database - INFO - ✅ Database connection verified (attempt 1/1)
+2025-06-20 08:55:16,258 - app.database - INFO - 🕐 Server time: 2025-06-20 08:55:16.257000
+2025-06-20 08:55:16,259 - app.database - INFO - 🖥️ Server: Manh, Database: EDR_System
+2025-06-20 08:55:16,264 - app.database - INFO - ✅ Database health check passed in 7ms
+2025-06-20 08:55:16,265 - __main__ - INFO - ✅ Database connected: None on None
+2025-06-20 08:55:16,265 - __main__ - INFO - ⏱️ Response time: 7ms
+2025-06-20 08:55:16,265 - __main__ - INFO - 📊 Agents: 0 records
+2025-06-20 08:55:16,265 - __main__ - INFO - 📊 Events: 0 records
+2025-06-20 08:55:16,266 - __main__ - INFO - 📊 Alerts: 0 records
+2025-06-20 08:55:16,266 - __main__ - INFO - 📊 Threats: 12 records
+2025-06-20 08:55:16,266 - __main__ - INFO - 📊 DetectionRules: 7 records
+2025-06-20 08:55:16,266 - __main__ - INFO - 📊 SystemConfig: 22 records
+2025-06-20 08:55:16,267 - __main__ - INFO - 📊 AgentConfigs: 0 records
+2025-06-20 08:55:16,353 - __main__ - INFO - 🧪 Testing database schema compliance...
+2025-06-20 08:55:16,392 - __main__ - INFO - ✅ Agent test successful: deb9ece9-7cca-49f0-82ce-8ae9ec221193
+2025-06-20 08:55:16,392 - __main__ - INFO - ✅ Test hostname: TEST-SCHEMA-1750384516-2f2e601d
+2025-06-20 08:55:16,411 - __main__ - INFO - 🧹 Test agent cleaned up
+2025-06-20 08:55:16,412 - __main__ - INFO - ✅ Database schema test completed successfully
+2025-06-20 08:55:16,412 - __main__ - INFO - 🎯 Final startup preparations...
+2025-06-20 08:55:16,412 - __main__ - INFO - 🌐 Server will bind to: 192.168.20.85:5000
+2025-06-20 08:55:16,412 - __main__ - INFO - 🔄 Reload mode: Disabled
+2025-06-20 08:55:16,413 - __main__ - INFO - 🐛 Debug mode: Disabled
+2025-06-20 08:55:16,413 - __main__ - INFO - 🔧 LOCAL SQL SERVER MODE:
+2025-06-20 08:55:16,413 - __main__ - INFO -    • Connected to local SQL Server instance
+2025-06-20 08:55:16,413 - __main__ - INFO -    • Using Windows Authentication
+2025-06-20 08:55:16,413 - __main__ - INFO -    • EDR_System database ready
+2025-06-20 08:55:16,414 - __main__ - INFO -    • All services operational
+2025-06-20 08:55:16,414 - __main__ - INFO - 🚀 Starting EDR Agent Communication Server...
+2025-06-20 08:55:41,060 - __main__ - INFO - 🚀 EDR Agent Communication Server - Local SQL Startup
+2025-06-20 08:55:41,064 - __main__ - INFO - 🛡️ EDR Agent Communication Server Starting Up
+2025-06-20 08:55:41,064 - __main__ - INFO - 🔍 Performing environment checks...
+2025-06-20 08:55:41,064 - __main__ - INFO - 🔍 Checking SQL Server services...
+2025-06-20 08:55:41,079 - __main__ - INFO - ✅ MSSQLSERVER is running
+2025-06-20 08:55:41,105 - __main__ - WARNING - ⚠️ SQLBrowser exists but not running
+2025-06-20 08:55:41,106 - __main__ - INFO - ✅ Found 1 running SQL Server service(s)
+2025-06-20 08:55:41,106 - __main__ - INFO - 🔍 Testing local SQL Server connections...
+2025-06-20 08:55:41,106 - __main__ - INFO - 🔌 Testing: localhost
+2025-06-20 08:55:41,154 - __main__ - INFO - ✅ SUCCESS! Connected to SQL Server via: localhost
+2025-06-20 08:55:41,154 - __main__ - INFO -    SQL Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8...
+2025-06-20 08:55:41,154 - __main__ - INFO - ✅ EDR_System database found
+2025-06-20 08:55:41,155 - __main__ - INFO - 🎯 Using SQL Server: localhost
+2025-06-20 08:55:41,384 - app.database - INFO - 🔗 Initializing database connection to: 192.168.20.85,1433/EDR_System
+2025-06-20 08:55:41,396 - app.database - INFO - ✅ Database engine initialized successfully
+2025-06-20 08:55:41,396 - __main__ - INFO - 🗄️ Initializing database...
+2025-06-20 08:55:41,397 - app.database - INFO - 🔄 Initializing EDR database connection...
+2025-06-20 08:58:47,281 - __main__ - INFO - 🚀 EDR Agent Communication Server - Enhanced Local SQL Startup
+2025-06-20 08:58:47,285 - __main__ - INFO - 🛡️ EDR Agent Communication Server Starting Up
+2025-06-20 08:58:47,285 - __main__ - INFO - 🔍 Performing comprehensive environment checks...
+2025-06-20 08:58:47,286 - __main__ - INFO - 🔍 Checking ODBC Driver for SQL Server...
+2025-06-20 08:58:47,293 - __main__ - INFO - ✅ Found SQL Server ODBC drivers: ['SQL Server', 'SQL Server Native Client RDA 11.0', 'ODBC Driver 17 for SQL Server']
+2025-06-20 08:58:47,293 - __main__ - INFO - 🔍 Testing local SQL Server connections...
+2025-06-20 08:58:47,293 - __main__ - INFO - 🔍 Checking SQL Server services...
+2025-06-20 08:58:47,309 - __main__ - INFO - ✅ SQL Server (Default Instance) is running
+2025-06-20 08:58:47,352 - __main__ - WARNING - ⚠️ SQL Browser Service exists but not running
+2025-06-20 08:58:47,352 - __main__ - INFO - 🔄 Attempting to start SQL Browser Service...
+2025-06-20 08:58:48,722 - __main__ - WARNING - ⚠️ Failed to start SQL Browser Service: System error 5 has occurred.
+
+Access is denied.
+
+
+2025-06-20 08:58:48,722 - __main__ - INFO - ✅ Found 1 running SQL Server service(s)
+2025-06-20 08:58:48,722 - __main__ - INFO - 🔌 Testing: localhost
+2025-06-20 08:58:48,818 - __main__ - INFO - ✅ SUCCESS! Connected to SQL Server via: localhost
+2025-06-20 08:58:48,819 - __main__ - INFO -    Server Name: Manh
+2025-06-20 08:58:48,819 - __main__ - INFO -    SQL Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8 2022 05:58:25 
+	Cop...
+2025-06-20 08:58:48,866 - __main__ - INFO - ✅ EDR_System database found
+2025-06-20 08:58:48,866 - __main__ - INFO - 🎯 Using SQL Server: localhost
+2025-06-20 08:58:49,111 - app.database - INFO - 🔗 Initializing database connection to: 192.168.20.85,1433/EDR_System
+2025-06-20 08:59:29,931 - __main__ - INFO - 🚀 EDR Agent Communication Server - Local SQL Startup
+2025-06-20 08:59:29,942 - __main__ - INFO - 🛡️ EDR Agent Communication Server Starting Up
+2025-06-20 08:59:29,942 - __main__ - INFO - 🔍 Performing environment checks...
+2025-06-20 08:59:29,942 - __main__ - INFO - 🔍 Checking SQL Server services...
+2025-06-20 08:59:29,957 - __main__ - INFO - ✅ MSSQLSERVER is running
+2025-06-20 08:59:29,981 - __main__ - WARNING - ⚠️ SQLBrowser exists but not running
+2025-06-20 08:59:29,982 - __main__ - INFO - ✅ Found 1 running SQL Server service(s)
+2025-06-20 08:59:29,982 - __main__ - INFO - 🔍 Testing local SQL Server connections...
+2025-06-20 08:59:29,982 - __main__ - INFO - 🔌 Testing: localhost
+2025-06-20 08:59:30,109 - __main__ - INFO - ✅ SUCCESS! Connected to SQL Server via: localhost
+2025-06-20 08:59:30,109 - __main__ - INFO -    SQL Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8...
+2025-06-20 08:59:30,109 - __main__ - INFO - ✅ EDR_System database found
+2025-06-20 08:59:30,110 - __main__ - INFO - 🎯 Using SQL Server: localhost
+2025-06-20 08:59:30,349 - app.database - INFO - 🔗 Initializing database connection to: 192.168.20.85,1433/EDR_System
+2025-06-20 08:59:30,361 - app.database - INFO - ✅ Database engine initialized successfully
+2025-06-20 08:59:30,361 - __main__ - INFO - 🗄️ Initializing database...
+2025-06-20 08:59:30,362 - app.database - INFO - 🔄 Initializing EDR database connection...
+2025-06-20 09:00:01,379 - app.database - ERROR - ❌ Database connection test failed (attempt 1/5): (pyodbc.OperationalError) ('08001', '[08001] [Microsoft][ODBC Driver 17 for SQL Server]TCP Provider: The wait operation timed out.\r\n (258) (SQLDriverConnect); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Login timeout expired (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]Invalid connection string attribute (0); [08001] [Microsoft][ODBC Driver 17 for SQL Server]A network-related or instance-specific error has occurred while establishing a connection to SQL Server. Server is not found or not accessible. Check if instance name is correct and if SQL Server is configured to allow remote connections. For more information see SQL Server Books Online. (258)')
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+2025-06-20 09:00:01,379 - app.database - INFO - ⏳ Waiting 1 seconds before retry...

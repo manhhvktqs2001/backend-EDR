@@ -7207,3 +7207,32 @@ WHERE [DetectionRules].[IsActive] = 1) AS anon_1
 2025-06-19 20:44:34 - app.main - INFO - main.py:45 - lifespan - 📊 Threat intelligence: Enabled
 2025-06-19 20:49:06 - app.main - INFO - main.py:102 - security_and_logging_middleware - 📡 GET /docs - Status: 200 - Time: 0.001s - Client: 192.168.20.85
 2025-06-19 20:49:06 - app.main - INFO - main.py:102 - security_and_logging_middleware - 📡 GET /openapi.json - Status: 200 - Time: 0.101s - Client: 192.168.20.85
+2025-06-20 08:55:17 - app.main - INFO - main.py:31 - lifespan - 🚀 Starting EDR Agent Communication Server...
+2025-06-20 08:55:17 - app.database - INFO - database.py:462 - init_database - 🔄 Initializing EDR database connection...
+2025-06-20 08:55:17 - app.database - INFO - database.py:236 - test_connection - ✅ Database connection verified (attempt 1/2)
+2025-06-20 08:55:17 - app.database - INFO - database.py:237 - test_connection - 🕐 Server time: 2025-06-20 08:55:17.967000
+2025-06-20 08:55:17 - app.database - INFO - database.py:238 - test_connection - 🖥️ Server: Manh, Database: EDR_System
+2025-06-20 08:55:17 - app.database - INFO - database.py:236 - test_connection - ✅ Database connection verified (attempt 1/1)
+2025-06-20 08:55:17 - app.database - INFO - database.py:237 - test_connection - 🕐 Server time: 2025-06-20 08:55:17.967000
+2025-06-20 08:55:17 - app.database - INFO - database.py:238 - test_connection - 🖥️ Server: Manh, Database: EDR_System
+2025-06-20 08:55:17 - app.database - INFO - database.py:392 - health_check - ✅ Database health check passed in 7ms
+2025-06-20 08:55:17 - app.database - INFO - database.py:477 - init_database - 🎯 Using auto-detected server: localhost
+2025-06-20 08:55:17 - app.database - INFO - database.py:482 - init_database - 📊 Database ready - 7 tables, 41 total records
+2025-06-20 08:55:17 - app.database - INFO - database.py:483 - init_database - ⚡ Response time: 7ms
+2025-06-20 08:55:17 - app.database - INFO - database.py:488 - init_database -    📋 Agents: 0 records
+2025-06-20 08:55:17 - app.database - INFO - database.py:488 - init_database -    📋 Events: 0 records
+2025-06-20 08:55:17 - app.database - INFO - database.py:488 - init_database -    📋 Alerts: 0 records
+2025-06-20 08:55:17 - app.database - INFO - database.py:488 - init_database -    📋 Threats: 12 records
+2025-06-20 08:55:17 - app.database - INFO - database.py:488 - init_database -    📋 DetectionRules: 7 records
+2025-06-20 08:55:17 - app.database - INFO - database.py:488 - init_database -    📋 SystemConfig: 22 records
+2025-06-20 08:55:17 - app.database - INFO - database.py:488 - init_database -    📋 AgentConfigs: 0 records
+2025-06-20 08:55:17 - app.main - INFO - main.py:38 - lifespan - ✅ Database initialized successfully
+2025-06-20 08:55:17 - app.main - INFO - main.py:42 - lifespan - 🌐 Server binding to: 192.168.20.85:5000
+2025-06-20 08:55:17 - app.main - INFO - main.py:43 - lifespan - 🔒 Network access: 192.168.20.0/24
+2025-06-20 08:55:17 - app.main - INFO - main.py:44 - lifespan - 🛡️ Detection engine: Enabled
+2025-06-20 08:55:17 - app.main - INFO - main.py:45 - lifespan - 📊 Threat intelligence: Enabled
+2025-06-20 08:55:36 - app.main - INFO - main.py:54 - lifespan - 👋 Shutting down EDR Agent Communication Server...
+2025-06-20 08:55:36 - app.database - INFO - database.py:511 - shutdown_database - 🔄 Shutting down database connections...
+2025-06-20 08:55:36 - app.database - INFO - database.py:408 - cleanup - 🧹 Database engine disposed successfully
+2025-06-20 08:55:36 - app.database - INFO - database.py:411 - cleanup - 🧹 Database cleanup completed
+2025-06-20 08:55:36 - app.database - INFO - database.py:513 - shutdown_database - ✅ Database shutdown completed
