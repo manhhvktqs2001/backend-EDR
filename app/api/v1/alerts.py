@@ -7,6 +7,8 @@ import logging
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import func, text
+from datetime import datetime, timedelta
 
 from ...database import get_db
 from ...models.alert import Alert
@@ -58,7 +60,6 @@ async def list_alerts(
         
         # Time range filter
         if hours:
-            from datetime import datetime, timedelta
             cutoff_time = datetime.now() - timedelta(hours=hours)
             query = query.filter(Alert.FirstDetected >= cutoff_time)
             filters_applied['hours'] = hours
@@ -300,9 +301,6 @@ async def get_alert_statistics(
         stats = Alert.get_alerts_summary(session, hours)
         
         # Get additional statistics
-        from sqlalchemy import func
-        from datetime import datetime, timedelta
-        
         cutoff_time = datetime.now() - timedelta(hours=hours)
         
         # Status breakdown
@@ -375,19 +373,17 @@ async def get_alerts_timeline(
 ):
     """Get alerts timeline for dashboard"""
     try:
-        from sqlalchemy import func
-        from datetime import datetime, timedelta
-        
         cutoff_time = datetime.now() - timedelta(hours=hours)
         
+        # Use SQL Server DATEPART with text() for compatibility
         timeline_data = session.query(
-            func.datepart('hour', Alert.FirstDetected).label('hour'),
+            func.datepart(text('hour'), Alert.FirstDetected).label('hour'),
             Alert.Severity,
             func.count(Alert.AlertID).label('alert_count')
         ).filter(
             Alert.FirstDetected >= cutoff_time
         ).group_by(
-            func.datepart('hour', Alert.FirstDetected),
+            func.datepart(text('hour'), Alert.FirstDetected),
             Alert.Severity
         ).order_by('hour', Alert.Severity).all()
         
@@ -433,7 +429,6 @@ async def get_agent_alerts(
             query = query.filter(Alert.Status == status)
         
         if hours:
-            from datetime import datetime, timedelta
             cutoff_time = datetime.now() - timedelta(hours=hours)
             query = query.filter(Alert.FirstDetected >= cutoff_time)
         
@@ -520,7 +515,6 @@ async def search_alerts_by_mitre(
             query = query.filter(Alert.MitreTechnique.ilike(f'%{technique}%'))
         
         if hours:
-            from datetime import datetime, timedelta
             cutoff_time = datetime.now() - timedelta(hours=hours)
             query = query.filter(Alert.FirstDetected >= cutoff_time)
         
@@ -559,8 +553,6 @@ async def get_alert_health_status(
 ):
     """Get alert processing health status"""
     try:
-        from datetime import datetime, timedelta
-        
         # Get current alert statistics
         open_alerts = session.query(Alert).filter(Alert.Status.in_(['Open', 'Investigating'])).count()
         critical_alerts = session.query(Alert).filter(

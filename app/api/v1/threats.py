@@ -222,7 +222,7 @@ async def lookup_threat(
 @router.post("/check-hash")
 async def check_hash(
     request: Request,
-    file_hash: str,
+    file_hash: str = Query(..., description="File hash to check"),
     session: Session = Depends(get_db)
 ):
     """Quick hash check against threat database"""

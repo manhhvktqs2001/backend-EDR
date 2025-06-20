@@ -7271,3 +7271,21 @@ WHERE [DetectionRules].[IsActive] = 1) AS anon_1
 2025-06-20 09:06:30 - app.database - INFO - database.py:590 - cleanup - 🧹 Database engine disposed successfully
 2025-06-20 09:06:30 - app.database - INFO - database.py:593 - cleanup - 🧹 Database cleanup completed
 2025-06-20 09:06:30 - app.database - INFO - database.py:711 - shutdown_database - ✅ Database shutdown completed
+2025-06-20 09:11:45 - app.main - INFO - main.py:31 - lifespan - 🚀 Starting EDR Agent Communication Server...
+2025-06-20 09:11:45 - app.database - INFO - database.py:650 - init_database - ⚡ Speed optimized database initialization...
+2025-06-20 09:11:45 - app.database - INFO - database.py:363 - test_connection - ✅ Database connected: Manh / EDR_System
+2025-06-20 09:11:45 - app.database - INFO - database.py:364 - test_connection - 👤 User: Manh\manhh
+2025-06-20 09:11:45 - app.database - INFO - database.py:366 - test_connection - 🎯 Server: localhost
+2025-06-20 09:11:45 - app.database - INFO - database.py:668 - init_database - 📊 Connected: Manh / EDR_System
+2025-06-20 09:11:45 - app.database - INFO - database.py:669 - init_database - 👤 User: Manh\manhh
+2025-06-20 09:11:45 - app.database - INFO - database.py:670 - init_database - 📈 Ready: 7 tables, 41 records - 76ms
+2025-06-20 09:11:45 - app.database - INFO - database.py:676 - init_database - 📋 Agents: 0, Events: 0, Alerts: 0, Threats: 12, DetectionRules: 7
+2025-06-20 09:11:45 - app.main - INFO - main.py:38 - lifespan - ✅ Database initialized successfully
+2025-06-20 09:11:45 - app.main - INFO - main.py:42 - lifespan - 🌐 Server binding to: 192.168.20.85:5000
+2025-06-20 09:11:45 - app.main - INFO - main.py:43 - lifespan - 🔒 Network access: 192.168.20.0/24
+2025-06-20 09:11:45 - app.main - INFO - main.py:44 - lifespan - 🛡️ Detection engine: Enabled
+2025-06-20 09:11:45 - app.main - INFO - main.py:45 - lifespan - 📊 Threat intelligence: Enabled
+2025-06-20 09:15:37 - app.main - INFO - main.py:54 - lifespan - 👋 Shutting down EDR Agent Communication Server...
+2025-06-20 09:15:37 - app.database - INFO - database.py:699 - shutdown_database - 🔄 Database shutdown...
+2025-06-20 09:15:37 - app.database - INFO - database.py:594 - cleanup - 🧹 Database cleaned up
+2025-06-20 09:15:37 - app.database - INFO - database.py:701 - shutdown_database - ✅ Database shutdown completed

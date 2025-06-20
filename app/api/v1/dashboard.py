@@ -7,6 +7,7 @@ import logging
 from typing import List, Optional, Dict
 from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import func, text
 from datetime import datetime, timedelta
 
 from ...database import get_db
@@ -23,6 +24,56 @@ from ...schemas.dashboard import (
 
 logger = logging.getLogger('dashboard_api')
 router = APIRouter()
+
+def calculate_system_health_score(online_agents: int, total_agents: int, critical_alerts: int, events_24h: int) -> float:
+    """Calculate overall system health score (0-100)"""
+    try:
+        # Agent health (40% weight)
+        agent_health = (online_agents / total_agents * 100) if total_agents > 0 else 0
+        agent_score = agent_health * 0.4
+        
+        # Alert health (30% weight) - fewer critical alerts is better
+        alert_health = max(0, 100 - (critical_alerts * 5))  # Penalty for critical alerts
+        alert_score = alert_health * 0.3
+        
+        # Processing health (30% weight) - reasonable event volume
+        processing_health = 100 if events_24h > 0 else 50  # Basic processing indicator
+        processing_score = processing_health * 0.3
+        
+        total_score = agent_score + alert_score + processing_score
+        return round(min(100, max(0, total_score)), 1)
+    except Exception:
+        return 50.0  # Default score if calculation fails
+
+def get_health_status(score: float) -> str:
+    """Get health status text from score"""
+    if score >= 90:
+        return "Excellent"
+    elif score >= 75:
+        return "Good"
+    elif score >= 60:
+        return "Fair"
+    elif score >= 40:
+        return "Poor"
+    else:
+        return "Critical"
+
+def get_overall_system_status(db_status: dict, healthy_agents: int, total_agents: int) -> str:
+    """Get overall system status"""
+    if not db_status.get('healthy'):
+        return "Critical"
+    
+    if total_agents == 0:
+        return "No Agents"
+    
+    health_ratio = healthy_agents / total_agents
+    
+    if health_ratio >= 0.9:
+        return "Healthy"
+    elif health_ratio >= 0.7:
+        return "Warning"
+    else:
+        return "Critical"
 
 @router.get("/stats", response_model=DashboardStatsResponse)
 async def get_dashboard_stats(
@@ -106,7 +157,6 @@ async def get_dashboard_stats(
                 "last_updated": now.isoformat()
             }
         )
-        
     except Exception as e:
         logger.error(f"Get dashboard stats failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to get dashboard statistics")
@@ -118,8 +168,6 @@ async def get_agents_overview(
 ):
     """Get agents overview for dashboard"""
     try:
-        from sqlalchemy import func
-        
         # Get agent summary statistics
         agents_summary = Agent.get_agents_summary(session)
         
@@ -190,7 +238,6 @@ async def get_agents_overview(
                 for row in top_event_agents
             ]
         )
-        
     except Exception as e:
         logger.error(f"Get agents overview failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to get agents overview")
@@ -203,8 +250,6 @@ async def get_alerts_overview(
 ):
     """Get alerts overview for dashboard"""
     try:
-        from sqlalchemy import func
-        
         cutoff_time = datetime.now() - timedelta(hours=hours)
         
         # Get alert summary
@@ -256,12 +301,12 @@ async def get_alerts_overview(
         
         # Get alert timeline (hourly)
         alert_timeline = session.query(
-            func.datepart('hour', Alert.FirstDetected).label('hour'),
+            func.date_part('hour', Alert.FirstDetected).label('hour'),
             func.count(Alert.AlertID).label('count')
         ).filter(
             Alert.FirstDetected >= cutoff_time
         ).group_by(
-            func.datepart('hour', Alert.FirstDetected)
+            func.date_part('hour', Alert.FirstDetected)
         ).order_by('hour').all()
         
         return AlertOverviewResponse(
@@ -293,7 +338,6 @@ async def get_alerts_overview(
             ],
             time_range_hours=hours
         )
-        
     except Exception as e:
         logger.error(f"Get alerts overview failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to get alerts overview")
@@ -307,15 +351,13 @@ async def get_events_timeline(
 ):
     """Get events timeline for dashboard charts"""
     try:
-        from sqlalchemy import func
-        
         cutoff_time = datetime.now() - timedelta(hours=hours)
         
-        # Determine time grouping based on granularity
+        # Use appropriate date part function based on granularity
         if granularity == "hour":
-            time_part = func.datepart('hour', Event.EventTimestamp)
+            time_part = func.date_part('hour', Event.EventTimestamp)
         else:  # minute
-            time_part = func.datepart('minute', Event.EventTimestamp)
+            time_part = func.date_part('minute', Event.EventTimestamp)
         
         # Get timeline data
         timeline_data = session.query(
@@ -366,7 +408,6 @@ async def get_events_timeline(
             total_events=sum(row['count'] for row in timeline),
             total_threats=sum(row['threat_count'] for row in threat_timeline_formatted)
         )
-        
     except Exception as e:
         logger.error(f"Get events timeline failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to get events timeline")
@@ -379,8 +420,6 @@ async def get_threats_overview(
 ):
     """Get threats overview for dashboard"""
     try:
-        from sqlalchemy import func
-        
         cutoff_time = datetime.now() - timedelta(hours=hours)
         
         # Get threat summary
@@ -450,7 +489,6 @@ async def get_threats_overview(
             source_distribution={source: count for source, count in source_distribution if source},
             time_range_hours=hours
         )
-        
     except Exception as e:
         logger.error(f"Get threats overview failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to get threats overview")
@@ -518,7 +556,6 @@ async def get_system_overview(
                 "network_io_mbps": 0  # Would be from system monitoring
             }
         )
-        
     except Exception as e:
         logger.error(f"Get system overview failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to get system overview")
@@ -565,59 +602,6 @@ async def get_real_time_stats(
         }
         
         return stats
-        
     except Exception as e:
         logger.error(f"Get real-time stats failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to get real-time stats")
-
-# Helper functions
-def calculate_system_health_score(online_agents: int, total_agents: int, critical_alerts: int, events_24h: int) -> float:
-    """Calculate overall system health score (0-100)"""
-    try:
-        # Agent health (40% weight)
-        agent_health = (online_agents / total_agents * 100) if total_agents > 0 else 0
-        agent_score = agent_health * 0.4
-        
-        # Alert health (30% weight) - fewer critical alerts is better
-        alert_health = max(0, 100 - (critical_alerts * 5))  # Penalty for critical alerts
-        alert_score = alert_health * 0.3
-        
-        # Processing health (30% weight) - reasonable event volume
-        processing_health = 100 if events_24h > 0 else 50  # Basic processing indicator
-        processing_score = processing_health * 0.3
-        
-        total_score = agent_score + alert_score + processing_score
-        return round(min(100, max(0, total_score)), 1)
-        
-    except Exception:
-        return 50.0  # Default score if calculation fails
-
-def get_health_status(score: float) -> str:
-    """Get health status text from score"""
-    if score >= 90:
-        return "Excellent"
-    elif score >= 75:
-        return "Good"
-    elif score >= 60:
-        return "Fair"
-    elif score >= 40:
-        return "Poor"
-    else:
-        return "Critical"
-
-def get_overall_system_status(db_status: dict, healthy_agents: int, total_agents: int) -> str:
-    """Get overall system status"""
-    if not db_status.get('healthy'):
-        return "Critical"
-    
-    if total_agents == 0:
-        return "No Agents"
-    
-    health_ratio = healthy_agents / total_agents
-    
-    if health_ratio >= 0.9:
-        return "Healthy"
-    elif health_ratio >= 0.7:
-        return "Warning"
-    else:
-        return "Critical"
