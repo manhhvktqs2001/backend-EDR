@@ -1,4 +1,4 @@
-# app/config.py - EDR Server Configuration (FIXED for Network Database)
+# app/config.py - FIXED VERSION (Network Database Compatible)
 """
 EDR Server Configuration
 Complete configuration for Agent Communication Server - FIXED for network database access
@@ -12,19 +12,25 @@ from typing import List
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Database Configuration - FIXED for network access
+# Database Configuration - CRITICAL FIX for network access
 DATABASE_CONFIG = {
-    'server': os.getenv('DB_SERVER', '192.168.20.85,1433'),  # FIXED: Include port
+    'server': os.getenv('DB_SERVER', '192.168.20.85,1433'),  # FIXED: Include port explicitly
     'database': os.getenv('DB_DATABASE', 'EDR_System'),
     'driver': os.getenv('DB_DRIVER', 'ODBC Driver 17 for SQL Server'),
     'timeout': int(os.getenv('DB_TIMEOUT', '30')),
     'trusted_connection': os.getenv('DB_TRUSTED_CONNECTION', 'true').lower() == 'true',
     'autocommit': True,
-    # Network connection optimizations
-    'login_timeout': 30,
-    'connection_timeout': 30,
-    'encrypt': False,  # For internal network
-    'trust_server_certificate': True  # For internal network
+    # CRITICAL: Network connection optimizations
+    'login_timeout': int(os.getenv('DB_LOGIN_TIMEOUT', '30')),
+    'connection_timeout': int(os.getenv('DB_CONNECTION_TIMEOUT', '30')),
+    'encrypt': os.getenv('DB_ENCRYPT', 'false').lower() == 'true',  # Usually false for internal network
+    'trust_server_certificate': os.getenv('DB_TRUST_CERT', 'true').lower() == 'true',  # True for internal
+    'packet_size': int(os.getenv('DB_PACKET_SIZE', '4096')),  # Network optimization
+    'application_name': os.getenv('DB_APP_NAME', 'EDR_Agent_Server'),
+    # Additional network stability settings
+    'multi_subnet_failover': False,
+    'mars_connection': False,
+    'connection_pooling': True
 }
 
 # Server Configuration - Production ready
@@ -33,47 +39,65 @@ SERVER_CONFIG = {
     'bind_port': int(os.getenv('SERVER_PORT', '5000')),
     'debug': os.getenv('SERVER_DEBUG', 'false').lower() == 'true',
     'reload': os.getenv('SERVER_RELOAD', 'false').lower() == 'true',
-    'workers': int(os.getenv('SERVER_WORKERS', '4')),  # FIXED: More workers for production
+    'workers': int(os.getenv('SERVER_WORKERS', '4')),
     'title': 'EDR Agent Communication Server',
     'description': 'Agent Registration, Event Collection & Detection Engine (Production)',
     'version': '2.0.0'
 }
 
-# Network Security Configuration
+# Network Security Configuration - FIXED
 NETWORK_CONFIG = {
     'allowed_agent_network': os.getenv('ALLOWED_AGENT_NETWORK', '192.168.20.0/24'),
     'server_endpoint': f"{SERVER_CONFIG['bind_host']}:{SERVER_CONFIG['bind_port']}",
     'max_agents': int(os.getenv('MAX_AGENTS', '1000')),
     'connection_timeout': int(os.getenv('CONNECTION_TIMEOUT', '30')),
-    'heartbeat_timeout': int(os.getenv('HEARTBEAT_TIMEOUT', '300'))
+    'heartbeat_timeout': int(os.getenv('HEARTBEAT_TIMEOUT', '300')),
+    # Additional network settings
+    'enable_ssl': os.getenv('ENABLE_SSL', 'false').lower() == 'true',
+    'ssl_cert_path': os.getenv('SSL_CERT_PATH', ''),
+    'ssl_key_path': os.getenv('SSL_KEY_PATH', ''),
+    'max_connections_per_ip': int(os.getenv('MAX_CONN_PER_IP', '10'))
 }
 
 # Security Configuration (Simplified - No User Auth)
 SECURITY_CONFIG = {
-    'agent_auth_required': True,  # Agents still need token
+    'agent_auth_required': True,
     'agent_auth_token': os.getenv('AGENT_AUTH_TOKEN', 'edr_agent_auth_2024'),
     'api_key_header': os.getenv('API_KEY_HEADER', 'X-Agent-Token'),
     'cors_origins': os.getenv('CORS_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000,http://192.168.20.85:3000').split(','),
     'trusted_proxies': ['192.168.20.0/24'],
-    'dashboard_auth': False,  # No dashboard authentication
-    'user_management': False  # No user management
+    'dashboard_auth': False,
+    'user_management': False,
+    # Additional security settings
+    'rate_limiting_enabled': os.getenv('RATE_LIMITING_ENABLED', 'true').lower() == 'true',
+    'request_size_limit': int(os.getenv('REQUEST_SIZE_LIMIT', '10485760')),  # 10MB
+    'upload_size_limit': int(os.getenv('UPLOAD_SIZE_LIMIT', '52428800'))    # 50MB
 }
 
-# Agent Configuration
+# Agent Configuration - FIXED
 AGENT_CONFIG = {
-    'registration_timeout': 60,
+    'registration_timeout': int(os.getenv('AGENT_REG_TIMEOUT', '60')),
     'heartbeat_interval': int(os.getenv('HEARTBEAT_INTERVAL', '30')),
-    'heartbeat_grace_period': 90,
+    'heartbeat_grace_period': int(os.getenv('HEARTBEAT_GRACE', '90')),
     'event_batch_size': int(os.getenv('EVENT_BATCH_SIZE', '100')),
     'event_queue_size': int(os.getenv('EVENT_QUEUE_SIZE', '10000')),
     'config_version': os.getenv('CONFIG_VERSION', '2.0'),
     'auto_approve_registration': os.getenv('AUTO_APPROVE_REGISTRATION', 'true').lower() == 'true',
     'require_agent_certificate': False,
-    'max_events_per_minute': 1000,
-    'max_batch_size': 1000
+    'max_events_per_minute': int(os.getenv('MAX_EVENTS_PER_MIN', '1000')),
+    'max_batch_size': int(os.getenv('MAX_BATCH_SIZE', '1000')),
+    # Performance constraints - FIXED to match DB schema
+    'max_hostname_length': 255,
+    'max_ip_length': 45,
+    'max_mac_length': 17,
+    'max_os_length': 100,
+    'max_version_length': 100,
+    'max_arch_length': 20,
+    'max_domain_length': 100,
+    'max_path_length': 500
 }
 
-# Detection Engine Configuration
+# Detection Engine Configuration - FIXED
 DETECTION_CONFIG = {
     'rules_enabled': os.getenv('RULES_ENABLED', 'true').lower() == 'true',
     'threat_intel_enabled': os.getenv('THREAT_INTEL_ENABLED', 'true').lower() == 'true',
@@ -81,38 +105,60 @@ DETECTION_CONFIG = {
     'rules_check_interval': float(os.getenv('RULES_CHECK_INTERVAL', '1')),
     'threat_intel_cache_ttl': int(os.getenv('THREAT_INTEL_CACHE_TTL', '3600')),
     'alert_deduplication_window': int(os.getenv('ALERT_DEDUPLICATION_WINDOW', '300')),
-    'max_alerts_per_agent': 1000,
+    'max_alerts_per_agent': int(os.getenv('MAX_ALERTS_PER_AGENT', '1000')),
     'risk_score_threshold': int(os.getenv('RISK_SCORE_THRESHOLD', '70')),
     'auto_quarantine_threshold': int(os.getenv('AUTO_QUARANTINE_THRESHOLD', '90')),
     'real_time_processing': True,
-    'batch_processing_enabled': True
+    'batch_processing_enabled': True,
+    # Database schema constraints - CRITICAL
+    'max_threat_value_length': 512,  # CRITICAL: Match DB schema NVARCHAR(512)
+    'max_rule_name_length': 100,
+    'max_alert_title_length': 255,
+    'max_alert_type_length': 100,
+    'max_mitre_tactic_length': 100,
+    'max_mitre_technique_length': 100
 }
 
-# Alert Configuration (Simplified)
+# Alert Configuration (Simplified) - FIXED
 ALERT_CONFIG = {
     'default_severity': os.getenv('DEFAULT_SEVERITY', 'Medium'),
     'auto_escalation_enabled': os.getenv('AUTO_ESCALATION_ENABLED', 'false').lower() == 'true',
     'escalation_threshold_minutes': int(os.getenv('ESCALATION_THRESHOLD_MINUTES', '60')),
     'alert_retention_days': int(os.getenv('ALERT_RETENTION_DAYS', '90')),
     'max_alerts_per_hour': int(os.getenv('MAX_ALERTS_PER_HOUR', '100')),
-    'notification_enabled': False,  # Simplified - no notifications
+    'notification_enabled': False,
     'webhook_enabled': False,
     'auto_resolve_enabled': True,
-    'auto_resolve_days': 30
+    'auto_resolve_days': int(os.getenv('AUTO_RESOLVE_DAYS', '30')),
+    # Database schema constraints
+    'max_title_length': 255,
+    'max_alert_type_length': 100,
+    'max_detection_method_length': 50,
+    'max_assigned_to_length': 100,
+    'max_resolved_by_length': 100,
+    'max_priority_length': 20,
+    'max_status_length': 20
 }
 
-# Performance Configuration - OPTIMIZED for production
+# Performance Configuration - OPTIMIZED for production and network
 PERFORMANCE_CONFIG = {
-    'database_pool_size': int(os.getenv('DATABASE_POOL_SIZE', '20')),  # FIXED: Increased
-    'database_max_overflow': int(os.getenv('DATABASE_MAX_OVERFLOW', '30')),  # FIXED: Increased
+    'database_pool_size': int(os.getenv('DATABASE_POOL_SIZE', '20')),  # Increased for network
+    'database_max_overflow': int(os.getenv('DATABASE_MAX_OVERFLOW', '30')),  # Increased
     'database_pool_timeout': int(os.getenv('DATABASE_POOL_TIMEOUT', '30')),
+    'database_pool_recycle': int(os.getenv('DATABASE_POOL_RECYCLE', '1800')),  # 30 min for network
+    'database_pool_pre_ping': True,  # CRITICAL for network connections
     'cache_enabled': os.getenv('CACHE_ENABLED', 'true').lower() == 'true',
     'cache_ttl': int(os.getenv('CACHE_TTL', '300')),
     'batch_processing_enabled': os.getenv('BATCH_PROCESSING_ENABLED', 'true').lower() == 'true',
     'batch_processing_interval': int(os.getenv('BATCH_PROCESSING_INTERVAL', '5')),
     'background_tasks_enabled': True,
-    'memory_limit_mb': 4096,  # FIXED: Increased for production
-    'max_concurrent_requests': 200  # FIXED: Increased
+    'memory_limit_mb': int(os.getenv('MEMORY_LIMIT_MB', '4096')),  # Increased for production
+    'max_concurrent_requests': int(os.getenv('MAX_CONCURRENT_REQUESTS', '200')),  # Increased
+    # Network-specific performance settings
+    'connection_retry_attempts': int(os.getenv('DB_RETRY_ATTEMPTS', '3')),
+    'connection_retry_delay': int(os.getenv('DB_RETRY_DELAY', '5')),
+    'query_timeout': int(os.getenv('QUERY_TIMEOUT', '30')),
+    'bulk_insert_batch_size': int(os.getenv('BULK_INSERT_BATCH', '1000'))
 }
 
 # Paths Configuration
@@ -124,17 +170,19 @@ PATHS = {
     'exports': BASE_DIR / 'exports',
     'data': BASE_DIR / 'data',
     'detection_rules': BASE_DIR / 'data' / 'detection_rules',
-    'threat_intel': BASE_DIR / 'data' / 'threat_intelligence'
+    'threat_intel': BASE_DIR / 'data' / 'threat_intelligence',
+    'backups': BASE_DIR / 'backups',
+    'cache': BASE_DIR / 'cache'
 }
 
 # Ensure directories exist
 for path in PATHS.values():
     path.mkdir(parents=True, exist_ok=True)
 
-# Logging configuration with Unicode support
+# Logging configuration with Unicode support - FIXED
 def get_logging_config():
     """Get logging configuration for EDR system"""
-    log_level = os.getenv('LOG_LEVEL', 'INFO')  # FIXED: INFO for production
+    log_level = os.getenv('LOG_LEVEL', 'INFO')
     
     # Check if running on Windows
     is_windows = sys.platform.startswith('win')
@@ -166,7 +214,7 @@ def get_logging_config():
             },
             'file_main': {
                 'class': 'logging.handlers.RotatingFileHandler',
-                'level': 'INFO',  # FIXED: INFO for production
+                'level': 'INFO',
                 'formatter': 'detailed',
                 'filename': str(PATHS['logs'] / 'edr_server.log'),
                 'maxBytes': int(os.getenv('LOG_MAX_SIZE', '10485760')),
@@ -213,7 +261,7 @@ def get_logging_config():
         'loggers': {
             '': {  # Root logger
                 'handlers': ['console', 'file_main'],
-                'level': 'INFO',  # FIXED: INFO for production
+                'level': 'INFO',
                 'propagate': False,
             },
             'uvicorn': {
@@ -243,31 +291,6 @@ def get_logging_config():
             }
         },
     }
-
-# Environment Configuration
-def get_environment_config():
-    """Get configuration based on environment"""
-    env = os.getenv('EDR_ENV', 'production')  # FIXED: Default to production
-    
-    if env == 'production':
-        # Production settings
-        SERVER_CONFIG.update({
-            'debug': False,
-            'reload': False,
-            'workers': 4
-        })
-        DETECTION_CONFIG['rules_check_interval'] = 0.5
-        PERFORMANCE_CONFIG['cache_ttl'] = 600
-        PERFORMANCE_CONFIG['database_pool_size'] = 20
-        
-    elif env == 'testing':
-        # Testing settings
-        DATABASE_CONFIG['database'] = 'EDR_System_Test'
-        SERVER_CONFIG['bind_port'] = 5001
-        AGENT_CONFIG['heartbeat_interval'] = 10
-        DETECTION_CONFIG['alert_deduplication_window'] = 60
-        
-    return env
 
 # Feature Flags (Updated for no-auth version)
 FEATURES = {
@@ -328,32 +351,100 @@ def get_config():
         'environment': env
     }
 
+# Environment Configuration - FIXED
+def get_environment_config():
+    """Get configuration based on environment"""
+    env = os.getenv('EDR_ENV', 'production')
+    
+    if env == 'production':
+        # Production settings - FIXED for network database
+        SERVER_CONFIG.update({
+            'debug': False,
+            'reload': False,
+            'workers': 4
+        })
+        DETECTION_CONFIG['rules_check_interval'] = 0.5
+        PERFORMANCE_CONFIG['cache_ttl'] = 600
+        PERFORMANCE_CONFIG['database_pool_size'] = 20
+        # Network optimizations for production
+        DATABASE_CONFIG.update({
+            'login_timeout': 30,
+            'connection_timeout': 30,
+            'packet_size': 4096
+        })
+        
+    elif env == 'development':
+        # Development settings
+        SERVER_CONFIG.update({
+            'debug': True,
+            'reload': True,
+            'workers': 1
+        })
+        DATABASE_CONFIG['server'] = 'localhost,1433'
+        PERFORMANCE_CONFIG['database_pool_size'] = 5
+        
+    elif env == 'testing':
+        # Testing settings
+        DATABASE_CONFIG['database'] = 'EDR_System_Test'
+        SERVER_CONFIG['bind_port'] = 5001
+        AGENT_CONFIG['heartbeat_interval'] = 10
+        DETECTION_CONFIG['alert_deduplication_window'] = 60
+        
+    return env
+
 # Global config instance
 config = get_config()
 
 # Helper functions - FIXED for network database
 def get_database_url():
-    """Get database connection URL for SQL Server with network support"""
+    """Get database connection URL for SQL Server with enhanced network support"""
     db_config = DATABASE_CONFIG
     
-    # Handle server with port (already included in server config)
+    # Parse server (might include port)
     server = db_config['server']
     
-    # Enhanced connection parameters for network access
+    # CRITICAL: Enhanced connection parameters for network stability
     connection_params = [
         f"driver={db_config['driver'].replace(' ', '+')}", 
-        "trusted_connection=yes",
-        "autocommit=true",
+        "trusted_connection=yes" if db_config['trusted_connection'] else "trusted_connection=no",
+        "autocommit=true" if db_config['autocommit'] else "autocommit=false",
         f"timeout={db_config['timeout']}",
         f"login_timeout={db_config['login_timeout']}",
         f"connection_timeout={db_config['connection_timeout']}",
-        "encrypt=no",  # For internal network
-        "trustservercertificate=yes"  # For internal network
+        f"packet_size={db_config['packet_size']}",
+        f"app_name={db_config['application_name']}",
+        "encrypt=yes" if db_config['encrypt'] else "encrypt=no",
+        "trustservercertificate=yes" if db_config['trust_server_certificate'] else "trustservercertificate=no",
+        "multisubnetfailover=no",  # Usually not needed for single server
+        "mars_connection=no",      # Multiple Active Result Sets - usually not needed
+        "connection_pooling=yes" if db_config.get('connection_pooling', True) else "connection_pooling=no"
     ]
     
     connection_string = "&".join(connection_params)
     
     return f"mssql+pyodbc://@{server}/{db_config['database']}?{connection_string}"
+
+def get_database_connection_info():
+    """Get formatted database connection information for diagnostics"""
+    db_config = DATABASE_CONFIG
+    
+    return {
+        'server': db_config['server'],
+        'database': db_config['database'],
+        'driver': db_config['driver'],
+        'authentication': 'Windows Authentication' if db_config['trusted_connection'] else 'SQL Authentication',
+        'encrypt': db_config['encrypt'],
+        'trust_certificate': db_config['trust_server_certificate'],
+        'timeout_settings': {
+            'login_timeout': db_config['login_timeout'],
+            'connection_timeout': db_config['connection_timeout'],
+            'query_timeout': db_config['timeout']
+        },
+        'network_settings': {
+            'packet_size': db_config['packet_size'],
+            'application_name': db_config['application_name']
+        }
+    }
 
 def is_development():
     """Check if running in development mode"""
@@ -366,7 +457,8 @@ def is_production():
 def get_server_url():
     """Get full server URL"""
     server_config = config['server']
-    return f"http://{server_config['bind_host']}:{server_config['bind_port']}"
+    protocol = 'https' if config['network']['enable_ssl'] else 'http'
+    return f"{protocol}://{server_config['bind_host']}:{server_config['bind_port']}"
 
 def get_feature_flag(feature_name: str) -> bool:
     """Get feature flag status"""
@@ -383,5 +475,54 @@ def get_edr_info():
         'supported_platforms': EDR_CONFIG['supported_platforms'],
         'max_agents': NETWORK_CONFIG['max_agents'],
         'features_enabled': {k: v for k, v in FEATURES.items() if v},
-        'authentication': False
+        'authentication': False,
+        'network_enabled': True,
+        'database_type': 'SQL Server (Network)'
     }
+
+def validate_configuration():
+    """Validate configuration settings"""
+    errors = []
+    warnings = []
+    
+    # Validate database configuration
+    if not DATABASE_CONFIG['server']:
+        errors.append("Database server not specified")
+    
+    if not DATABASE_CONFIG['database']:
+        errors.append("Database name not specified")
+    
+    # Validate network configuration
+    try:
+        import ipaddress
+        ipaddress.ip_network(NETWORK_CONFIG['allowed_agent_network'])
+    except ValueError:
+        errors.append("Invalid agent network CIDR")
+    
+    # Validate server configuration
+    if not (1 <= SERVER_CONFIG['bind_port'] <= 65535):
+        errors.append("Invalid server port")
+    
+    # Validate performance settings
+    if PERFORMANCE_CONFIG['database_pool_size'] < 1:
+        errors.append("Database pool size must be at least 1")
+    
+    # Validate detection settings
+    if DETECTION_CONFIG['max_threat_value_length'] != 512:
+        warnings.append("Threat value length should be 512 to match database schema")
+    
+    return {
+        'valid': len(errors) == 0,
+        'errors': errors,
+        'warnings': warnings
+    }
+
+# Validate configuration on import
+_validation_result = validate_configuration()
+if not _validation_result['valid']:
+    import logging
+    logger = logging.getLogger(__name__)
+    for error in _validation_result['errors']:
+        logger.error(f"Configuration error: {error}")
+    for warning in _validation_result['warnings']:
+        logger.warning(f"Configuration warning: {warning}")
