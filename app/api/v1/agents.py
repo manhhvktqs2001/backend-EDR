@@ -67,6 +67,8 @@ async def agent_heartbeat(
         
         if not success:
             logger.warning(f"Heartbeat failed for {heartbeat_data.hostname}: {error}")
+            if error and "not found" in error.lower():
+                raise HTTPException(status_code=404, detail=error)
             raise HTTPException(status_code=400, detail=error)
         
         return response
@@ -76,6 +78,10 @@ async def agent_heartbeat(
     except Exception as e:
         logger.error(f"Heartbeat processing error: {str(e)}")
         raise HTTPException(status_code=500, detail="Heartbeat processing failed")
+
+@router.get("/heartbeat")
+async def heartbeat_get_not_allowed():
+    raise HTTPException(status_code=405, detail="Method Not Allowed. Use POST for heartbeat.")
 
 @router.get("/list", response_model=AgentListResponse)
 async def list_agents(

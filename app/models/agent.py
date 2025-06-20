@@ -323,10 +323,12 @@ class Agent(Base):
         try:
             # Handle both string and UUID formats
             if isinstance(agent_id, str):
-                # Try to parse as UUID to validate format
                 from uuid import UUID
-                UUID(agent_id)  # Validates format
-            
+                try:
+                    UUID(agent_id)
+                except Exception:
+                    logger.error(f"Invalid agent_id format: {agent_id}")
+                    return None
             return session.query(cls).filter(cls.AgentID == agent_id).first()
         except Exception as e:
             logger.error(f"Error getting agent by ID: {e}")

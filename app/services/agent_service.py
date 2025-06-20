@@ -17,6 +17,7 @@ from ..schemas.agent import (
 )
 from ..config import config
 from ..utils.network_utils import validate_ip_address, is_internal_ip
+from ..models.agent_config import AgentConfig
 
 logger = logging.getLogger('agent_communication')
 
@@ -39,7 +40,7 @@ class AgentService:
                 error_msg = f"Agent registration denied from IP: {client_ip}"
                 logger.warning(error_msg)
                 return False, None, error_msg
-            
+
             # Check if agent already exists by hostname
             existing_agent = Agent.get_by_hostname(session, registration_data.hostname)
             
@@ -88,6 +89,19 @@ class AgentService:
             session.add(new_agent)
             session.commit()
             session.refresh(new_agent)
+            
+            # Tạo AgentConfig mặc định nếu chưa có
+            if not AgentConfig.get_active_config(session, str(new_agent.AgentID)):
+                default_config = AgentConfig.get_default_config(platform='Windows')
+                AgentConfig.create_config(
+                    session,
+                    agent_id=str(new_agent.AgentID),
+                    config_data=default_config,
+                    config_version=self.agent_config['config_version'],
+                    auto_activate=True
+                )
+                session.commit()
+                logger.info(f"Default AgentConfig created for agent: {registration_data.hostname}")
             
             logger.info(f"New agent registered: {registration_data.hostname} ({registration_data.ip_address})")
             

@@ -121,11 +121,13 @@ class EventService:
                 return False, None, error_msg
             
             # Validate agent exists
+            logger.info(f"[EVENT_BATCH] Received batch from AgentID: {batch_data.agent_id}")
             agent = Agent.get_by_id(session, batch_data.agent_id)
             if not agent:
-                error_msg = f"Agent not found: {batch_data.agent_id}"
+                error_msg = f"Agent not found: {batch_data.agent_id} (from IP: {client_ip})"
                 logger.warning(error_msg)
                 return False, None, error_msg
+            logger.info(f"[EVENT_BATCH] Agent found: {agent.HostName} | AgentID: {agent.AgentID}")
             
             # Process events in batch
             processed_events = 0
