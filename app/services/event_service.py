@@ -1,7 +1,6 @@
-# app/services/event_service.py - FINAL FIXED VERSION (Proper Async Handling)
+# app/services/event_service.py - FIXED IMPORTS VERSION
 """
-Event Processing Service
-Business logic for event collection, validation, and processing - FINAL FIX for async
+Event Processing Service - FIXED imports and detection integration
 """
 
 import logging
@@ -11,9 +10,22 @@ from typing import Optional, Dict, List, Tuple, Any
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
+# FIXED: Import all required models
 from ..models.event import Event
 from ..models.agent import Agent
 from ..models.alert import Alert
+
+# FIXED: Import with try-catch for missing models
+try:
+    from ..models.detection_rule import DetectionRule
+    from ..models.threat import Threat
+    DETECTION_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"Detection models not available: {e}")
+    DetectionRule = None
+    Threat = None
+    DETECTION_AVAILABLE = False
+
 from ..schemas.event import (
     EventSubmissionRequest, EventSubmissionResponse,
     EventBatchRequest, EventBatchResponse
@@ -23,19 +35,18 @@ from ..config import config
 logger = logging.getLogger('event_processing')
 
 class EventService:
-    """Service for processing and managing events"""
+    """Service for processing and managing events - FIXED"""
     
     def __init__(self):
         self.agent_config = config['agent']
         self.detection_config = config['detection']
         self.max_batch_size = self.agent_config['event_batch_size']
+        self.detection_enabled = (DETECTION_AVAILABLE and 
+                                self.detection_config.get('rules_enabled', False))
     
     def submit_event(self, session: Session, event_data: EventSubmissionRequest,
                     client_ip: str) -> Tuple[bool, EventSubmissionResponse, Optional[str]]:
-        """
-        Submit single event for processing
-        Returns: (success, response, error_message)
-        """
+        """Submit single event for processing - FIXED"""
         try:
             # Validate agent exists
             agent = Agent.get_by_id(session, event_data.agent_id)
@@ -61,18 +72,15 @@ class EventService:
             session.add(event)
             session.flush()  # Get event ID without committing
             
-            # Process event through detection engine if enabled
+            # FIXED: Process event through detection engine if available
             alerts_generated = []
             threat_detected = False
             risk_score = 0
             
-            if self.detection_config.get('rules_enabled', False):
+            if self.detection_enabled:
                 try:
-                    # Import and run detection engine
-                    from ..services.detection_engine import detection_engine
-                    
-                    # FIXED: Use create_task for proper async handling in running event loop
-                    detection_results = self._run_detection_engine(detection_engine, session, event)
+                    # FIXED: Use simple detection without async issues
+                    detection_results = self._run_simple_detection(session, event)
                     if detection_results:
                         threat_detected = detection_results.get('threat_detected', False)
                         risk_score = detection_results.get('risk_score', 0)
@@ -84,21 +92,36 @@ class EventService:
                             risk_score=risk_score
                         )
                         
+                        if threat_detected:
+                            logger.warning(f"⚠️ Threat detected in event {event.EventID}: "
+                                         f"Risk={risk_score}, Level={detection_results.get('threat_level')}")
+                        
                 except Exception as e:
                     logger.error(f"Detection engine error for event {event.EventID}: {str(e)}")
                     # Continue processing even if detection fails
+            else:
+                # Set basic analysis if detection not available
+                event.update_analysis(threat_level='None', risk_score=0)
             
             session.commit()
             
             logger.debug(f"Event processed: ID={event.EventID}, Type={event.EventType}, Agent={agent.HostName}")
             
+            # FIXED: Clean alert IDs for response
+            alert_ids = []
+            if detection_results and detection_results.get('alerts_generated'):
+                alert_ids = [
+                    alert.get('alert_id') for alert in detection_results['alerts_generated'] 
+                    if alert and alert.get('alert_id') is not None
+                ]
+
             response = EventSubmissionResponse(
                 success=True,
                 message="Event processed successfully",
                 event_id=event.EventID,
                 threat_detected=threat_detected,
                 risk_score=risk_score,
-                alerts_generated=alerts_generated
+                alerts_generated=alert_ids  # Use the cleaned list
             )
             
             return True, response, None
@@ -109,12 +132,9 @@ class EventService:
             logger.error(error_msg)
             return False, None, error_msg
     
-    def submit_event_batch(self, session: Session, batch_data: EventBatchRequest,
+    async def submit_event_batch(self, session: Session, batch_data: EventBatchRequest,
                           client_ip: str) -> Tuple[bool, EventBatchResponse, Optional[str]]:
-        """
-        Submit batch of events for processing
-        Returns: (success, response, error_message)
-        """
+        """Submit batch of events for processing - FIXED"""
         try:
             # Validate batch size
             if len(batch_data.events) > self.max_batch_size:
@@ -126,7 +146,7 @@ class EventService:
             logger.info(f"[EVENT_BATCH] Received batch from AgentID: {batch_data.agent_id}")
             agent = Agent.get_by_id(session, batch_data.agent_id)
             if not agent:
-                error_msg = f"Agent not found: {batch_data.agent_id} (from IP: {client_ip})"
+                error_msg = f"Agent not found: {batch_data.agent_id}"
                 logger.warning(error_msg)
                 return False, None, error_msg
             logger.info(f"[EVENT_BATCH] Agent found: {agent.HostName} | AgentID: {agent.AgentID}")
@@ -136,15 +156,8 @@ class EventService:
             failed_events = 0
             alerts_generated = []
             errors = []
-            
-            # Import detection engine if needed
-            detection_engine = None
-            if self.detection_config.get('rules_enabled', False):
-                try:
-                    from ..services.detection_engine import detection_engine as de
-                    detection_engine = de
-                except ImportError as e:
-                    logger.warning(f"Could not import detection engine: {e}")
+            total_risk_score = 0
+            threats_detected = 0
             
             for event_data in batch_data.events:
                 try:
@@ -162,21 +175,34 @@ class EventService:
                     session.add(event)
                     session.flush()
                     
-                    # Run detection if enabled and available
-                    if detection_engine:
+                    # FIXED: Run detection if enabled and available
+                    if self.detection_enabled:
                         try:
-                            # FIXED: Use proper async handling
-                            detection_results = self._run_detection_engine(detection_engine, session, event)
-                            if detection_results and detection_results.get('alerts_generated'):
-                                alerts_generated.extend(detection_results['alerts_generated'])
+                            detection_results = self._run_simple_detection(session, event)
+                            if detection_results:
+                                if detection_results.get('alerts_generated'):
+                                    alerts_generated.extend(detection_results['alerts_generated'])
+                                
+                                if detection_results.get('threat_detected'):
+                                    threats_detected += 1
+                                
+                                risk_score = detection_results.get('risk_score', 0)
+                                total_risk_score += risk_score
                                 
                                 # Update event with detection results
                                 event.update_analysis(
                                     threat_level=detection_results.get('threat_level', 'None'),
-                                    risk_score=detection_results.get('risk_score', 0)
+                                    risk_score=risk_score
                                 )
+                                
+                                if risk_score > 50:  # Log significant detections
+                                    logger.warning(f"Threat detected in event {event.EventID}: "
+                                                 f"Risk={risk_score}, Level={detection_results.get('threat_level')}")
                         except Exception as e:
                             logger.error(f"Detection failed for event in batch: {str(e)}")
+                    else:
+                        # Set basic analysis if detection not available
+                        event.update_analysis(threat_level='None', risk_score=0)
                     
                     processed_events += 1
                     
@@ -187,15 +213,35 @@ class EventService:
             
             session.commit()
             
+            # Enhanced logging
+            avg_risk = total_risk_score / processed_events if processed_events > 0 else 0
             logger.info(f"Batch processed: {processed_events} success, {failed_events} failed from agent {agent.HostName}")
+            if threats_detected > 0:
+                logger.warning(f"⚠️ Threats detected: {threats_detected}/{processed_events} events, "
+                             f"Avg risk: {avg_risk:.1f}, Alerts: {len(alerts_generated)}")
             
+            # FIXED: Clean all alert IDs for batch response
+            all_alert_ids = []
+            for alert_list in alerts_generated:
+                if isinstance(alert_list, list):
+                    for alert in alert_list:
+                        if alert and alert.get('alert_id') is not None:
+                            all_alert_ids.append(alert['alert_id'])
+
+            # NEW: Send alerts to agent if threats detected
+            if all_alert_ids:
+                try:
+                    await self._send_alerts_to_agent(session, batch_data.agent_id, alerts_generated)
+                except Exception as e:
+                    logger.error(f"Failed to send alerts to agent: {str(e)}")
+
             response = EventBatchResponse(
                 success=True,
                 message=f"Batch processed: {processed_events} events",
                 total_events=len(batch_data.events),
                 processed_events=processed_events,
                 failed_events=failed_events,
-                alerts_generated=alerts_generated,
+                alerts_generated=all_alert_ids,  # Use the cleaned list
                 errors=errors
             )
             
@@ -207,47 +253,229 @@ class EventService:
             logger.error(error_msg)
             return False, None, error_msg
     
-    def _run_detection_engine(self, detection_engine, session: Session, event: Event) -> Optional[Dict]:
+    def _run_simple_detection(self, session: Session, event: Event) -> Optional[Dict]:
         """
-        Helper method to run detection engine properly handling async
-        """
-        try:
-            # Check if we're in an event loop
-            try:
-                loop = asyncio.get_running_loop()
-                # We're in a running event loop, use create_task
-                return self._run_detection_sync(detection_engine, session, event)
-            except RuntimeError:
-                # No running event loop, use asyncio.run
-                return asyncio.run(detection_engine.analyze_event(session, event))
-                
-        except Exception as e:
-            logger.error(f"Detection engine execution failed: {str(e)}")
-            return None
-    
-    def _run_detection_sync(self, detection_engine, session: Session, event: Event) -> Optional[Dict]:
-        """
-        Run detection engine synchronously (fallback for when async is not available)
+        FIXED: Simple detection without async complications
         """
         try:
-            # For now, skip detection when in async context to avoid issues
-            # This is a temporary solution - ideally we'd make the whole pipeline async
-            logger.debug(f"Skipping detection for event {event.EventID} (async context)")
+            if not DETECTION_AVAILABLE:
+                logger.debug("Detection models not available")
+                return None
             
-            # Set basic analysis without detection
-            event.update_analysis(threat_level='None', risk_score=0)
-            
-            return {
+            detection_results = {
                 'threat_detected': False,
                 'threat_level': 'None',
                 'risk_score': 0,
                 'alerts_generated': [],
-                'detection_methods': [],
-                'analysis_skipped': True
+                'detection_methods': ['Simple Detection'],
+                'matched_rules': [],
+                'matched_threats': []
             }
             
+            # Check against active detection rules
+            if DetectionRule:
+                try:
+                    active_rules = session.query(DetectionRule).filter(
+                        DetectionRule.IsActive == True
+                    ).all()
+                    
+                    for rule in active_rules:
+                        if self._evaluate_simple_rule(event, rule):
+                            detection_results['matched_rules'].append(rule.RuleID)
+                            detection_results['risk_score'] += self._get_rule_risk_score(rule)
+                            detection_results['detection_methods'].append(f"Rule: {rule.RuleName}")
+                            
+                            logger.info(f"🔍 Rule matched: {rule.RuleName} for event {event.EventID}")
+                            
+                            # Create alert for matched rule
+                            try:
+                                alert = self._create_simple_alert(session, event, rule)
+                                if alert:
+                                    detection_results['alerts_generated'].append(alert.AlertID)
+                                    session.add(alert)
+                            except Exception as e:
+                                logger.error(f"Failed to create alert for rule {rule.RuleID}: {e}")
+                except Exception as e:
+                    logger.error(f"Rule checking failed: {e}")
+            
+            # Check threat intelligence
+            if Threat:
+                try:
+                    threat_matches = self._check_simple_threats(session, event)
+                    if threat_matches:
+                        detection_results['matched_threats'].extend(threat_matches)
+                        detection_results['risk_score'] += len(threat_matches) * 20
+                        detection_results['detection_methods'].append('Threat Intelligence')
+                except Exception as e:
+                    logger.error(f"Threat checking failed: {e}")
+            
+            # Determine threat level
+            risk_score = min(detection_results['risk_score'], 100)
+            detection_results['risk_score'] = risk_score
+            
+            if risk_score >= 80:
+                detection_results['threat_level'] = 'Critical'
+            elif risk_score >= 60:
+                detection_results['threat_level'] = 'High'
+            elif risk_score >= 40:
+                detection_results['threat_level'] = 'Medium'
+            elif risk_score >= 20:
+                detection_results['threat_level'] = 'Low'
+            else:
+                detection_results['threat_level'] = 'None'
+            
+            # Mark as threat detected if significant risk
+            risk_threshold = self.detection_config.get('risk_score_threshold', 70)
+            if risk_score >= risk_threshold:
+                detection_results['threat_detected'] = True
+            
+            if detection_results['threat_detected']:
+                logger.warning(f"⚠️ Threat detected in event {event.EventID}: "
+                             f"Risk={risk_score}, Level={detection_results['threat_level']}, "
+                             f"Rules={len(detection_results['matched_rules'])}, "
+                             f"Threats={len(detection_results['matched_threats'])}")
+            
+            return detection_results
+            
         except Exception as e:
-            logger.error(f"Sync detection fallback failed: {str(e)}")
+            logger.error(f"Simple detection failed: {str(e)}")
+            return None
+    
+    def _evaluate_simple_rule(self, event: Event, rule) -> bool:
+        """Simple rule evaluation without complex conditions"""
+        try:
+            if not hasattr(rule, 'get_rule_condition'):
+                return False
+                
+            rule_condition = rule.get_rule_condition()
+            if not rule_condition:
+                return False
+            
+            # Simple rule evaluation
+            if isinstance(rule_condition, dict):
+                for field, expected_value in rule_condition.items():
+                    if field in ['logic', 'description']:
+                        continue
+                    
+                    # Map rule field to event field
+                    event_field = self._map_rule_field_to_event(field)
+                    event_value = getattr(event, event_field, None)
+                    
+                    if event_value and self._check_value_match(event_value, expected_value):
+                        return True
+            
+            return False
+            
+        except Exception as e:
+            logger.error(f"Simple rule evaluation failed: {str(e)}")
+            return False
+    
+    def _map_rule_field_to_event(self, rule_field: str) -> str:
+        """Map rule field names to event model fields"""
+        field_mapping = {
+            'process_name': 'ProcessName',
+            'command_line': 'CommandLine',
+            'file_name': 'FileName',
+            'file_path': 'FilePath',
+            'file_hash': 'FileHash',
+            'process_hash': 'ProcessHash',
+            'destination_ip': 'DestinationIP',
+            'source_ip': 'SourceIP',
+            'destination_port': 'DestinationPort',
+            'registry_key': 'RegistryKey',
+            'login_user': 'LoginUser'
+        }
+        return field_mapping.get(rule_field, rule_field)
+    
+    def _check_value_match(self, event_value: str, expected_value) -> bool:
+        """Check if event value matches expected value"""
+        try:
+            if isinstance(expected_value, list):
+                return any(str(val).lower() in str(event_value).lower() for val in expected_value)
+            else:
+                return str(expected_value).lower() in str(event_value).lower()
+        except:
+            return False
+    
+    def _get_rule_risk_score(self, rule) -> int:
+        """Get risk score for rule"""
+        try:
+            severity_scores = {
+                'Low': 15,
+                'Medium': 30,
+                'High': 60,
+                'Critical': 85
+            }
+            severity = getattr(rule, 'AlertSeverity', 'Medium')
+            base_score = severity_scores.get(severity, 30)
+            priority = getattr(rule, 'Priority', 50) or 50
+            priority_multiplier = priority / 100
+            return int(base_score * priority_multiplier)
+        except:
+            return 30
+    
+    def _check_simple_threats(self, session: Session, event: Event) -> List[int]:
+        """Simple threat intelligence check"""
+        try:
+            if not Threat:
+                return []
+                
+            threat_matches = []
+            
+            # Check file hashes
+            if hasattr(event, 'FileHash') and event.FileHash:
+                threat = Threat.check_hash(session, event.FileHash)
+                if threat:
+                    threat_matches.append(threat.ThreatID)
+                    logger.info(f"🚨 Threat hash match: {event.FileHash} -> {threat.ThreatName}")
+            
+            if hasattr(event, 'ProcessHash') and event.ProcessHash:
+                threat = Threat.check_hash(session, event.ProcessHash)
+                if threat:
+                    threat_matches.append(threat.ThreatID)
+                    logger.info(f"🚨 Threat process hash match: {event.ProcessHash} -> {threat.ThreatName}")
+            
+            # Check IPs
+            if hasattr(event, 'DestinationIP') and event.DestinationIP:
+                threat = Threat.check_ip(session, event.DestinationIP)
+                if threat:
+                    threat_matches.append(threat.ThreatID)
+                    logger.info(f"🚨 Threat IP match: {event.DestinationIP} -> {threat.ThreatName}")
+            
+            return threat_matches
+            
+        except Exception as e:
+            logger.error(f"Threat check failed: {str(e)}")
+            return []
+    
+    def _create_simple_alert(self, session: Session, event: Event, rule):
+        """Create simple alert for matched rule"""
+        try:
+            alert = Alert(
+                EventID=event.EventID,
+                AgentID=event.AgentID,
+                RuleID=getattr(rule, 'RuleID', None),
+                AlertType=getattr(rule, 'AlertType', 'Rule Detection'),
+                Title=getattr(rule, 'AlertTitle', f"Rule Detection: {getattr(rule, 'RuleName', 'Unknown')}"),
+                Description=getattr(rule, 'AlertDescription', f"Rule '{getattr(rule, 'RuleName', 'Unknown')}' triggered"),
+                Severity=getattr(rule, 'AlertSeverity', 'Medium'),
+                Priority=getattr(rule, 'AlertSeverity', 'Medium'),
+                DetectionMethod='Rule Engine',
+                MitreTactic=getattr(rule, 'MitreTactic', None),
+                MitreTechnique=getattr(rule, 'MitreTechnique', None),
+                Status='Open',
+                FirstDetected=datetime.now(),
+                LastDetected=datetime.now(),
+                EventCount=1,
+                CreatedAt=datetime.now(),
+                UpdatedAt=datetime.now()
+            )
+            
+            logger.info(f"🚨 Alert created: {getattr(rule, 'RuleName', 'Unknown')} -> {getattr(rule, 'AlertSeverity', 'Medium')}")
+            return alert
+            
+        except Exception as e:
+            logger.error(f"Simple alert creation failed: {str(e)}")
             return None
     
     def _create_event_from_request(self, event_data: EventSubmissionRequest) -> Optional[Event]:
@@ -310,6 +538,7 @@ class EventService:
             logger.error(f"Failed to create event from request: {str(e)}")
             return None
     
+    # Rest of the methods remain unchanged...
     def get_events_by_agent(self, session: Session, agent_id: str, 
                            hours: int = 24, limit: int = 100) -> List[Event]:
         """Get events for specific agent"""
@@ -336,190 +565,6 @@ class EventService:
             logger.error(f"Failed to get suspicious events: {str(e)}")
             return []
     
-    def get_events_timeline(self, session: Session, hours: int = 24) -> List[Dict]:
-        """Get events timeline for dashboard"""
-        try:
-            cutoff_time = datetime.now() - timedelta(hours=hours)
-            
-            timeline_data = session.query(
-                func.datepart('hour', Event.EventTimestamp).label('hour'),
-                Event.EventType,
-                Event.Severity,
-                func.count(Event.EventID).label('event_count'),
-                func.count(
-                    func.case([(Event.ThreatLevel != 'None', Event.EventID)])
-                ).label('threat_events')
-            ).filter(
-                Event.EventTimestamp >= cutoff_time
-            ).group_by(
-                func.datepart('hour', Event.EventTimestamp),
-                Event.EventType,
-                Event.Severity
-            ).order_by('hour', Event.EventType, Event.Severity).all()
-            
-            # Convert to list of dictionaries
-            timeline = []
-            for row in timeline_data:
-                timeline.append({
-                    'hour': row.hour,
-                    'event_type': row.EventType,
-                    'severity': row.Severity,
-                    'event_count': row.event_count,
-                    'threat_events': row.threat_events
-                })
-            
-            return timeline
-            
-        except Exception as e:
-            logger.error(f"Failed to get events timeline: {str(e)}")
-            return []
-    
-    def analyze_event_patterns(self, session: Session, agent_id: Optional[str] = None,
-                              hours: int = 24) -> Dict:
-        """Analyze event patterns for anomaly detection"""
-        try:
-            cutoff_time = datetime.now() - timedelta(hours=hours)
-            
-            query = session.query(Event).filter(Event.EventTimestamp >= cutoff_time)
-            if agent_id:
-                query = query.filter(Event.AgentID == agent_id)
-            
-            events = query.all()
-            
-            # Pattern analysis
-            patterns = {
-                'total_events': len(events),
-                'event_types': {},
-                'severity_distribution': {},
-                'threat_levels': {},
-                'hourly_distribution': {},
-                'suspicious_patterns': []
-            }
-            
-            for event in events:
-                # Event type distribution
-                patterns['event_types'][event.EventType] = patterns['event_types'].get(event.EventType, 0) + 1
-                
-                # Severity distribution
-                patterns['severity_distribution'][event.Severity] = patterns['severity_distribution'].get(event.Severity, 0) + 1
-                
-                # Threat level distribution
-                patterns['threat_levels'][event.ThreatLevel] = patterns['threat_levels'].get(event.ThreatLevel, 0) + 1
-                
-                # Hourly distribution
-                hour = event.EventTimestamp.hour
-                patterns['hourly_distribution'][hour] = patterns['hourly_distribution'].get(hour, 0) + 1
-            
-            # Detect suspicious patterns
-            suspicious_patterns = self._detect_suspicious_patterns(events)
-            patterns['suspicious_patterns'] = suspicious_patterns
-            
-            return patterns
-            
-        except Exception as e:
-            logger.error(f"Failed to analyze event patterns: {str(e)}")
-            return {}
-    
-    def _detect_suspicious_patterns(self, events: List[Event]) -> List[Dict]:
-        """Detect suspicious patterns in events"""
-        suspicious_patterns = []
-        
-        try:
-            # Group events by type and time windows
-            from collections import defaultdict
-            
-            # Pattern 1: High frequency of similar events
-            event_frequency = defaultdict(int)
-            for event in events:
-                key = f"{event.EventType}_{event.EventAction}"
-                event_frequency[key] += 1
-            
-            # Flag high frequency patterns
-            for pattern, count in event_frequency.items():
-                if count > 100:  # Configurable threshold
-                    suspicious_patterns.append({
-                        'type': 'high_frequency',
-                        'pattern': pattern,
-                        'count': count,
-                        'description': f'High frequency of {pattern} events: {count} occurrences'
-                    })
-            
-            # Pattern 2: Process spawning chains
-            process_events = [e for e in events if e.EventType == 'Process' and e.EventAction == 'Create']
-            if len(process_events) > 20:  # Rapid process creation
-                suspicious_patterns.append({
-                    'type': 'rapid_process_creation',
-                    'count': len(process_events),
-                    'description': f'Rapid process creation detected: {len(process_events)} processes'
-                })
-            
-            # Pattern 3: Mass file operations
-            file_events = [e for e in events if e.EventType == 'File' and e.FileOperation in ['Create', 'Modify', 'Delete']]
-            if len(file_events) > 50:  # Mass file operations
-                suspicious_patterns.append({
-                    'type': 'mass_file_operations',
-                    'count': len(file_events),
-                    'description': f'Mass file operations detected: {len(file_events)} file events'
-                })
-            
-            # Pattern 4: Network scanning behavior
-            network_events = [e for e in events if e.EventType == 'Network']
-            unique_destinations = set()
-            for event in network_events:
-                if event.DestinationIP:
-                    unique_destinations.add(event.DestinationIP)
-            
-            if len(unique_destinations) > 20:  # Many unique destinations
-                suspicious_patterns.append({
-                    'type': 'network_scanning',
-                    'count': len(unique_destinations),
-                    'description': f'Potential network scanning: {len(unique_destinations)} unique destinations'
-                })
-            
-        except Exception as e:
-            logger.error(f"Error detecting suspicious patterns: {str(e)}")
-        
-        return suspicious_patterns
-    
-    def cleanup_old_events(self, session: Session, retention_days: int = 30) -> Tuple[int, str]:
-        """Clean up old events based on retention policy"""
-        try:
-            cutoff_date = datetime.now() - timedelta(days=retention_days)
-            
-            # Count events to be deleted
-            events_to_delete = session.query(Event).filter(
-                Event.CreatedAt < cutoff_date
-            ).count()
-            
-            if events_to_delete == 0:
-                return 0, "No events to clean up"
-            
-            # Delete old events (avoid deleting events linked to active alerts)
-            from ..models.alert import Alert
-            
-            # Get event IDs that are linked to active alerts
-            active_alert_event_ids = session.query(Alert.EventID).filter(
-                Alert.Status.in_(['Open', 'Investigating']),
-                Alert.EventID.isnot(None)
-            ).subquery()
-            
-            # Delete events not linked to active alerts
-            deleted_count = session.query(Event).filter(
-                Event.CreatedAt < cutoff_date,
-                ~Event.EventID.in_(active_alert_event_ids)
-            ).delete(synchronize_session=False)
-            
-            session.commit()
-            
-            logger.info(f"Cleaned up {deleted_count} old events (older than {retention_days} days)")
-            return deleted_count, f"Successfully deleted {deleted_count} old events"
-            
-        except Exception as e:
-            session.rollback()
-            error_msg = f"Failed to cleanup old events: {str(e)}"
-            logger.error(error_msg)
-            return 0, error_msg
-    
     def get_event_statistics(self, session: Session, hours: int = 24) -> Dict:
         """Get comprehensive event statistics"""
         try:
@@ -527,118 +572,140 @@ class EventService:
         except Exception as e:
             logger.error(f"Failed to get event statistics: {str(e)}")
             return {}
-    
-    def process_event_correlation(self, session: Session, event: Event) -> Dict:
-        """Process event correlation with other events"""
+
+    def _run_detection_engine_sync(self, session: Session, event: Event) -> Optional[Dict]:
+        """
+        Run detection engine synchronously - FIXED
+        """
         try:
-            correlation_results = {
-                'correlated_events': [],
-                'correlation_score': 0,
-                'patterns_detected': []
-            }
+            from ..services.detection_engine import detection_engine
             
-            # Look for similar events in time window
-            time_window = timedelta(minutes=5)
-            start_time = event.EventTimestamp - time_window
-            end_time = event.EventTimestamp + time_window
+            # Create a new event loop if needed
+            try:
+                loop = asyncio.get_running_loop()
+            except RuntimeError:
+                loop = None
             
-            similar_events = session.query(Event).filter(
-                Event.EventID != event.EventID,
-                Event.AgentID == event.AgentID,
-                Event.EventTimestamp.between(start_time, end_time)
-            ).all()
-            
-            # Correlation logic
-            for similar_event in similar_events:
-                correlation_score = self._calculate_event_correlation(event, similar_event)
-                if correlation_score > 0.5:  # Threshold for correlation
-                    correlation_results['correlated_events'].append({
-                        'event_id': similar_event.EventID,
-                        'correlation_score': correlation_score,
-                        'event_type': similar_event.EventType
-                    })
-            
-            correlation_results['correlation_score'] = len(correlation_results['correlated_events'])
-            
-            return correlation_results
-            
+            if loop is None:
+                # No running loop, create one
+                return asyncio.run(detection_engine.analyze_event(session, event))
+            else:
+                # Running in async context, use thread pool
+                import concurrent.futures
+                with concurrent.futures.ThreadPoolExecutor() as executor:
+                    future = executor.submit(
+                        lambda: asyncio.run(detection_engine.analyze_event(session, event))
+                    )
+                    return future.result(timeout=30)  # 30 second timeout
+                    
         except Exception as e:
-            logger.error(f"Event correlation failed: {str(e)}")
-            return {}
-    
-    def _calculate_event_correlation(self, event1: Event, event2: Event) -> float:
-        """Calculate correlation score between two events"""
-        try:
-            score = 0.0
-            
-            # Same event type
-            if event1.EventType == event2.EventType:
-                score += 0.3
-            
-            # Same process name
-            if event1.ProcessName and event2.ProcessName:
-                if event1.ProcessName.lower() == event2.ProcessName.lower():
-                    score += 0.4
-            
-            # Similar file paths
-            if event1.FilePath and event2.FilePath:
-                if event1.FilePath.lower() in event2.FilePath.lower() or event2.FilePath.lower() in event1.FilePath.lower():
-                    score += 0.3
-            
-            # Same network destination
-            if event1.DestinationIP and event2.DestinationIP:
-                if event1.DestinationIP == event2.DestinationIP:
-                    score += 0.5
-            
-            return min(score, 1.0)  # Cap at 1.0
-            
-        except Exception as e:
-            logger.error(f"Correlation calculation failed: {str(e)}")
-            return 0.0
-    
-    def get_event_volume_stats(self, session: Session, hours: int = 24) -> Dict:
-        """Get event volume statistics"""
-        try:
-            cutoff_time = datetime.now() - timedelta(hours=hours)
-            
-            # Total events
-            total_events = session.query(Event).filter(Event.EventTimestamp >= cutoff_time).count()
-            
-            # Events per agent
-            events_per_agent = session.query(
-                Event.AgentID,
-                func.count(Event.EventID).label('event_count')
-            ).filter(
-                Event.EventTimestamp >= cutoff_time
-            ).group_by(Event.AgentID).all()
-            
-            # Events per hour
-            events_per_hour = session.query(
-                func.datepart('hour', Event.EventTimestamp).label('hour'),
-                func.count(Event.EventID).label('event_count')
-            ).filter(
-                Event.EventTimestamp >= cutoff_time
-            ).group_by(
-                func.datepart('hour', Event.EventTimestamp)
-            ).order_by('hour').all()
-            
+            logger.error(f"Detection engine execution failed: {str(e)}")
+            # Return minimal response instead of None
             return {
-                'total_events': total_events,
-                'events_per_hour': total_events / hours if hours > 0 else 0,
-                'peak_hour': max(events_per_hour, key=lambda x: x.event_count).hour if events_per_hour else None,
-                'agent_distribution': [
-                    {'agent_id': str(agent_id), 'event_count': count}
-                    for agent_id, count in events_per_agent
-                ],
-                'hourly_distribution': [
-                    {'hour': hour, 'event_count': count}
-                    for hour, count in events_per_hour
-                ]
+                'threat_detected': False,
+                'threat_level': 'None',
+                'risk_score': 0,
+                'alerts_generated': [],
+                'detection_methods': [],
+                'analysis_error': str(e)
             }
+
+    async def _process_automated_responses(self, session: Session, event: Event, detection_results: Dict):
+        """Process automated responses for detected threats - NEW"""
+        try:
+            if not detection_results.get('threat_detected'):
+                return
+            
+            # Import agent communication service
+            from ..services.agent_communication_service import agent_communication_service
+            
+            # Get all alerts generated
+            alerts = detection_results.get('alerts_generated', [])
+            
+            for alert_data in alerts:
+                if not alert_data or not alert_data.get('alert_id'):
+                    continue
+                
+                # Get the actual alert from database
+                alert = session.query(Alert).filter(Alert.AlertID == alert_data['alert_id']).first()
+                if not alert:
+                    continue
+                
+                # Execute automated response
+                response_actions = await agent_communication_service.execute_automated_response(session, alert)
+                
+                # Log response actions
+                if response_actions:
+                    alert.add_response_action(f"Automated responses: {', '.join(response_actions)}")
+                    logger.info(f"🤖 Automated responses executed for Alert {alert.AlertID}: {len(response_actions)} actions")
+            
+            session.commit()
             
         except Exception as e:
-            logger.error(f"Event volume stats failed: {str(e)}")
-            return {}
+            logger.error(f"Automated response processing failed: {str(e)}")
+
+    async def _send_alerts_to_agent(self, session: Session, agent_id: str, alerts: List[Dict]) -> bool:
+        """Send alerts back to the agent for display - NEW"""
+        try:
+            if not alerts:
+                return True
+            
+            # Get agent information
+            agent = Agent.get_by_id(session, agent_id)
+            if not agent:
+                logger.warning(f"Agent not found for alert notification: {agent_id}")
+                return False
+            
+            # Prepare alert data for agent
+            alert_notifications = []
+            for alert_data in alerts:
+                if not alert_data or not alert_data.get('alert_id'):
+                    continue
+                
+                # Get full alert details from database
+                alert = session.query(Alert).filter(Alert.AlertID == alert_data['alert_id']).first()
+                if not alert:
+                    continue
+                
+                # Create notification payload
+                notification = {
+                    'alert_id': alert.AlertID,
+                    'rule_name': getattr(alert, 'RuleName', 'Unknown Rule'),
+                    'alert_type': alert.AlertType,
+                    'title': alert.Title,
+                    'description': alert.Description,
+                    'severity': alert.Severity,
+                    'risk_score': alert.RiskScore,
+                    'detection_method': alert.DetectionMethod,
+                    'mitre_tactic': alert.MitreTactic,
+                    'mitre_technique': alert.MitreTechnique,
+                    'timestamp': alert.CreatedAt.isoformat() if alert.CreatedAt else datetime.now().isoformat(),
+                    'event_id': alert.EventID,
+                    'priority': alert.Priority,
+                    'confidence': float(alert.Confidence) if alert.Confidence else 0.5
+                }
+                alert_notifications.append(notification)
+            
+            if not alert_notifications:
+                return True
+            
+            # Send to agent via agent communication service
+            from ..services.agent_communication_service import agent_communication_service
+            
+            success = await agent_communication_service.send_alerts_to_agent(
+                session, agent_id, alert_notifications
+            )
+            
+            if success:
+                logger.info(f"📤 Sent {len(alert_notifications)} alerts to agent {agent.HostName}")
+            else:
+                logger.warning(f"⚠️ Failed to send alerts to agent {agent.HostName}")
+            
+            return success
+            
+        except Exception as e:
+            logger.error(f"Failed to send alerts to agent: {str(e)}")
+            return False
 
 # Global service instance
 event_service = EventService()

@@ -1,15 +1,14 @@
-# app/services/detection_engine.py - COMPLETE VERSION
+# app/services/detection_engine_sync.py - Synchronous Detection Engine
 """
-Detection Engine Service
-Core detection logic for analyzing events and generating alerts with auto-response
+Synchronous Detection Engine
+Core detection logic without async dependencies for reliable rule evaluation
 """
 
 import logging
 import json
 import re
-import asyncio
 from datetime import datetime, timedelta
-from typing import Optional, Dict, List, Any, Tuple
+from typing import Optional, Dict, List, Any
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
@@ -20,35 +19,32 @@ from ..models.threat import Threat
 from ..models.detection_rule import DetectionRule
 from ..config import config
 
-logger = logging.getLogger('detection_engine')
+logger = logging.getLogger('detection_engine_sync')
 
-class DetectionEngine:
-    """Core detection engine for EDR system with threat intelligence and auto-response"""
+class DetectionEngineSync:
+    """Synchronous detection engine for reliable rule evaluation"""
     
     def __init__(self):
         self.detection_config = config['detection']
         self.alert_config = config['alert']
-        self.threat_intel_config = config.get('threat_intel', {})
         self.rules_cache = {}
-        self.threats_cache = {}
         self.cache_timestamp = None
-        self.cache_ttl = self.detection_config.get('threat_intel_cache_ttl', 3600)
         
         # Performance counters
         self.stats = {
             'events_analyzed': 0,
             'threats_detected': 0,
             'alerts_generated': 0,
-            'rules_matched': 0,
-            'external_lookups': 0
+            'rules_matched': 0
         }
     
-    async def analyze_event(self, session: Session, event: Event) -> Optional[Dict]:
+    def analyze_event_sync(self, session: Session, event: Event) -> Optional[Dict]:
         """
-        Analyze event through detection engine with threat intelligence
-        Returns detection results with alerts and risk scoring
+        Synchronous event analysis with rule evaluation and alert generation - ENHANCED LOGGING
         """
         try:
+            logger.info(f"🔍 Analyzing event {event.EventID}: {event.EventType}")
+            
             self.stats['events_analyzed'] += 1
             
             detection_results = {
@@ -60,53 +56,53 @@ class DetectionEngine:
                 'detection_methods': [],
                 'matched_rules': [],
                 'matched_threats': [],
-                'external_sources': [],
                 'alerts_generated': [],
-                'response_actions': [],
+                'behavioral_indicators': [],
                 'recommendations': [],
                 'analysis_time': datetime.now().isoformat()
             }
             
-            # Step 1: Enhanced Threat Intelligence Check (Local + External)
-            threat_results = await self._check_threat_intelligence_enhanced(session, event)
-            if threat_results:
-                detection_results = self._merge_detection_results(detection_results, threat_results)
-                self.stats['threats_detected'] += len(threat_results.get('matched_threats', []))
-            
-            # Step 2: Detection Rules Check
+            # Step 1: Check detection rules
             rules_results = self._check_detection_rules(session, event)
             if rules_results:
-                detection_results = self._merge_detection_results(detection_results, rules_results)
+                detection_results = self._merge_results(detection_results, rules_results)
                 self.stats['rules_matched'] += len(rules_results.get('matched_rules', []))
             
-            # Step 3: Behavioral Analysis
-            behavior_results = self._analyze_behavior_patterns(session, event)
-            if behavior_results:
-                detection_results = self._merge_detection_results(detection_results, behavior_results)
+            # Step 2: Check threat intelligence
+            threat_results = self._check_threat_intelligence(session, event)
+            if threat_results:
+                detection_results = self._merge_results(detection_results, threat_results)
+                self.stats['threats_detected'] += len(threat_results.get('matched_threats', []))
             
-            # Step 4: Calculate overall risk score
+            # Step 3: Behavioral analysis
+            behavioral_results = self._analyze_behavioral_patterns(event)
+            if behavioral_results:
+                detection_results = self._merge_results(detection_results, behavioral_results)
+            
+            # Step 4: Calculate risk score
             detection_results['risk_score'] = self._calculate_risk_score(detection_results)
             
             # Step 5: Determine threat level
             detection_results['threat_level'] = self._determine_threat_level(detection_results['risk_score'])
             
-            # Step 6: Generate alerts and response actions if necessary
+            # Step 6: Generate alerts if threshold exceeded
             risk_threshold = self.detection_config.get('risk_score_threshold', 70)
             if detection_results['risk_score'] >= risk_threshold:
-                alerts_and_actions = await self._generate_alerts_and_responses(session, event, detection_results)
-                detection_results['alerts_generated'] = alerts_and_actions.get('alerts', [])
-                detection_results['response_actions'] = alerts_and_actions.get('actions', [])
+                alerts = self._generate_alerts(session, event, detection_results)
+                detection_results['alerts_generated'] = alerts
                 detection_results['threat_detected'] = True
-                self.stats['alerts_generated'] += len(alerts_and_actions.get('alerts', []))
+                self.stats['alerts_generated'] += len(alerts)
             
             # Step 7: Generate recommendations
             detection_results['recommendations'] = self._generate_recommendations(detection_results)
             
-            # Update event analysis status
-            event.update_analysis(
-                threat_level=detection_results['threat_level'],
-                risk_score=detection_results['risk_score']
-            )
+            # ENHANCED: Log detection results
+            if detection_results.get('threat_detected'):
+                logger.info(f"🚨 THREAT DETECTED - Event {event.EventID}:")
+                logger.info(f"   Risk Score: {detection_results.get('risk_score', 0)}")
+                logger.info(f"   Threat Level: {detection_results.get('threat_level', 'None')}")
+                logger.info(f"   Methods: {', '.join(detection_results.get('detection_methods', []))}")
+                logger.info(f"   Alerts Generated: {len(detection_results.get('alerts_generated', []))}")
             
             logger.debug(f"Event {event.EventID} analyzed - Risk: {detection_results['risk_score']}, "
                         f"Threat: {detection_results['threat_level']}, "
@@ -115,151 +111,21 @@ class DetectionEngine:
             return detection_results
             
         except Exception as e:
-            logger.error(f"Detection engine analysis failed for event {event.EventID}: {str(e)}")
-            return None
-    
-    async def _check_threat_intelligence_enhanced(self, session: Session, event: Event) -> Optional[Dict]:
-        """Enhanced threat intelligence check with external sources"""
-        try:
-            if not self.detection_config.get('threat_intel_enabled', False):
-                return None
-            
-            results = {
-                'detection_methods': ['Threat Intelligence'],
-                'matched_threats': [],
-                'risk_score': 0,
-                'external_sources': [],
-                'local_matches': []
-            }
-            
-            # Import threat intel service
-            try:
-                from .threat_intel import threat_intel_service
-                external_available = True
-            except ImportError:
-                logger.warning("Threat intelligence service not available")
-                external_available = False
-            
-            # Check file hashes (local first, then external)
-            hash_checks = []
-            if event.ProcessHash:
-                hash_checks.append(('process', event.ProcessHash))
-            if event.FileHash:
-                hash_checks.append(('file', event.FileHash))
-            
-            for hash_type, file_hash in hash_checks:
-                # Local database check first
-                local_threat = Threat.check_hash(session, file_hash)
-                if local_threat:
-                    results['matched_threats'].append(local_threat.ThreatID)
-                    results['risk_score'] += self._get_threat_risk_score(local_threat)
-                    results['local_matches'].append({
-                        'hash': file_hash,
-                        'hash_type': hash_type,
-                        'threat_name': local_threat.ThreatName,
-                        'severity': local_threat.Severity,
-                        'source': 'Local Database'
-                    })
-                    logger.info(f"Local threat match: {file_hash} - {local_threat.ThreatName}")
-                
-                # External check if not found locally and service available
-                elif external_available and self.threat_intel_config.get('enabled', False):
-                    try:
-                        self.stats['external_lookups'] += 1
-                        threat_result = await threat_intel_service.check_hash_reputation(file_hash, session)
-                        if threat_result:
-                            if threat_result.get('threat_id'):
-                                results['matched_threats'].append(threat_result['threat_id'])
-                            
-                            results['risk_score'] += self._calculate_threat_risk_score(threat_result)
-                            results['external_sources'].append({
-                                'hash': file_hash,
-                                'hash_type': hash_type,
-                                'source': threat_result.get('source'),
-                                'threat_name': threat_result.get('threat_name'),
-                                'severity': threat_result.get('severity'),
-                                'confidence': threat_result.get('confidence'),
-                                'detections': threat_result.get('detections')
-                            })
-                            
-                            logger.info(f"External threat detected via {threat_result.get('source')}: "
-                                      f"{file_hash} - {threat_result.get('threat_name')}")
-                    except Exception as e:
-                        logger.error(f"External threat check failed for {file_hash}: {str(e)}")
-            
-            # Check IP addresses
-            ip_checks = []
-            if event.DestinationIP:
-                ip_checks.append(('destination', event.DestinationIP))
-            if event.SourceIP:
-                ip_checks.append(('source', event.SourceIP))
-            
-            for ip_type, ip_address in ip_checks:
-                # Local check
-                local_threat = Threat.check_ip(session, ip_address)
-                if local_threat:
-                    results['matched_threats'].append(local_threat.ThreatID)
-                    results['risk_score'] += self._get_threat_risk_score(local_threat)
-                    results['local_matches'].append({
-                        'ip': ip_address,
-                        'ip_type': ip_type,
-                        'threat_name': local_threat.ThreatName,
-                        'severity': local_threat.Severity,
-                        'source': 'Local Database'
-                    })
-                    logger.info(f"Malicious IP detected: {ip_address} - {local_threat.ThreatName}")
-                
-                # External check
-                elif external_available and self.threat_intel_config.get('enabled', False):
-                    try:
-                        self.stats['external_lookups'] += 1
-                        threat_result = await threat_intel_service.check_ip_reputation(ip_address, session)
-                        if threat_result:
-                            if threat_result.get('threat_id'):
-                                results['matched_threats'].append(threat_result['threat_id'])
-                            
-                            results['risk_score'] += self._calculate_threat_risk_score(threat_result)
-                            results['external_sources'].append({
-                                'ip': ip_address,
-                                'ip_type': ip_type,
-                                'source': threat_result.get('source'),
-                                'threat_name': threat_result.get('threat_name'),
-                                'severity': threat_result.get('severity')
-                            })
-                    except Exception as e:
-                        logger.error(f"External IP check failed for {ip_address}: {str(e)}")
-            
-            # Check domains (if applicable)
-            if hasattr(event, 'DomainName') and event.DomainName:
-                local_threat = Threat.check_domain(session, event.DomainName)
-                if local_threat:
-                    results['matched_threats'].append(local_threat.ThreatID)
-                    results['risk_score'] += self._get_threat_risk_score(local_threat)
-                    results['local_matches'].append({
-                        'domain': event.DomainName,
-                        'threat_name': local_threat.ThreatName,
-                        'severity': local_threat.Severity,
-                        'source': 'Local Database'
-                    })
-            
-            return results if (results['matched_threats'] or results['external_sources'] or results['local_matches']) else None
-            
-        except Exception as e:
-            logger.error(f"Enhanced threat intelligence check failed: {str(e)}")
+            logger.error(f"💥 Detection engine analysis failed for event {event.EventID}: {str(e)}")
             return None
     
     def _check_detection_rules(self, session: Session, event: Event) -> Optional[Dict]:
-        """Check event against detection rules"""
+        """Check event against active detection rules"""
         try:
             if not self.detection_config.get('rules_enabled', False):
                 return None
             
-            # Get agent platform
+            # Get agent platform for rule filtering
             agent = session.query(Agent).filter(Agent.AgentID == event.AgentID).first()
-            platform = 'Windows' if agent and 'windows' in agent.OperatingSystem.lower() else 'Linux'
+            platform = self._get_platform_from_agent(agent)
             
-            # Get active rules for platform
-            active_rules = self._get_cached_rules(session, platform)
+            # Get active rules
+            active_rules = self._get_active_rules(session, platform)
             
             results = {
                 'detection_methods': ['Rules Engine'],
@@ -269,19 +135,23 @@ class DetectionEngine:
             }
             
             for rule in active_rules:
-                if self._evaluate_rule(event, rule):
-                    results['matched_rules'].append(rule.RuleID)
-                    results['risk_score'] += self._get_rule_risk_score(rule)
-                    results['rule_details'].append({
-                        'rule_id': rule.RuleID,
-                        'rule_name': rule.RuleName,
-                        'rule_type': rule.RuleType,
-                        'severity': rule.AlertSeverity,
-                        'mitre_tactic': rule.MitreTactic,
-                        'mitre_technique': rule.MitreTechnique
-                    })
-                    
-                    logger.info(f"Detection rule matched: {rule.RuleName} for event {event.EventID}")
+                try:
+                    if self._evaluate_rule(event, rule):
+                        results['matched_rules'].append(rule.RuleID)
+                        results['risk_score'] += self._get_rule_risk_score(rule)
+                        results['rule_details'].append({
+                            'rule_id': rule.RuleID,
+                            'rule_name': rule.RuleName,
+                            'rule_type': rule.RuleType,
+                            'severity': rule.AlertSeverity,
+                            'mitre_tactic': rule.MitreTactic,
+                            'mitre_technique': rule.MitreTechnique
+                        })
+                        
+                        logger.info(f"🔍 Rule matched: {rule.RuleName} for event {event.EventID}")
+                except Exception as e:
+                    logger.error(f"Rule evaluation error for rule {rule.RuleID}: {e}")
+                    continue
             
             return results if results['matched_rules'] else None
             
@@ -289,8 +159,65 @@ class DetectionEngine:
             logger.error(f"Detection rules check failed: {str(e)}")
             return None
     
-    def _analyze_behavior_patterns(self, session: Session, event: Event) -> Optional[Dict]:
-        """Analyze behavioral patterns and anomalies"""
+    def _check_threat_intelligence(self, session: Session, event: Event) -> Optional[Dict]:
+        """Check event against threat intelligence database"""
+        try:
+            if not self.detection_config.get('threat_intel_enabled', False):
+                return None
+            
+            results = {
+                'detection_methods': ['Threat Intelligence'],
+                'matched_threats': [],
+                'threat_details': [],
+                'risk_score': 0
+            }
+            
+            # Check file hashes
+            hash_fields = ['ProcessHash', 'FileHash']
+            for hash_field in hash_fields:
+                hash_value = getattr(event, hash_field, None)
+                if hash_value:
+                    threat = Threat.check_hash(session, hash_value)
+                    if threat:
+                        results['matched_threats'].append(threat.ThreatID)
+                        results['risk_score'] += self._get_threat_risk_score(threat)
+                        results['threat_details'].append({
+                            'threat_id': threat.ThreatID,
+                            'threat_name': threat.ThreatName,
+                            'threat_type': threat.ThreatType,
+                            'severity': threat.Severity,
+                            'hash_type': hash_field,
+                            'hash_value': hash_value
+                        })
+                        logger.warning(f"🚨 Threat hash detected: {hash_value} -> {threat.ThreatName}")
+            
+            # Check IP addresses
+            ip_fields = ['SourceIP', 'DestinationIP']
+            for ip_field in ip_fields:
+                ip_value = getattr(event, ip_field, None)
+                if ip_value:
+                    threat = Threat.check_ip(session, ip_value)
+                    if threat:
+                        results['matched_threats'].append(threat.ThreatID)
+                        results['risk_score'] += self._get_threat_risk_score(threat)
+                        results['threat_details'].append({
+                            'threat_id': threat.ThreatID,
+                            'threat_name': threat.ThreatName,
+                            'threat_type': threat.ThreatType,
+                            'severity': threat.Severity,
+                            'ip_type': ip_field,
+                            'ip_value': ip_value
+                        })
+                        logger.warning(f"🚨 Malicious IP detected: {ip_value} -> {threat.ThreatName}")
+            
+            return results if results['matched_threats'] else None
+            
+        except Exception as e:
+            logger.error(f"Threat intelligence check failed: {str(e)}")
+            return None
+    
+    def _analyze_behavioral_patterns(self, event: Event) -> Optional[Dict]:
+        """Analyze behavioral patterns in the event"""
         try:
             results = {
                 'detection_methods': ['Behavioral Analysis'],
@@ -298,32 +225,23 @@ class DetectionEngine:
                 'risk_score': 0
             }
             
-            # Suspicious process behaviors
+            # Process behavior analysis
             if event.EventType == 'Process':
-                suspicious_patterns = self._check_suspicious_process_behavior(event)
-                if suspicious_patterns:
-                    results['behavioral_indicators'].extend(suspicious_patterns)
-                    results['risk_score'] += len(suspicious_patterns) * 10
+                indicators = self._check_process_behavior(event)
+                results['behavioral_indicators'].extend(indicators)
+                results['risk_score'] += len(indicators) * 10
             
-            # Suspicious file behaviors
-            if event.EventType == 'File':
-                suspicious_patterns = self._check_suspicious_file_behavior(event)
-                if suspicious_patterns:
-                    results['behavioral_indicators'].extend(suspicious_patterns)
-                    results['risk_score'] += len(suspicious_patterns) * 8
+            # File behavior analysis
+            elif event.EventType == 'File':
+                indicators = self._check_file_behavior(event)
+                results['behavioral_indicators'].extend(indicators)
+                results['risk_score'] += len(indicators) * 8
             
-            # Suspicious network behaviors
-            if event.EventType == 'Network':
-                suspicious_patterns = self._check_suspicious_network_behavior(event)
-                if suspicious_patterns:
-                    results['behavioral_indicators'].extend(suspicious_patterns)
-                    results['risk_score'] += len(suspicious_patterns) * 12
-            
-            # Time-based anomalies
-            time_anomalies = self._check_time_anomalies(session, event)
-            if time_anomalies:
-                results['behavioral_indicators'].extend(time_anomalies)
-                results['risk_score'] += len(time_anomalies) * 5
+            # Network behavior analysis
+            elif event.EventType == 'Network':
+                indicators = self._check_network_behavior(event)
+                results['behavioral_indicators'].extend(indicators)
+                results['risk_score'] += len(indicators) * 12
             
             return results if results['behavioral_indicators'] else None
             
@@ -331,182 +249,124 @@ class DetectionEngine:
             logger.error(f"Behavioral analysis failed: {str(e)}")
             return None
     
-    def _check_suspicious_process_behavior(self, event: Event) -> List[str]:
+    def _check_process_behavior(self, event: Event) -> List[str]:
         """Check for suspicious process behaviors"""
         indicators = []
         
-        try:
-            if not event.ProcessName or not event.CommandLine:
-                return indicators
-            
-            process_name = event.ProcessName.lower()
-            command_line = event.CommandLine.lower()
-            
-            # Suspicious process names
-            suspicious_processes = [
-                'powershell.exe', 'cmd.exe', 'wscript.exe', 'cscript.exe',
-                'regsvr32.exe', 'rundll32.exe', 'mshta.exe', 'bitsadmin.exe'
-            ]
-            
-            if process_name in suspicious_processes:
-                indicators.append(f"Suspicious process: {event.ProcessName}")
-            
-            # Suspicious command line patterns
-            suspicious_patterns = [
-                r'-encodedcommand',
-                r'-windowstyle\s+hidden',
-                r'-executionpolicy\s+bypass',
-                r'invoke-expression',
-                r'downloadstring',
-                r'base64',
-                r'powershell.*-c\s+.*',
-                r'cmd.*\/c\s+.*'
-            ]
-            
-            for pattern in suspicious_patterns:
-                if re.search(pattern, command_line, re.IGNORECASE):
-                    indicators.append(f"Suspicious command pattern: {pattern}")
-            
-            # Living off the land techniques
-            lotl_patterns = [
-                r'certutil.*-urlcache',
-                r'bitsadmin.*\/transfer',
-                r'regsvr32.*\/s.*\/u.*\/i',
-                r'rundll32.*javascript',
-                r'mshta.*http'
-            ]
-            
-            for pattern in lotl_patterns:
-                if re.search(pattern, command_line, re.IGNORECASE):
-                    indicators.append(f"Living off the land technique: {pattern}")
-            
-        except Exception as e:
-            logger.error(f"Process behavior check failed: {str(e)}")
+        if not event.ProcessName or not event.CommandLine:
+            return indicators
+        
+        process_name = event.ProcessName.lower()
+        command_line = event.CommandLine.lower()
+        
+        # Suspicious processes
+        suspicious_processes = [
+            'powershell.exe', 'cmd.exe', 'wscript.exe', 'cscript.exe',
+            'regsvr32.exe', 'rundll32.exe', 'mshta.exe', 'bitsadmin.exe'
+        ]
+        
+        if process_name in suspicious_processes:
+            indicators.append(f"Suspicious process: {event.ProcessName}")
+        
+        # Suspicious command patterns
+        suspicious_patterns = [
+            r'-encodedcommand',
+            r'-windowstyle\s+hidden',
+            r'-executionpolicy\s+bypass',
+            r'invoke-expression',
+            r'downloadstring',
+            r'base64',
+            r'certutil.*-urlcache',
+            r'bitsadmin.*\/transfer'
+        ]
+        
+        for pattern in suspicious_patterns:
+            if re.search(pattern, command_line, re.IGNORECASE):
+                indicators.append(f"Suspicious command pattern: {pattern}")
         
         return indicators
     
-    def _check_suspicious_file_behavior(self, event: Event) -> List[str]:
+    def _check_file_behavior(self, event: Event) -> List[str]:
         """Check for suspicious file behaviors"""
         indicators = []
         
-        try:
-            if not event.FilePath:
-                return indicators
-            
-            file_path = event.FilePath.lower()
-            file_name = event.FileName.lower() if event.FileName else ''
-            
-            # Suspicious locations
-            suspicious_locations = [
-                r'\\temp\\',
-                r'\\users\\public\\',
-                r'\\appdata\\roaming\\',
-                r'\\windows\\temp\\',
-                r'\\programdata\\'
-            ]
-            
-            for location in suspicious_locations:
-                if re.search(location, file_path, re.IGNORECASE):
-                    indicators.append(f"Suspicious file location: {location}")
-            
-            # Suspicious extensions
-            if event.FileExtension:
-                suspicious_extensions = ['.exe', '.scr', '.bat', '.cmd', '.pif', '.com', '.dll']
-                if event.FileExtension.lower() in suspicious_extensions:
-                    indicators.append(f"Suspicious file extension: {event.FileExtension}")
-            
-            # Double extensions
-            if file_name.count('.') > 1:
-                indicators.append("Double file extension detected")
-            
-            # Hidden or system files in user directories
-            if '\\users\\' in file_path and ('hidden' in file_name or 'system' in file_name):
-                indicators.append("Hidden/system file in user directory")
-            
-        except Exception as e:
-            logger.error(f"File behavior check failed: {str(e)}")
+        if not event.FilePath:
+            return indicators
+        
+        file_path = event.FilePath.lower()
+        
+        # Suspicious locations
+        suspicious_locations = [
+            r'\\temp\\', r'\\users\\public\\', r'\\appdata\\roaming\\',
+            r'\\windows\\temp\\', r'\\programdata\\'
+        ]
+        
+        for location in suspicious_locations:
+            if re.search(location, file_path, re.IGNORECASE):
+                indicators.append(f"Suspicious file location: {location}")
+        
+        # Suspicious extensions in temp directories
+        if event.FileExtension and 'temp' in file_path:
+            dangerous_extensions = ['.exe', '.scr', '.bat', '.cmd', '.pif']
+            if event.FileExtension.lower() in dangerous_extensions:
+                indicators.append(f"Dangerous file in temp: {event.FileExtension}")
         
         return indicators
     
-    def _check_suspicious_network_behavior(self, event: Event) -> List[str]:
+    def _check_network_behavior(self, event: Event) -> List[str]:
         """Check for suspicious network behaviors"""
         indicators = []
         
-        try:
-            # Suspicious ports
-            if event.DestinationPort:
-                suspicious_ports = [22, 23, 135, 139, 445, 1433, 1521, 3389, 5900, 6667]
-                if event.DestinationPort in suspicious_ports:
-                    indicators.append(f"Connection to suspicious port: {event.DestinationPort}")
-            
-            # External connections from system processes
-            if event.SourceIP and event.DestinationIP:
-                # Check if it's an external connection
-                if not self._is_internal_ip(event.DestinationIP):
-                    indicators.append("External network connection")
-            
-            # High port numbers (often used by malware)
-            if event.DestinationPort and event.DestinationPort > 49152:
-                indicators.append("Connection to high port number")
-            
-        except Exception as e:
-            logger.error(f"Network behavior check failed: {str(e)}")
+        # Suspicious ports
+        if event.DestinationPort:
+            suspicious_ports = [22, 23, 135, 139, 445, 1433, 3389, 4444, 6667]
+            if event.DestinationPort in suspicious_ports:
+                indicators.append(f"Connection to suspicious port: {event.DestinationPort}")
+        
+        # External connections
+        if event.DestinationIP and not self._is_private_ip(event.DestinationIP):
+            indicators.append("External network connection")
         
         return indicators
     
-    def _check_time_anomalies(self, session: Session, event: Event) -> List[str]:
-        """Check for time-based anomalies"""
-        indicators = []
-        
-        try:
-            # Activity during unusual hours (e.g., 2-6 AM)
-            event_hour = event.EventTimestamp.hour
-            if 2 <= event_hour <= 6:
-                indicators.append("Activity during unusual hours")
-            
-            # Weekend activity for business processes
-            event_weekday = event.EventTimestamp.weekday()
-            if event_weekday >= 5:  # Saturday or Sunday
-                if event.ProcessName and any(proc in event.ProcessName.lower() 
-                                           for proc in ['excel', 'word', 'outlook']):
-                    indicators.append("Business application activity on weekend")
-            
-        except Exception as e:
-            logger.error(f"Time anomaly check failed: {str(e)}")
-        
-        return indicators
-    
-    def _is_internal_ip(self, ip_address: str) -> bool:
-        """Check if IP address is internal"""
+    def _is_private_ip(self, ip: str) -> bool:
+        """Check if IP is private"""
         try:
             import ipaddress
-            ip = ipaddress.ip_address(ip_address)
-            return ip.is_private
+            return ipaddress.ip_address(ip).is_private
         except:
             return False
     
-    def _get_cached_rules(self, session: Session, platform: str) -> List[DetectionRule]:
-        """Get cached detection rules"""
+    def _get_platform_from_agent(self, agent: Agent) -> str:
+        """Get platform from agent OS"""
+        if not agent or not agent.OperatingSystem:
+            return 'All'
+        
+        os_lower = agent.OperatingSystem.lower()
+        if 'windows' in os_lower:
+            return 'Windows'
+        elif 'linux' in os_lower:
+            return 'Linux'
+        elif 'mac' in os_lower:
+            return 'macOS'
+        else:
+            return 'All'
+    
+    def _get_active_rules(self, session: Session, platform: str) -> List[DetectionRule]:
+        """Get active detection rules for platform"""
         try:
-            cache_key = f"rules_{platform}"
-            current_time = datetime.now()
+            query = session.query(DetectionRule).filter(DetectionRule.IsActive == True)
             
-            # Check if cache is valid
-            if (cache_key in self.rules_cache and 
-                self.cache_timestamp and 
-                (current_time - self.cache_timestamp).seconds < 300):  # 5 minute cache
-                return self.rules_cache[cache_key]
+            # Filter by platform
+            if platform != 'All':
+                query = query.filter(
+                    (DetectionRule.Platform == 'All') | (DetectionRule.Platform == platform)
+                )
             
-            # Refresh cache
-            rules = DetectionRule.get_active_rules(session, platform)
-            self.rules_cache[cache_key] = rules
-            self.cache_timestamp = current_time
-            
-            return rules
-            
+            return query.order_by(DetectionRule.Priority.desc()).all()
         except Exception as e:
-            logger.error(f"Rule cache error: {str(e)}")
-            return DetectionRule.get_active_rules(session, platform)
+            logger.error(f"Error getting active rules: {e}")
+            return []
     
     def _evaluate_rule(self, event: Event, rule: DetectionRule) -> bool:
         """Evaluate if event matches detection rule"""
@@ -515,328 +375,204 @@ class DetectionEngine:
             if not rule_condition:
                 return False
             
-            # Handle different rule condition formats
             if isinstance(rule_condition, dict):
-                if 'conditions' in rule_condition:
-                    # New format with conditions array
-                    conditions = rule_condition.get('conditions', [])
-                    logic = rule_condition.get('logic', 'AND')
-                    
-                    condition_results = []
-                    for condition in conditions:
-                        result = self._evaluate_condition(event, condition)
-                        condition_results.append(result)
-                    
-                    # Apply logic
-                    if logic.upper() == 'AND':
-                        return all(condition_results)
-                    elif logic.upper() == 'OR':
-                        return any(condition_results)
-                else:
-                    # Simple condition format
-                    return self._evaluate_simple_rule(event, rule_condition)
+                return self._evaluate_rule_conditions(event, rule_condition)
             
             return False
-                
+            
         except Exception as e:
             logger.error(f"Rule evaluation failed for rule {rule.RuleID}: {str(e)}")
             return False
     
-    def _evaluate_simple_rule(self, event: Event, rule_condition: Dict) -> bool:
-        """Evaluate simple rule conditions"""
+    def _evaluate_rule_conditions(self, event: Event, conditions: Dict) -> bool:
+        """Evaluate rule conditions against event"""
         try:
             matches = 0
             total_conditions = 0
             
-            for field, value in rule_condition.items():
+            for field, value in conditions.items():
                 if field == 'logic':
                     continue
                 
                 total_conditions += 1
-                event_value = getattr(event, self._map_field_name(field), None)
+                event_field = self._map_rule_field(field)
+                event_value = getattr(event, event_field, None)
                 
                 if event_value and self._check_condition_match(event_value, value):
                     matches += 1
             
-            # Check logic
-            logic = rule_condition.get('logic', 'AND')
+            if total_conditions == 0:
+                return False
+            
+            # Apply logic
+            logic = conditions.get('logic', 'AND')
             if logic.upper() == 'OR':
                 return matches > 0
-            else:  # Default to AND
+            else:  # Default AND
                 return matches == total_conditions
-                
-        except Exception as e:
-            logger.error(f"Simple rule evaluation failed: {str(e)}")
-            return False
-    
-    def _evaluate_condition(self, event: Event, condition: Dict) -> bool:
-        """Evaluate single condition against event"""
-        try:
-            field = condition.get('field')
-            operator = condition.get('operator')
-            value = condition.get('value')
-            
-            if not all([field, operator]):
-                return False
-            
-            # Get event field value
-            event_value = getattr(event, field, None)
-            if event_value is None:
-                return False
-            
-            # Apply operator
-            return self._apply_operator(event_value, operator, value)
                 
         except Exception as e:
             logger.error(f"Condition evaluation failed: {str(e)}")
             return False
     
-    def _map_field_name(self, field: str) -> str:
-        """Map rule field names to event model field names"""
-        field_mapping = {
+    def _map_rule_field(self, field: str) -> str:
+        """Map rule field to event model field"""
+        mapping = {
             'process_name': 'ProcessName',
             'command_line': 'CommandLine',
             'file_name': 'FileName',
             'file_path': 'FilePath',
-            'registry_key': 'RegistryKey',
+            'file_hash': 'FileHash',
+            'process_hash': 'ProcessHash',
             'destination_ip': 'DestinationIP',
             'source_ip': 'SourceIP',
-            'destination_port': 'DestinationPort'
+            'destination_port': 'DestinationPort',
+            'registry_key': 'RegistryKey',
+            'login_user': 'LoginUser'
         }
-        return field_mapping.get(field, field)
+        return mapping.get(field, field)
     
-    def _check_condition_match(self, event_value: Any, condition_value: Any) -> bool:
-        """Check if event value matches condition value"""
+    def _check_condition_match(self, event_value: Any, expected_value: Any) -> bool:
+        """Check if event value matches expected value"""
         try:
-            if isinstance(condition_value, list):
-                return any(str(v).lower() in str(event_value).lower() for v in condition_value)
+            if isinstance(expected_value, list):
+                return any(str(v).lower() in str(event_value).lower() for v in expected_value)
             else:
-                return str(condition_value).lower() in str(event_value).lower()
+                return str(expected_value).lower() in str(event_value).lower()
         except:
             return False
     
-    def _apply_operator(self, event_value: Any, operator: str, value: Any) -> bool:
-        """Apply comparison operator"""
-        try:
-            if operator == 'equals':
-                return str(event_value).lower() == str(value).lower()
-            elif operator == 'iequals':
-                return str(event_value).lower() == str(value).lower()
-            elif operator == 'contains':
-                return str(value).lower() in str(event_value).lower()
-            elif operator == 'contains_any':
-                if isinstance(value, list):
-                    return any(str(v).lower() in str(event_value).lower() for v in value)
-                return str(value).lower() in str(event_value).lower()
-            elif operator == 'not_equals':
-                return str(event_value).lower() != str(value).lower()
-            elif operator == 'in':
-                return event_value in value if isinstance(value, list) else False
-            elif operator == 'not_in':
-                return event_value not in value if isinstance(value, list) else True
-            elif operator == 'regex':
-                return bool(re.search(str(value), str(event_value), re.IGNORECASE))
-            elif operator == 'greater_than':
-                return float(event_value) > float(value) if self._is_numeric(event_value) else False
-            elif operator == 'less_than':
-                return float(event_value) < float(value) if self._is_numeric(event_value) else False
-            else:
-                logger.warning(f"Unknown operator: {operator}")
-                return False
-                
-        except Exception as e:
-            logger.error(f"Operator application failed: {str(e)}")
-            return False
-    
-    def _is_numeric(self, value: Any) -> bool:
-        """Check if value is numeric"""
-        try:
-            float(value)
-            return True
-        except (ValueError, TypeError):
-            return False
-    
-    def _get_threat_risk_score(self, threat: Threat) -> int:
-        """Get risk score based on threat severity"""
-        severity_scores = {
-            'Info': 10,
-            'Low': 20,
-            'Medium': 40,
-            'High': 70,
-            'Critical': 90
-        }
-        base_score = severity_scores.get(threat.Severity, 20)
-        
-        # Adjust based on confidence
-        confidence_multiplier = float(threat.Confidence) if threat.Confidence else 0.5
-        return int(base_score * confidence_multiplier)
-    
-    def _calculate_threat_risk_score(self, threat_result: Dict) -> int:
-        """Calculate risk score from external threat intelligence result"""
-        base_scores = {
-            'Low': 20,
-            'Medium': 40,
-            'High': 70,
-            'Critical': 90
-        }
-        
-        severity = threat_result.get('severity', 'Medium')
-        base_score = base_scores.get(severity, 40)
-        
-        # Adjust by confidence
-        confidence = threat_result.get('confidence', 0.5)
-        adjusted_score = int(base_score * confidence)
-        
-        # Bonus for external sources
-        if threat_result.get('source') != 'Local Database':
-            adjusted_score += 10
-        
-        return adjusted_score
-    
     def _get_rule_risk_score(self, rule: DetectionRule) -> int:
-        """Get risk score based on rule severity and priority"""
+        """Calculate risk score for rule match"""
         severity_scores = {
-            'Info': 5,
             'Low': 15,
             'Medium': 30,
             'High': 60,
             'Critical': 85
         }
-        base_score = severity_scores.get(rule.AlertSeverity, 15)
-        
-        # Adjust based on priority (1-100)
+        base_score = severity_scores.get(rule.AlertSeverity, 30)
         priority_multiplier = (rule.Priority or 50) / 100
         return int(base_score * priority_multiplier)
     
+    def _get_threat_risk_score(self, threat: Threat) -> int:
+        """Calculate risk score for threat match"""
+        severity_scores = {
+            'Low': 20,
+            'Medium': 40,
+            'High': 70,
+            'Critical': 90
+        }
+        base_score = severity_scores.get(threat.Severity, 40)
+        confidence_multiplier = float(threat.Confidence) if threat.Confidence else 0.5
+        return int(base_score * confidence_multiplier)
+    
     def _calculate_risk_score(self, detection_results: Dict) -> int:
-        """Calculate overall risk score from detection results"""
+        """Calculate overall risk score"""
         risk_score = detection_results.get('risk_score', 0)
         
         # Bonus for multiple detection methods
-        if len(detection_results.get('detection_methods', [])) > 1:
-            risk_score += 15
+        methods_count = len(detection_results.get('detection_methods', []))
+        if methods_count > 1:
+            risk_score += methods_count * 5
         
         # Bonus for multiple matches
         total_matches = (len(detection_results.get('matched_rules', [])) + 
-                        len(detection_results.get('matched_threats', [])) +
-                        len(detection_results.get('external_sources', [])))
+                        len(detection_results.get('matched_threats', [])))
         if total_matches > 1:
-            risk_score += min(total_matches * 8, 25)
+            risk_score += min(total_matches * 10, 30)
         
-        # Bonus for behavioral indicators
-        behavioral_count = len(detection_results.get('behavioral_indicators', []))
-        if behavioral_count > 0:
-            risk_score += min(behavioral_count * 5, 20)
-        
-        # Cap at 100
-        return min(risk_score, 100)
+        return min(risk_score, 100)  # Cap at 100
     
     def _determine_threat_level(self, risk_score: int) -> str:
-        """Determine threat level based on risk score"""
+        """Determine threat level based on risk score - FIXED"""
         if risk_score >= 85:
-            return 'Critical'
-        elif risk_score >= 70:
-            return 'High'
+            return 'Malicious'  # Changed from 'Critical'
         elif risk_score >= 50:
-            return 'Medium'
-        elif risk_score >= 30:
-            return 'Low'
+            return 'Suspicious'  # Changed from 'High'
         else:
-            return 'None'
+            return 'None'  # All other cases
     
-    async def _generate_alerts_and_responses(self, session: Session, event: Event, 
-                                           detection_results: Dict) -> Dict:
-        """Generate alerts and response actions based on detection results"""
+    def _generate_alerts(self, session: Session, event: Event, detection_results: Dict) -> List[int]:
+        """Generate alerts for detected threats"""
         try:
             alerts_generated = []
-            response_actions = []
             
             # Generate alerts for matched rules
             for rule_detail in detection_results.get('rule_details', []):
-                rule_id = rule_detail['rule_id']
-                rule = session.query(DetectionRule).filter(DetectionRule.RuleID == rule_id).first()
-                if rule and not rule.TestMode:
-                    alert = self._create_rule_alert(event, rule, detection_results)
-                    if alert:
-                        alerts_generated.append(alert)
-                        session.add(alert)
+                try:
+                    rule_id = rule_detail['rule_id']
+                    rule = session.query(DetectionRule).filter(DetectionRule.RuleID == rule_id).first()
                     
-                    # Add response action
-                    response_action = self._create_response_action(event, rule, detection_results)
-                    if response_action:
-                        response_actions.append(response_action)
+                    if rule and not rule.TestMode:
+                        alert = self._create_rule_alert(event, rule, detection_results)
+                        if alert:
+                            session.add(alert)
+                            session.flush()  # Get alert ID
+                            alerts_generated.append(alert.AlertID)
+                            logger.info(f"🚨 Alert created: {rule.RuleName} -> Alert #{alert.AlertID}")
+                except Exception as e:
+                    logger.error(f"Failed to create rule alert: {e}")
+                    continue
             
-            # Generate alerts for threat intelligence matches
-            for threat_id in detection_results.get('matched_threats', []):
-                threat = session.query(Threat).filter(Threat.ThreatID == threat_id).first()
-                if threat:
-                    alert = self._create_threat_alert(event, threat, detection_results)
-                    if alert:
-                        alerts_generated.append(alert)
-                        session.add(alert)
+            # Generate alerts for threat matches
+            for threat_detail in detection_results.get('threat_details', []):
+                try:
+                    threat_id = threat_detail['threat_id']
+                    threat = session.query(Threat).filter(Threat.ThreatID == threat_id).first()
                     
-                    # Add response action for threat
-                    response_action = self._create_threat_response_action(event, threat, detection_results)
-                    if response_action:
-                        response_actions.append(response_action)
+                    if threat:
+                        alert = self._create_threat_alert(event, threat, detection_results)
+                        if alert:
+                            session.add(alert)
+                            session.flush()
+                            alerts_generated.append(alert.AlertID)
+                            logger.warning(f"🚨 Threat alert created: {threat.ThreatName} -> Alert #{alert.AlertID}")
+                except Exception as e:
+                    logger.error(f"Failed to create threat alert: {e}")
+                    continue
             
-            # Generate alert for behavioral anomalies if significant
+            # Generate behavioral alert if many indicators
             behavioral_indicators = detection_results.get('behavioral_indicators', [])
-            if len(behavioral_indicators) >= 3:  # Multiple behavioral indicators
-                alert = self._create_behavioral_alert(event, behavioral_indicators, detection_results)
-                if alert:
-                    alerts_generated.append(alert)
-                    session.add(alert)
+            if len(behavioral_indicators) >= 3:
+                try:
+                    alert = self._create_behavioral_alert(event, behavioral_indicators, detection_results)
+                    if alert:
+                        session.add(alert)
+                        session.flush()
+                        alerts_generated.append(alert.AlertID)
+                        logger.warning(f"🚨 Behavioral alert created: {len(behavioral_indicators)} indicators -> Alert #{alert.AlertID}")
+                except Exception as e:
+                    logger.error(f"Failed to create behavioral alert: {e}")
             
-            # Commit alerts to database
-            session.commit()
-            
-            return {
-                'alerts': [self._alert_to_dict(alert) for alert in alerts_generated],
-                'actions': response_actions
-            }
+            return alerts_generated
             
         except Exception as e:
-            logger.error(f"Alert and response generation failed: {str(e)}")
-            session.rollback()
-            return {'alerts': [], 'actions': []}
+            logger.error(f"Alert generation failed: {str(e)}")
+            return []
     
     def _create_rule_alert(self, event: Event, rule: DetectionRule, detection_results: Dict) -> Optional[Alert]:
-        """Create alert for matched detection rule"""
+        """Create alert for matched detection rule - FIXED"""
         try:
             alert_description = f"Detection rule '{rule.RuleName}' triggered"
-            if rule.Description:
-                alert_description += f": {rule.Description}"
+            if rule.AlertDescription:
+                alert_description += f": {rule.AlertDescription}"
             
-            # Build detailed message
-            details = {
-                'rule_id': rule.RuleID,
-                'rule_name': rule.RuleName,
-                'rule_type': rule.RuleType,
-                'mitre_tactic': rule.MitreTactic,
-                'mitre_technique': rule.MitreTechnique,
-                'event_details': self._get_event_summary(event),
-                'risk_score': detection_results.get('risk_score', 0),
-                'detection_methods': detection_results.get('detection_methods', [])
-            }
-            
-            alert = Alert(
-                AlertID=None,  # Auto-generated
-                EventID=event.EventID,
-                AgentID=event.AgentID,
-                RuleID=rule.RuleID,
-                ThreatID=None,
-                AlertType='Rule Detection',
-                Severity=rule.AlertSeverity,
-                Title=f"Rule Detection: {rule.RuleName}",
+            alert = Alert.create_alert(
+                agent_id=str(event.AgentID),
+                alert_type=rule.AlertType or 'Rule Detection',
+                title=rule.AlertTitle or f"Rule Detection: {rule.RuleName}",
+                severity=rule.AlertSeverity or 'Medium',
+                detection_method="Rules Engine",
                 Description=alert_description,
-                Details=json.dumps(details),
-                Status='Open',
-                AssignedTo=None,
-                CreatedAt=datetime.now(),
-                UpdatedAt=datetime.now()
+                EventID=event.EventID,
+                RuleID=rule.RuleID,
+                MitreTactic=rule.MitreTactic,
+                MitreTechnique=rule.MitreTechnique,
+                RiskScore=detection_results.get('risk_score', 0),
+                Confidence=0.8
             )
             
+            logger.info(f"🚨 Alert created: {rule.RuleName} -> {rule.AlertSeverity}")
             return alert
             
         except Exception as e:
@@ -846,39 +582,29 @@ class DetectionEngine:
     def _create_threat_alert(self, event: Event, threat: Threat, detection_results: Dict) -> Optional[Alert]:
         """Create alert for threat intelligence match"""
         try:
-            alert_description = f"Threat detected: {threat.ThreatName}"
+            description = f"Threat detected: {threat.ThreatName}"
             if threat.Description:
-                alert_description += f" - {threat.Description}"
-            
-            details = {
-                'threat_id': threat.ThreatID,
-                'threat_name': threat.ThreatName,
-                'threat_type': threat.ThreatType,
-                'severity': threat.Severity,
-                'confidence': threat.Confidence,
-                'source': threat.Source,
-                'event_details': self._get_event_summary(event),
-                'risk_score': detection_results.get('risk_score', 0),
-                'iocs': {
-                    'hash': threat.IOCHash,
-                    'ip': threat.IOCIP,
-                    'domain': threat.IOCDomain
-                }
-            }
+                description += f" - {threat.Description}"
             
             alert = Alert(
-                AlertID=None,
                 EventID=event.EventID,
                 AgentID=event.AgentID,
                 RuleID=None,
                 ThreatID=threat.ThreatID,
                 AlertType='Threat Intelligence',
-                Severity=threat.Severity,
                 Title=f"Threat Detected: {threat.ThreatName}",
-                Description=alert_description,
-                Details=json.dumps(details),
+                Description=description,
+                Severity=threat.Severity,
+                Priority=threat.Severity,
+                Confidence=float(threat.Confidence) if threat.Confidence else 0.7,
+                DetectionMethod='Threat Intelligence',
+                RiskScore=detection_results.get('risk_score', 0),
+                MitreTactic=threat.MitreTactic,
+                MitreTechnique=threat.MitreTechnique,
                 Status='Open',
-                AssignedTo=None,
+                FirstDetected=datetime.now(),
+                LastDetected=datetime.now(),
+                EventCount=1,
                 CreatedAt=datetime.now(),
                 UpdatedAt=datetime.now()
             )
@@ -893,14 +619,7 @@ class DetectionEngine:
                                detection_results: Dict) -> Optional[Alert]:
         """Create alert for behavioral anomalies"""
         try:
-            alert_description = f"Multiple suspicious behaviors detected: {len(behavioral_indicators)} indicators"
-            
-            details = {
-                'behavioral_indicators': behavioral_indicators,
-                'event_details': self._get_event_summary(event),
-                'risk_score': detection_results.get('risk_score', 0),
-                'analysis_time': detection_results.get('analysis_time')
-            }
+            description = f"Multiple suspicious behaviors detected: {len(behavioral_indicators)} indicators"
             
             # Determine severity based on number of indicators
             if len(behavioral_indicators) >= 5:
@@ -911,18 +630,24 @@ class DetectionEngine:
                 severity = 'Low'
             
             alert = Alert(
-                AlertID=None,
                 EventID=event.EventID,
                 AgentID=event.AgentID,
                 RuleID=None,
                 ThreatID=None,
                 AlertType='Behavioral Analysis',
-                Severity=severity,
                 Title="Suspicious Behavior Detected",
-                Description=alert_description,
-                Details=json.dumps(details),
+                Description=description,
+                Severity=severity,
+                Priority=severity,
+                Confidence=0.6,  # Medium confidence for behavioral
+                DetectionMethod='Behavioral Analysis',
+                RiskScore=detection_results.get('risk_score', 0),
+                MitreTactic=None,
+                MitreTechnique=None,
                 Status='Open',
-                AssignedTo=None,
+                FirstDetected=datetime.now(),
+                LastDetected=datetime.now(),
+                EventCount=1,
                 CreatedAt=datetime.now(),
                 UpdatedAt=datetime.now()
             )
@@ -933,171 +658,12 @@ class DetectionEngine:
             logger.error(f"Behavioral alert creation failed: {str(e)}")
             return None
     
-    def _create_response_action(self, event: Event, rule: DetectionRule, 
-                              detection_results: Dict) -> Optional[Dict]:
-        """Create response action for detection rule"""
-        try:
-            if not rule.ResponseAction or rule.ResponseAction == 'None':
-                return None
-            
-            response_action = {
-                'action_type': rule.ResponseAction,
-                'rule_id': rule.RuleID,
-                'rule_name': rule.RuleName,
-                'event_id': event.EventID,
-                'agent_id': str(event.AgentID),
-                'severity': rule.AlertSeverity,
-                'timestamp': datetime.now().isoformat(),
-                'details': {}
-            }
-            
-            # Add specific action details based on type
-            if rule.ResponseAction == 'Quarantine':
-                response_action['details'] = {
-                    'action': 'quarantine_file',
-                    'file_path': event.FilePath if hasattr(event, 'FilePath') else None,
-                    'file_hash': event.FileHash if hasattr(event, 'FileHash') else None,
-                    'process_name': event.ProcessName if hasattr(event, 'ProcessName') else None
-                }
-            elif rule.ResponseAction == 'Block':
-                response_action['details'] = {
-                    'action': 'block_process',
-                    'process_name': event.ProcessName if hasattr(event, 'ProcessName') else None,
-                    'process_hash': event.ProcessHash if hasattr(event, 'ProcessHash') else None
-                }
-            elif rule.ResponseAction == 'Isolate':
-                response_action['details'] = {
-                    'action': 'isolate_agent',
-                    'reason': f"Rule violation: {rule.RuleName}"
-                }
-            elif rule.ResponseAction == 'Kill':
-                response_action['details'] = {
-                    'action': 'kill_process',
-                    'process_name': event.ProcessName if hasattr(event, 'ProcessName') else None,
-                    'process_id': event.ProcessID if hasattr(event, 'ProcessID') else None
-                }
-            
-            return response_action
-            
-        except Exception as e:
-            logger.error(f"Response action creation failed: {str(e)}")
-            return None
-    
-    def _create_threat_response_action(self, event: Event, threat: Threat, 
-                                     detection_results: Dict) -> Optional[Dict]:
-        """Create response action for threat intelligence match"""
-        try:
-            # Determine action based on threat severity
-            if threat.Severity in ['Critical', 'High']:
-                action_type = 'Quarantine'
-            elif threat.Severity == 'Medium':
-                action_type = 'Block'
-            else:
-                action_type = 'Monitor'
-            
-            response_action = {
-                'action_type': action_type,
-                'threat_id': threat.ThreatID,
-                'threat_name': threat.ThreatName,
-                'event_id': event.EventID,
-                'agent_id': str(event.AgentID),
-                'severity': threat.Severity,
-                'timestamp': datetime.now().isoformat(),
-                'details': {
-                    'threat_type': threat.ThreatType,
-                    'confidence': threat.Confidence,
-                    'source': threat.Source
-                }
-            }
-            
-            # Add specific IOC details
-            if threat.IOCHash and (event.FileHash == threat.IOCHash or event.ProcessHash == threat.IOCHash):
-                response_action['details']['ioc_type'] = 'hash'
-                response_action['details']['ioc_value'] = threat.IOCHash
-                response_action['details']['action'] = 'quarantine_file'
-            elif threat.IOCIP and (event.DestinationIP == threat.IOCIP or event.SourceIP == threat.IOCIP):
-                response_action['details']['ioc_type'] = 'ip'
-                response_action['details']['ioc_value'] = threat.IOCIP
-                response_action['details']['action'] = 'block_ip'
-            elif threat.IOCDomain and hasattr(event, 'DomainName') and event.DomainName == threat.IOCDomain:
-                response_action['details']['ioc_type'] = 'domain'
-                response_action['details']['ioc_value'] = threat.IOCDomain
-                response_action['details']['action'] = 'block_domain'
-            
-            return response_action
-            
-        except Exception as e:
-            logger.error(f"Threat response action creation failed: {str(e)}")
-            return None
-    
-    def _get_event_summary(self, event: Event) -> Dict:
-        """Get summary of event details for alert"""
-        summary = {
-            'event_id': event.EventID,
-            'event_type': event.EventType,
-            'timestamp': event.EventTimestamp.isoformat(),
-            'agent_id': str(event.AgentID)
-        }
-        
-        # Add relevant fields based on event type
-        if event.EventType == 'Process':
-            summary.update({
-                'process_name': event.ProcessName,
-                'command_line': event.CommandLine,
-                'process_hash': event.ProcessHash,
-                'parent_process': event.ParentProcess
-            })
-        elif event.EventType == 'File':
-            summary.update({
-                'file_name': event.FileName,
-                'file_path': event.FilePath,
-                'file_hash': event.FileHash,
-                'file_extension': event.FileExtension,
-                'action': event.Action
-            })
-        elif event.EventType == 'Network':
-            summary.update({
-                'source_ip': event.SourceIP,
-                'destination_ip': event.DestinationIP,
-                'destination_port': event.DestinationPort,
-                'protocol': event.Protocol,
-                'action': event.Action
-            })
-        elif event.EventType == 'Registry':
-            summary.update({
-                'registry_key': event.RegistryKey,
-                'registry_value': event.RegistryValue,
-                'action': event.Action
-            })
-        
-        return summary
-    
-    def _alert_to_dict(self, alert: Alert) -> Dict:
-        """Convert alert object to dictionary"""
-        return {
-            'alert_id': alert.AlertID,
-            'event_id': alert.EventID,
-            'agent_id': str(alert.AgentID),
-            'rule_id': alert.RuleID,
-            'threat_id': alert.ThreatID,
-            'alert_type': alert.AlertType,
-            'severity': alert.Severity,
-            'title': alert.Title,
-            'description': alert.Description,
-            'details': json.loads(alert.Details) if alert.Details else {},
-            'status': alert.Status,
-            'assigned_to': alert.AssignedTo,
-            'created_at': alert.CreatedAt.isoformat(),
-            'updated_at': alert.UpdatedAt.isoformat()
-        }
-    
     def _generate_recommendations(self, detection_results: Dict) -> List[str]:
-        """Generate security recommendations based on detection results"""
+        """Generate security recommendations"""
         recommendations = []
         
         try:
             risk_score = detection_results.get('risk_score', 0)
-            threat_level = detection_results.get('threat_level', 'None')
             behavioral_indicators = detection_results.get('behavioral_indicators', [])
             
             # High-risk recommendations
@@ -1105,10 +671,6 @@ class DetectionEngine:
                 recommendations.append("Immediately investigate this incident")
                 recommendations.append("Consider isolating the affected agent")
                 recommendations.append("Review related events from the same agent")
-                
-                if detection_results.get('matched_threats'):
-                    recommendations.append("Update threat intelligence feeds")
-                    recommendations.append("Scan other agents for similar threats")
             
             # Medium-risk recommendations
             elif risk_score >= 40:
@@ -1117,27 +679,18 @@ class DetectionEngine:
                 recommendations.append("Consider additional endpoint hardening")
             
             # Behavioral-specific recommendations
-            if 'Suspicious process' in str(behavioral_indicators):
+            if any('Suspicious process' in indicator for indicator in behavioral_indicators):
                 recommendations.append("Review process execution policies")
                 recommendations.append("Consider application whitelisting")
             
-            if 'External network connection' in str(behavioral_indicators):
+            if any('External network' in indicator for indicator in behavioral_indicators):
                 recommendations.append("Review network access controls")
                 recommendations.append("Consider implementing network segmentation")
-            
-            if 'Suspicious file location' in str(behavioral_indicators):
-                recommendations.append("Review file system permissions")
-                recommendations.append("Implement folder access monitoring")
             
             # Rule-specific recommendations
             if detection_results.get('matched_rules'):
                 recommendations.append("Review and tune detection rules")
                 recommendations.append("Verify rule effectiveness")
-            
-            # Time-based recommendations
-            if 'Activity during unusual hours' in str(behavioral_indicators):
-                recommendations.append("Review user access schedules")
-                recommendations.append("Implement time-based access controls")
             
             # General recommendations
             if not recommendations:
@@ -1150,7 +703,7 @@ class DetectionEngine:
         
         return recommendations
     
-    def _merge_detection_results(self, base_results: Dict, new_results: Dict) -> Dict:
+    def _merge_results(self, base_results: Dict, new_results: Dict) -> Dict:
         """Merge detection results from different analysis methods"""
         try:
             # Merge detection methods
@@ -1168,25 +721,11 @@ class DetectionEngine:
             new_threats = new_results.get('matched_threats', [])
             base_results['matched_threats'] = list(set(base_threats + new_threats))
             
-            # Merge external sources
-            base_external = base_results.get('external_sources', [])
-            new_external = new_results.get('external_sources', [])
-            base_results['external_sources'] = base_external + new_external
-            
-            # Merge behavioral indicators
-            base_behavioral = base_results.get('behavioral_indicators', [])
-            new_behavioral = new_results.get('behavioral_indicators', [])
-            base_results['behavioral_indicators'] = base_behavioral + new_behavioral
-            
-            # Merge rule details
-            base_rule_details = base_results.get('rule_details', [])
-            new_rule_details = new_results.get('rule_details', [])
-            base_results['rule_details'] = base_rule_details + new_rule_details
-            
-            # Merge local matches
-            base_local = base_results.get('local_matches', [])
-            new_local = new_results.get('local_matches', [])
-            base_results['local_matches'] = base_local + new_local
+            # Merge details
+            for detail_key in ['rule_details', 'threat_details', 'behavioral_indicators']:
+                base_details = base_results.get(detail_key, [])
+                new_details = new_results.get(detail_key, [])
+                base_results[detail_key] = base_details + new_details
             
             # Add risk scores
             base_results['risk_score'] = (base_results.get('risk_score', 0) + 
@@ -1195,17 +734,16 @@ class DetectionEngine:
             return base_results
             
         except Exception as e:
-            logger.error(f"Detection results merge failed: {str(e)}")
+            logger.error(f"Results merge failed: {str(e)}")
             return base_results
     
-    def get_performance_stats(self) -> Dict:
-        """Get detection engine performance statistics"""
+    def get_stats(self) -> Dict:
+        """Get detection engine statistics"""
         return {
             'events_analyzed': self.stats['events_analyzed'],
             'threats_detected': self.stats['threats_detected'],
             'alerts_generated': self.stats['alerts_generated'],
             'rules_matched': self.stats['rules_matched'],
-            'external_lookups': self.stats['external_lookups'],
             'detection_rate': (self.stats['threats_detected'] / max(self.stats['events_analyzed'], 1)) * 100,
             'alert_rate': (self.stats['alerts_generated'] / max(self.stats['events_analyzed'], 1)) * 100
         }
@@ -1216,17 +754,27 @@ class DetectionEngine:
             'events_analyzed': 0,
             'threats_detected': 0,
             'alerts_generated': 0,
-            'rules_matched': 0,
-            'external_lookups': 0
+            'rules_matched': 0
         }
-    
-    def clear_cache(self):
-        """Clear detection engine cache"""
-        self.rules_cache.clear()
-        self.threats_cache.clear()
-        self.cache_timestamp = None
-        logger.info("Detection engine cache cleared")
+
+    def _alert_to_dict(self, alert: Alert) -> Dict:
+        """Convert alert object to dictionary - FIXED"""
+        return {
+            'alert_id': alert.AlertID,  # This will be the actual ID, not None
+            'event_id': alert.EventID,
+            'agent_id': str(alert.AgentID),
+            'rule_id': alert.RuleID,
+            'threat_id': alert.ThreatID,
+            'alert_type': alert.AlertType,
+            'severity': alert.Severity,
+            'title': alert.Title,
+            'description': alert.Description,
+            'status': alert.Status,
+            'risk_score': alert.RiskScore,
+            'created_at': alert.CreatedAt.isoformat() if alert.CreatedAt else None,
+            'detection_method': getattr(alert, 'DetectionMethod', 'Unknown')
+        }
 
 
-# Create global detection engine instance
-detection_engine = DetectionEngine()
+# Global synchronous detection engine instance
+detection_engine = DetectionEngineSync()

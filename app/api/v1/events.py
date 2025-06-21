@@ -64,7 +64,7 @@ async def submit_event_batch(
     """Submit batch of events for processing"""
     try:
         client_ip = request.client.host
-        success, response, error = event_service.submit_event_batch(session, batch_data, client_ip)
+        success, response, error = await event_service.submit_event_batch(session, batch_data, client_ip)
         
         if not success:
             logger.warning(f"Event batch submission failed: {error}")

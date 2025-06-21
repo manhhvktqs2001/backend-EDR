@@ -1,8 +1,8 @@
-# app/main.py - EDR Server Main Application (Database Schema Compliant)
+# app/main.py - EDR Server Main Application (UPDATED with Agent Response)
 """
 EDR System - Main FastAPI Application
 Agent Communication Server running on 192.168.20.85:5000
-Updated for simplified database schema (no authentication)
+Updated with Agent Response API integration
 """
 
 import logging
@@ -17,7 +17,7 @@ import uvicorn
 
 from .config import config
 from .database import init_database, get_database_status
-from .api.v1 import agents, events, alerts, dashboard, threats, detection
+from .api.v1 import agents, events, alerts, dashboard, threats, detection, agent_response
 from .utils.network_utils import is_internal_ip
 
 # Configure logging
@@ -43,6 +43,7 @@ async def lifespan(app: FastAPI):
         logger.info(f"🔒 Network access: {config['network']['allowed_agent_network']}")
         logger.info(f"🛡️ Detection engine: {'Enabled' if config['detection']['rules_enabled'] else 'Disabled'}")
         logger.info(f"📊 Threat intelligence: {'Enabled' if config['detection']['threat_intel_enabled'] else 'Disabled'}")
+        logger.info(f"🔄 Agent response system: Enabled")  # NEW
         
         yield
         
@@ -86,7 +87,9 @@ async def security_and_logging_middleware(request: Request, call_next):
     client_ip = request.client.host
     
     # Network access validation for agent endpoints
-    if request.url.path.startswith("/api/v1/agents") or request.url.path.startswith("/api/v1/events"):
+    if (request.url.path.startswith("/api/v1/agents") or 
+        request.url.path.startswith("/api/v1/events") or
+        request.url.path.startswith("/api/v1/agents/") and "/response" in request.url.path):  # NEW
         if not is_internal_ip(client_ip, config['network']['allowed_agent_network']):
             logger.warning(f"🚫 Unauthorized access attempt from: {client_ip} to {request.url.path}")
             return JSONResponse(
@@ -126,7 +129,8 @@ async def root():
             "detection_engine": config['detection']['rules_enabled'],
             "threat_intelligence": config['detection']['threat_intel_enabled'],
             "agent_registration": config['features']['agent_registration'],
-            "event_collection": config['features']['event_collection']
+            "event_collection": config['features']['event_collection'],
+            "automated_response": True  # NEW
         },
         "timestamp": time.time()
     }
@@ -161,7 +165,8 @@ async def health_check():
                 "threat_intelligence": config['detection']['threat_intel_enabled'],
                 "agent_registration": config['features']['agent_registration'],
                 "event_collection": config['features']['event_collection'],
-                "real_time_detection": config['features']['real_time_detection']
+                "real_time_detection": config['features']['real_time_detection'],
+                "automated_response": True  # NEW
             },
             "network": {
                 "allowed_network": config['network']['allowed_agent_network'],
@@ -197,6 +202,7 @@ async def system_status():
                 "database": "connected" if db_status.get('healthy') else "disconnected",
                 "detection_engine": "enabled" if config['detection']['rules_enabled'] else "disabled",
                 "threat_intel": "enabled" if config['detection']['threat_intel_enabled'] else "disabled",
+                "automated_response": "enabled",  # NEW
                 "authentication": "disabled"  # Simplified version
             },
             "database_info": {
@@ -222,7 +228,8 @@ async def system_status():
                 "threat_intelligence": config['detection']['threat_intel_enabled'],
                 "alert_management": True,
                 "dashboard_api": True,
-                "detection_rules": True
+                "detection_rules": True,
+                "automated_response": True  # NEW
             },
             "timestamp": time.time()
         }
@@ -242,14 +249,17 @@ async def discover_server():
             "agent_register": "/api/v1/agents/register",
             "agent_heartbeat": "/api/v1/agents/heartbeat",
             "event_submit": "/api/v1/events/submit",
-            "event_batch": "/api/v1/events/batch"
+            "event_batch": "/api/v1/events/batch",
+            "pending_actions": "/api/v1/agents/{agent_id}/pending-actions",  # NEW
+            "action_response": "/api/v1/agents/{agent_id}/action-response"   # NEW
         },
         "capabilities": {
             "max_agents": config['network']['max_agents'],
             "event_batch_size": config['agent']['event_batch_size'],
             "heartbeat_interval": config['agent']['heartbeat_interval'],
             "detection_engine": config['detection']['rules_enabled'],
-            "threat_intelligence": config['detection']['threat_intel_enabled']
+            "threat_intelligence": config['detection']['threat_intel_enabled'],
+            "automated_response": True  # NEW
         },
         "authentication": {
             "required": True,  # Agents still need token
@@ -293,6 +303,13 @@ app.include_router(
     detection.router,
     prefix="/api/v1/detection",
     tags=["🎯 Detection Rules"]
+)
+
+# NEW: Include Agent Response Router
+app.include_router(
+    agent_response.router,
+    prefix="/api/v1",
+    tags=["🔄 Agent Response & Actions"]
 )
 
 # Global exception handlers
@@ -352,10 +369,11 @@ async def value_error_handler(request: Request, exc: ValueError):
 if __name__ == "__main__":
     server_config = config['server']
     print(f"""
-🚀 EDR Agent Communication Server
+🚀 EDR Agent Communication Server with Automated Response
 🌐 Starting on: http://{server_config['bind_host']}:{server_config['bind_port']}
 📚 API Documentation: http://{server_config['bind_host']}:{server_config['bind_port']}/docs
 🔍 Health Check: http://{server_config['bind_host']}:{server_config['bind_port']}/health
+🔄 Agent Response: Enabled
     """)
     
     uvicorn.run(

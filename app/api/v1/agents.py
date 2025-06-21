@@ -7,6 +7,7 @@ import logging
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, Request, Header
 from sqlalchemy.orm import Session
+from datetime import datetime
 
 from ...database import get_db
 from ...models.agent import Agent
@@ -17,6 +18,7 @@ from ...schemas.agent import (
     AgentConfigResponse, AgentStatsResponse
 )
 from ...services.agent_service import agent_service
+from ...services.agent_communication_service import agent_communication_service
 
 logger = logging.getLogger('agent_communication')
 router = APIRouter()
@@ -284,3 +286,35 @@ async def get_agents_health_overview(
     except Exception as e:
         logger.error(f"Get agents health overview failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to get health overview")
+
+@router.get("/{agent_id}/pending-alerts")
+async def get_pending_alerts(
+    request: Request,
+    agent_id: str,
+    session: Session = Depends(get_db),
+    _: bool = Depends(verify_agent_token)
+):
+    """Get pending alert notifications for agent - NEW"""
+    try:
+        # Verify agent exists
+        agent = Agent.get_by_id(session, agent_id)
+        if not agent:
+            raise HTTPException(status_code=404, detail="Agent not found")
+        
+        # Get pending alerts from agent communication service
+        pending_alerts = agent_communication_service.get_pending_alerts_for_agent(session, agent_id)
+        
+        return {
+            "success": True,
+            "agent_id": agent_id,
+            "hostname": agent.HostName,
+            "pending_alerts": pending_alerts,
+            "alert_count": len(pending_alerts),
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to get pending alerts for agent {agent_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get pending alerts")
