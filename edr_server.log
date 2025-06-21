@@ -5458,3 +5458,476 @@ Access is denied.
 2025-06-21 06:44:54,163 [INFO] __main__:    ✅ Fast connection pooling
 2025-06-21 06:44:54,163 [INFO] __main__:    ✅ Optimized health checks
 2025-06-21 06:44:54,163 [INFO] __main__: 🚀 Launching EDR Server...
+2025-06-21 07:23:03,404 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-21 07:23:03,410 [INFO] __main__: 🛡️ EDR Server - Speed Optimized Mode
+2025-06-21 07:23:03,410 [INFO] __main__: ⚡ Fast environment checks...
+2025-06-21 07:23:03,419 [INFO] __main__: ✅ ODBC drivers ready: 3 found
+2025-06-21 07:23:03,419 [INFO] __main__: 🔍 Fast connection test...
+2025-06-21 07:23:03,419 [INFO] __main__: 🔍 Fast service check...
+2025-06-21 07:23:03,492 [INFO] __main__: ✅ SQL Server (Default Instance) running
+2025-06-21 07:23:03,578 [WARNING] __main__: ⚠️ SQL Browser Service start failed
+2025-06-21 07:23:03,579 [INFO] __main__: ✅ 1 SQL Server services ready
+2025-06-21 07:23:03,770 [INFO] __main__: ✅ Connected to: .
+2025-06-21 07:23:03,770 [INFO] __main__:    Server: Manh
+2025-06-21 07:23:03,771 [INFO] __main__:    Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8 2022 05:58:25 
+	Cop...
+2025-06-21 07:23:03,772 [INFO] __main__: ✅ EDR_System database found
+2025-06-21 07:23:03,772 [INFO] __main__: 🎯 Using server: .
+2025-06-21 07:23:20,012 [INFO] app.database: 🚀 Speed optimized database init: localhost
+2025-06-21 07:23:20,078 [INFO] app.database: ✅ Original config works
+2025-06-21 07:23:20,121 [INFO] app.database: ✅ Speed optimized database engine ready
+2025-06-21 07:23:20,123 [INFO] __main__: ⚡ Fast database initialization...
+2025-06-21 07:23:20,123 [INFO] app.database: ⚡ Speed optimized database initialization...
+2025-06-21 07:23:20,240 [INFO] app.database: ✅ Database connected: Manh / EDR_System
+2025-06-21 07:23:20,241 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 07:23:20,243 [INFO] app.database: ✅ Database connected: Manh / EDR_System
+2025-06-21 07:23:20,243 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 07:23:20,317 [INFO] app.database: ✅ Health check passed in 76ms
+2025-06-21 07:23:20,318 [INFO] app.database: 📊 Connected: Manh / EDR_System
+2025-06-21 07:23:20,318 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 07:23:20,319 [INFO] app.database: 📈 Ready: 7 tables, 42 records - 76ms
+2025-06-21 07:23:20,319 [INFO] app.database: 📋 Agents: 1, Events: 0, Alerts: 0, Threats: 12, DetectionRules: 7
+2025-06-21 07:23:20,319 [INFO] __main__: ✅ Environment ready
+2025-06-21 07:23:20,319 [INFO] __main__: 📊 Database status check...
+2025-06-21 07:23:20,320 [INFO] __main__: ✅ Server: Manh / EDR_System
+2025-06-21 07:23:20,320 [INFO] __main__: 👤 User: Manh\manhh
+2025-06-21 07:23:20,320 [INFO] __main__: ⚡ Response: 76ms
+2025-06-21 07:23:20,321 [INFO] __main__: 📊 Tables: 7, Records: 42
+2025-06-21 07:23:20,321 [INFO] __main__: 📋 Key tables: Agents:1, Events:0, Alerts:0, Threats:12, DetectionRules:7
+2025-06-21 07:23:20,361 [INFO] __main__: 🧪 Quick schema validation...
+2025-06-21 07:23:20,402 [INFO] __main__: ✅ Schema validated: 5389e02b-d5a6-4ccd-bc4a-da93370de2c8
+2025-06-21 07:23:20,403 [INFO] __main__: 🎯 Starting server...
+2025-06-21 07:23:20,403 [INFO] __main__: 🌐 Binding: 192.168.20.85:5000
+2025-06-21 07:23:20,404 [INFO] __main__: 🔧 SPEED OPTIMIZED MODE READY:
+2025-06-21 07:23:20,404 [INFO] __main__:    ✅ Parallel service detection
+2025-06-21 07:23:20,404 [INFO] __main__:    ✅ Cached database operations
+2025-06-21 07:23:20,405 [INFO] __main__:    ✅ Fast connection pooling
+2025-06-21 07:23:20,405 [INFO] __main__:    ✅ Optimized health checks
+2025-06-21 07:23:20,405 [INFO] __main__: 🚀 Launching EDR Server...
+2025-06-21 07:25:42,349 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-21 07:25:42,354 [INFO] __main__: 🛡️ EDR Server - Speed Optimized Mode
+2025-06-21 07:25:42,354 [INFO] __main__: ⚡ Fast environment checks...
+2025-06-21 07:25:42,368 [INFO] __main__: ✅ ODBC drivers ready: 3 found
+2025-06-21 07:25:42,368 [INFO] __main__: 🔍 Fast connection test...
+2025-06-21 07:25:42,369 [INFO] __main__: 🔍 Fast service check...
+2025-06-21 07:25:42,405 [INFO] __main__: ✅ SQL Server (Default Instance) running
+2025-06-21 07:25:42,455 [WARNING] __main__: ⚠️ SQL Browser Service start failed
+2025-06-21 07:25:42,457 [INFO] __main__: ✅ 1 SQL Server services ready
+2025-06-21 07:25:42,601 [INFO] __main__: ✅ Connected to: .
+2025-06-21 07:25:42,602 [INFO] __main__:    Server: Manh
+2025-06-21 07:25:42,603 [INFO] __main__:    Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8 2022 05:58:25 
+	Cop...
+2025-06-21 07:25:42,603 [INFO] __main__: ✅ EDR_System database found
+2025-06-21 07:25:42,605 [INFO] __main__: 🎯 Using server: .
+2025-06-21 07:25:58,771 [INFO] app.database: 🚀 Speed optimized database init: localhost
+2025-06-21 07:25:58,838 [INFO] app.database: ✅ Original config works
+2025-06-21 07:25:58,866 [INFO] app.database: ✅ Speed optimized database engine ready
+2025-06-21 07:25:58,868 [INFO] __main__: ⚡ Fast database initialization...
+2025-06-21 07:25:58,869 [INFO] app.database: ⚡ Speed optimized database initialization...
+2025-06-21 07:25:58,966 [INFO] app.database: ✅ Database connected: Manh / EDR_System
+2025-06-21 07:25:58,967 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 07:25:58,969 [INFO] app.database: ✅ Database connected: Manh / EDR_System
+2025-06-21 07:25:58,969 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 07:25:59,046 [INFO] app.database: ✅ Health check passed in 78ms
+2025-06-21 07:25:59,047 [INFO] app.database: 📊 Connected: Manh / EDR_System
+2025-06-21 07:25:59,047 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 07:25:59,048 [INFO] app.database: 📈 Ready: 7 tables, 42 records - 78ms
+2025-06-21 07:25:59,048 [INFO] app.database: 📋 Agents: 1, Events: 0, Alerts: 0, Threats: 12, DetectionRules: 7
+2025-06-21 07:25:59,048 [INFO] __main__: ✅ Environment ready
+2025-06-21 07:25:59,049 [INFO] __main__: 📊 Database status check...
+2025-06-21 07:25:59,049 [INFO] __main__: ✅ Server: Manh / EDR_System
+2025-06-21 07:25:59,049 [INFO] __main__: 👤 User: Manh\manhh
+2025-06-21 07:25:59,050 [INFO] __main__: ⚡ Response: 78ms
+2025-06-21 07:25:59,050 [INFO] __main__: 📊 Tables: 7, Records: 42
+2025-06-21 07:25:59,051 [INFO] __main__: 📋 Key tables: Agents:1, Events:0, Alerts:0, Threats:12, DetectionRules:7
+2025-06-21 07:25:59,092 [INFO] __main__: 🧪 Quick schema validation...
+2025-06-21 07:25:59,140 [INFO] __main__: ✅ Schema validated: 140a18a0-af0d-4685-b750-043b08bb6a55
+2025-06-21 07:25:59,141 [INFO] __main__: 🎯 Starting server...
+2025-06-21 07:25:59,141 [INFO] __main__: 🌐 Binding: 192.168.20.85:5000
+2025-06-21 07:25:59,141 [INFO] __main__: 🔧 SPEED OPTIMIZED MODE READY:
+2025-06-21 07:25:59,142 [INFO] __main__:    ✅ Parallel service detection
+2025-06-21 07:25:59,142 [INFO] __main__:    ✅ Cached database operations
+2025-06-21 07:25:59,142 [INFO] __main__:    ✅ Fast connection pooling
+2025-06-21 07:25:59,142 [INFO] __main__:    ✅ Optimized health checks
+2025-06-21 07:25:59,143 [INFO] __main__: 🚀 Launching EDR Server...
+2025-06-21 07:32:21,772 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-21 07:32:21,776 [INFO] __main__: 🛡️ EDR Server - Speed Optimized Mode
+2025-06-21 07:32:21,777 [INFO] __main__: ⚡ Fast environment checks...
+2025-06-21 07:32:21,787 [INFO] __main__: ✅ ODBC drivers ready: 3 found
+2025-06-21 07:32:21,788 [INFO] __main__: 🔍 Fast connection test...
+2025-06-21 07:32:21,789 [INFO] __main__: 🔍 Fast service check...
+2025-06-21 07:32:21,825 [INFO] __main__: ✅ SQL Server (Default Instance) running
+2025-06-21 07:32:21,895 [WARNING] __main__: ⚠️ SQL Browser Service start failed
+2025-06-21 07:32:21,896 [INFO] __main__: ✅ 1 SQL Server services ready
+2025-06-21 07:32:22,056 [INFO] __main__: ✅ Connected to: .
+2025-06-21 07:32:22,057 [INFO] __main__:    Server: Manh
+2025-06-21 07:32:22,057 [INFO] __main__:    Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8 2022 05:58:25 
+	Cop...
+2025-06-21 07:32:22,058 [INFO] __main__: ✅ EDR_System database found
+2025-06-21 07:32:22,058 [INFO] __main__: 🎯 Using server: .
+2025-06-21 07:32:38,360 [INFO] app.database: 🚀 Speed optimized database init: localhost
+2025-06-21 07:32:38,431 [INFO] app.database: ✅ Original config works
+2025-06-21 07:32:38,457 [INFO] app.database: ✅ Speed optimized database engine ready
+2025-06-21 07:32:38,459 [INFO] __main__: ⚡ Fast database initialization...
+2025-06-21 07:32:38,460 [INFO] app.database: ⚡ Speed optimized database initialization...
+2025-06-21 07:32:38,566 [INFO] app.database: ✅ Database connected: Manh / EDR_System
+2025-06-21 07:32:38,566 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 07:32:38,569 [INFO] app.database: ✅ Database connected: Manh / EDR_System
+2025-06-21 07:32:38,569 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 07:32:38,640 [INFO] app.database: ✅ Health check passed in 72ms
+2025-06-21 07:32:38,640 [INFO] app.database: 📊 Connected: Manh / EDR_System
+2025-06-21 07:32:38,641 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 07:32:38,641 [INFO] app.database: 📈 Ready: 7 tables, 42 records - 72ms
+2025-06-21 07:32:38,642 [INFO] app.database: 📋 Agents: 1, Events: 0, Alerts: 0, Threats: 12, DetectionRules: 7
+2025-06-21 07:32:38,642 [INFO] __main__: ✅ Environment ready
+2025-06-21 07:32:38,642 [INFO] __main__: 📊 Database status check...
+2025-06-21 07:32:38,643 [INFO] __main__: ✅ Server: Manh / EDR_System
+2025-06-21 07:32:38,643 [INFO] __main__: 👤 User: Manh\manhh
+2025-06-21 07:32:38,643 [INFO] __main__: ⚡ Response: 72ms
+2025-06-21 07:32:38,644 [INFO] __main__: 📊 Tables: 7, Records: 42
+2025-06-21 07:32:38,644 [INFO] __main__: 📋 Key tables: Agents:1, Events:0, Alerts:0, Threats:12, DetectionRules:7
+2025-06-21 07:32:38,683 [INFO] __main__: 🧪 Quick schema validation...
+2025-06-21 07:32:38,728 [INFO] __main__: ✅ Schema validated: d1a3dd16-3e88-4a58-9263-e78902c6d691
+2025-06-21 07:32:38,729 [INFO] __main__: 🎯 Starting server...
+2025-06-21 07:32:38,729 [INFO] __main__: 🌐 Binding: 192.168.20.85:5000
+2025-06-21 07:32:38,730 [INFO] __main__: 🔧 SPEED OPTIMIZED MODE READY:
+2025-06-21 07:32:38,730 [INFO] __main__:    ✅ Parallel service detection
+2025-06-21 07:32:38,730 [INFO] __main__:    ✅ Cached database operations
+2025-06-21 07:32:38,731 [INFO] __main__:    ✅ Fast connection pooling
+2025-06-21 07:32:38,731 [INFO] __main__:    ✅ Optimized health checks
+2025-06-21 07:32:38,731 [INFO] __main__: 🚀 Launching EDR Server...
+2025-06-21 07:32:39,290 [INFO] app.database: 🔄 Database shutdown...
+2025-06-21 07:32:39,292 [INFO] app.database: 🧹 Database cleaned up
+2025-06-21 07:32:39,293 [INFO] app.database: ✅ Database shutdown completed
+2025-06-21 07:33:29,189 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-21 07:33:29,193 [INFO] __main__: 🛡️ EDR Server - Speed Optimized Mode
+2025-06-21 07:33:29,194 [INFO] __main__: ⚡ Fast environment checks...
+2025-06-21 07:33:29,203 [INFO] __main__: ✅ ODBC drivers ready: 3 found
+2025-06-21 07:33:29,203 [INFO] __main__: 🔍 Fast connection test...
+2025-06-21 07:33:29,206 [INFO] __main__: 🔍 Fast service check...
+2025-06-21 07:33:29,239 [INFO] __main__: ✅ SQL Server (Default Instance) running
+2025-06-21 07:33:29,285 [WARNING] __main__: ⚠️ SQL Browser Service start failed
+2025-06-21 07:33:29,286 [INFO] __main__: ✅ 1 SQL Server services ready
+2025-06-21 07:33:29,412 [INFO] __main__: ✅ Connected to: localhost
+2025-06-21 07:33:29,413 [INFO] __main__:    Server: Manh
+2025-06-21 07:33:29,413 [INFO] __main__:    Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8 2022 05:58:25 
+	Cop...
+2025-06-21 07:33:29,413 [INFO] __main__: ✅ EDR_System database found
+2025-06-21 07:33:29,413 [INFO] __main__: 🎯 Using server: localhost
+2025-06-21 07:33:45,585 [INFO] app.database: 🚀 Speed optimized database init: localhost
+2025-06-21 07:33:45,644 [INFO] app.database: ✅ Original config works
+2025-06-21 07:33:45,667 [INFO] app.database: ✅ Speed optimized database engine ready
+2025-06-21 07:33:45,668 [INFO] __main__: ⚡ Fast database initialization...
+2025-06-21 07:33:45,669 [INFO] app.database: ⚡ Speed optimized database initialization...
+2025-06-21 07:33:45,768 [INFO] app.database: ✅ Database connected: Manh / EDR_System
+2025-06-21 07:33:45,769 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 07:33:45,770 [INFO] app.database: ✅ Database connected: Manh / EDR_System
+2025-06-21 07:33:45,771 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 07:33:45,832 [INFO] app.database: ✅ Health check passed in 63ms
+2025-06-21 07:33:45,833 [INFO] app.database: 📊 Connected: Manh / EDR_System
+2025-06-21 07:33:45,833 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 07:33:45,833 [INFO] app.database: 📈 Ready: 7 tables, 42 records - 63ms
+2025-06-21 07:33:45,834 [INFO] app.database: 📋 Agents: 1, Events: 0, Alerts: 0, Threats: 12, DetectionRules: 7
+2025-06-21 07:33:45,834 [INFO] __main__: ✅ Environment ready
+2025-06-21 07:33:45,835 [INFO] __main__: 📊 Database status check...
+2025-06-21 07:33:45,835 [INFO] __main__: ✅ Server: Manh / EDR_System
+2025-06-21 07:33:45,835 [INFO] __main__: 👤 User: Manh\manhh
+2025-06-21 07:33:45,836 [INFO] __main__: ⚡ Response: 63ms
+2025-06-21 07:33:45,836 [INFO] __main__: 📊 Tables: 7, Records: 42
+2025-06-21 07:33:45,836 [INFO] __main__: 📋 Key tables: Agents:1, Events:0, Alerts:0, Threats:12, DetectionRules:7
+2025-06-21 07:33:45,868 [INFO] __main__: 🧪 Quick schema validation...
+2025-06-21 07:33:45,904 [INFO] __main__: ✅ Schema validated: 2ecccf95-8508-41ed-a2f7-7bdf8bd1d1ce
+2025-06-21 07:33:45,904 [INFO] __main__: 🎯 Starting server...
+2025-06-21 07:33:45,904 [INFO] __main__: 🌐 Binding: 192.168.20.85:5000
+2025-06-21 07:33:45,905 [INFO] __main__: 🔧 SPEED OPTIMIZED MODE READY:
+2025-06-21 07:33:45,905 [INFO] __main__:    ✅ Parallel service detection
+2025-06-21 07:33:45,905 [INFO] __main__:    ✅ Cached database operations
+2025-06-21 07:33:45,906 [INFO] __main__:    ✅ Fast connection pooling
+2025-06-21 07:33:45,906 [INFO] __main__:    ✅ Optimized health checks
+2025-06-21 07:33:45,906 [INFO] __main__: 🚀 Launching EDR Server...
+2025-06-21 07:54:08,556 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-21 07:54:08,560 [INFO] __main__: 🛡️ EDR Server - Speed Optimized Mode
+2025-06-21 07:54:08,560 [INFO] __main__: ⚡ Fast environment checks...
+2025-06-21 07:54:08,570 [INFO] __main__: ✅ ODBC drivers ready: 3 found
+2025-06-21 07:54:08,570 [INFO] __main__: 🔍 Fast connection test...
+2025-06-21 07:54:08,571 [INFO] __main__: 🔍 Fast service check...
+2025-06-21 07:54:08,609 [INFO] __main__: ✅ SQL Server (Default Instance) running
+2025-06-21 07:54:08,645 [WARNING] __main__: ⚠️ SQL Browser Service start failed
+2025-06-21 07:54:08,645 [INFO] __main__: ✅ 1 SQL Server services ready
+2025-06-21 07:54:08,827 [INFO] __main__: ✅ Connected to: .
+2025-06-21 07:54:08,828 [INFO] __main__:    Server: Manh
+2025-06-21 07:54:08,828 [INFO] __main__:    Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8 2022 05:58:25 
+	Cop...
+2025-06-21 07:54:08,829 [INFO] __main__: ✅ EDR_System database found
+2025-06-21 07:54:08,829 [INFO] __main__: 🎯 Using server: .
+2025-06-21 07:54:25,018 [INFO] app.database: 🚀 Speed optimized database init: localhost
+2025-06-21 07:54:25,150 [INFO] app.database: ✅ Original config works
+2025-06-21 07:54:25,178 [INFO] app.database: ✅ Speed optimized database engine ready
+2025-06-21 07:54:25,179 [INFO] __main__: ⚡ Fast database initialization...
+2025-06-21 07:54:25,180 [INFO] app.database: ⚡ Speed optimized database initialization...
+2025-06-21 07:54:25,293 [INFO] app.database: ✅ Database connected: Manh / EDR_System
+2025-06-21 07:54:25,294 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 07:54:25,295 [INFO] app.database: ✅ Database connected: Manh / EDR_System
+2025-06-21 07:54:25,295 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 07:54:25,359 [INFO] app.database: ✅ Health check passed in 64ms
+2025-06-21 07:54:25,359 [INFO] app.database: 📊 Connected: Manh / EDR_System
+2025-06-21 07:54:25,360 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 07:54:25,360 [INFO] app.database: 📈 Ready: 7 tables, 196 records - 64ms
+2025-06-21 07:54:25,360 [INFO] app.database: 📋 Agents: 1, Events: 154, Alerts: 0, Threats: 12, DetectionRules: 7
+2025-06-21 07:54:25,361 [INFO] __main__: ✅ Environment ready
+2025-06-21 07:54:25,361 [INFO] __main__: 📊 Database status check...
+2025-06-21 07:54:25,361 [INFO] __main__: ✅ Server: Manh / EDR_System
+2025-06-21 07:54:25,361 [INFO] __main__: 👤 User: Manh\manhh
+2025-06-21 07:54:25,362 [INFO] __main__: ⚡ Response: 64ms
+2025-06-21 07:54:25,362 [INFO] __main__: 📊 Tables: 7, Records: 196
+2025-06-21 07:54:25,362 [INFO] __main__: 📋 Key tables: Agents:1, Events:154, Alerts:0, Threats:12, DetectionRules:7
+2025-06-21 07:54:25,400 [INFO] __main__: 🧪 Quick schema validation...
+2025-06-21 07:54:25,485 [INFO] __main__: ✅ Schema validated: 9d01f064-969d-474d-8fbc-7ffe5cb26a57
+2025-06-21 07:54:25,486 [INFO] __main__: 🎯 Starting server...
+2025-06-21 07:54:25,486 [INFO] __main__: 🌐 Binding: 192.168.20.85:5000
+2025-06-21 07:54:25,487 [INFO] __main__: 🔧 SPEED OPTIMIZED MODE READY:
+2025-06-21 07:54:25,487 [INFO] __main__:    ✅ Parallel service detection
+2025-06-21 07:54:25,487 [INFO] __main__:    ✅ Cached database operations
+2025-06-21 07:54:25,487 [INFO] __main__:    ✅ Fast connection pooling
+2025-06-21 07:54:25,488 [INFO] __main__:    ✅ Optimized health checks
+2025-06-21 07:54:25,488 [INFO] __main__: 🚀 Launching EDR Server...
+2025-06-21 07:58:33,146 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-21 07:58:33,151 [INFO] __main__: 🛡️ EDR Server - Speed Optimized Mode
+2025-06-21 07:58:33,152 [INFO] __main__: ⚡ Fast environment checks...
+2025-06-21 07:58:33,165 [INFO] __main__: ✅ ODBC drivers ready: 3 found
+2025-06-21 07:58:33,166 [INFO] __main__: 🔍 Fast connection test...
+2025-06-21 07:58:33,167 [INFO] __main__: 🔍 Fast service check...
+2025-06-21 07:58:33,203 [INFO] __main__: ✅ SQL Server (Default Instance) running
+2025-06-21 07:58:33,248 [WARNING] __main__: ⚠️ SQL Browser Service start failed
+2025-06-21 07:58:33,249 [INFO] __main__: ✅ 1 SQL Server services ready
+2025-06-21 07:58:33,532 [INFO] __main__: ✅ Connected to: .
+2025-06-21 07:58:33,533 [INFO] __main__:    Server: Manh
+2025-06-21 07:58:33,533 [INFO] __main__:    Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8 2022 05:58:25 
+	Cop...
+2025-06-21 07:58:33,533 [INFO] __main__: ✅ EDR_System database found
+2025-06-21 07:58:33,534 [INFO] __main__: 🎯 Using server: .
+2025-06-21 07:58:49,440 [INFO] app.database: 🚀 Speed optimized database init: localhost
+2025-06-21 07:58:49,547 [INFO] app.database: ✅ Original config works
+2025-06-21 07:58:49,571 [INFO] app.database: ✅ Speed optimized database engine ready
+2025-06-21 07:58:49,572 [INFO] __main__: ⚡ Fast database initialization...
+2025-06-21 07:58:49,573 [INFO] app.database: ⚡ Speed optimized database initialization...
+2025-06-21 07:58:49,735 [INFO] app.database: ✅ Database connected: Manh / EDR_System
+2025-06-21 07:58:49,736 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 07:58:49,737 [INFO] app.database: ✅ Database connected: Manh / EDR_System
+2025-06-21 07:58:49,738 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 07:58:49,830 [INFO] app.database: ✅ Health check passed in 94ms
+2025-06-21 07:58:49,831 [INFO] app.database: 📊 Connected: Manh / EDR_System
+2025-06-21 07:58:49,831 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 07:58:49,832 [INFO] app.database: 📈 Ready: 7 tables, 272 records - 94ms
+2025-06-21 07:58:49,832 [INFO] app.database: 📋 Agents: 1, Events: 230, Alerts: 0, Threats: 12, DetectionRules: 7
+2025-06-21 07:58:49,832 [INFO] __main__: ✅ Environment ready
+2025-06-21 07:58:49,833 [INFO] __main__: 📊 Database status check...
+2025-06-21 07:58:49,833 [INFO] __main__: ✅ Server: Manh / EDR_System
+2025-06-21 07:58:49,834 [INFO] __main__: 👤 User: Manh\manhh
+2025-06-21 07:58:49,834 [INFO] __main__: ⚡ Response: 94ms
+2025-06-21 07:58:49,834 [INFO] __main__: 📊 Tables: 7, Records: 272
+2025-06-21 07:58:49,834 [INFO] __main__: 📋 Key tables: Agents:1, Events:230, Alerts:0, Threats:12, DetectionRules:7
+2025-06-21 07:58:49,867 [INFO] __main__: 🧪 Quick schema validation...
+2025-06-21 07:58:49,919 [INFO] __main__: ✅ Schema validated: 2422fe84-464e-4cf8-a3c5-5a7d647cce7a
+2025-06-21 07:58:49,920 [INFO] __main__: 🎯 Starting server...
+2025-06-21 07:58:49,920 [INFO] __main__: 🌐 Binding: 192.168.20.85:5000
+2025-06-21 07:58:49,921 [INFO] __main__: 🔧 SPEED OPTIMIZED MODE READY:
+2025-06-21 07:58:49,921 [INFO] __main__:    ✅ Parallel service detection
+2025-06-21 07:58:49,921 [INFO] __main__:    ✅ Cached database operations
+2025-06-21 07:58:49,921 [INFO] __main__:    ✅ Fast connection pooling
+2025-06-21 07:58:49,922 [INFO] __main__:    ✅ Optimized health checks
+2025-06-21 07:58:49,922 [INFO] __main__: 🚀 Launching EDR Server...
+2025-06-21 08:07:12,355 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-21 08:07:12,359 [INFO] __main__: 🛡️ EDR Server - Speed Optimized Mode
+2025-06-21 08:07:12,359 [INFO] __main__: ⚡ Fast environment checks...
+2025-06-21 08:07:12,369 [INFO] __main__: ✅ ODBC drivers ready: 3 found
+2025-06-21 08:07:12,369 [INFO] __main__: 🔍 Fast connection test...
+2025-06-21 08:07:12,370 [INFO] __main__: 🔍 Fast service check...
+2025-06-21 08:07:12,409 [INFO] __main__: ✅ SQL Server (Default Instance) running
+2025-06-21 08:07:12,459 [WARNING] __main__: ⚠️ SQL Browser Service start failed
+2025-06-21 08:07:12,460 [INFO] __main__: ✅ 1 SQL Server services ready
+2025-06-21 08:07:12,664 [INFO] __main__: ✅ Connected to: .
+2025-06-21 08:07:12,664 [INFO] __main__:    Server: Manh
+2025-06-21 08:07:12,665 [INFO] __main__:    Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8 2022 05:58:25 
+	Cop...
+2025-06-21 08:07:12,665 [INFO] __main__: ✅ EDR_System database found
+2025-06-21 08:07:12,665 [INFO] __main__: 🎯 Using server: .
+2025-06-21 08:07:28,700 [INFO] app.database: 🚀 Speed optimized database init: localhost
+2025-06-21 08:07:28,713 [INFO] app.database: ✅ Original config works
+2025-06-21 08:07:28,736 [INFO] app.database: ✅ Speed optimized database engine ready
+2025-06-21 08:07:28,737 [INFO] __main__: ⚡ Fast database initialization...
+2025-06-21 08:07:28,737 [INFO] app.database: ⚡ Speed optimized database initialization...
+2025-06-21 08:07:29,134 [INFO] app.database: ✅ Database connected: Manh / EDR_System
+2025-06-21 08:07:29,135 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 08:07:29,137 [INFO] app.database: ✅ Database connected: Manh / EDR_System
+2025-06-21 08:07:29,137 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 08:07:29,326 [INFO] app.database: ✅ Health check passed in 190ms
+2025-06-21 08:07:29,326 [INFO] app.database: 📊 Connected: Manh / EDR_System
+2025-06-21 08:07:29,327 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 08:07:29,327 [INFO] app.database: 📈 Ready: 7 tables, 615 records - 190ms
+2025-06-21 08:07:29,327 [INFO] app.database: 📋 Agents: 1, Events: 573, Alerts: 0, Threats: 12, DetectionRules: 7
+2025-06-21 08:07:29,328 [INFO] __main__: ✅ Environment ready
+2025-06-21 08:07:29,328 [INFO] __main__: 📊 Database status check...
+2025-06-21 08:07:29,328 [INFO] __main__: ✅ Server: Manh / EDR_System
+2025-06-21 08:07:29,329 [INFO] __main__: 👤 User: Manh\manhh
+2025-06-21 08:07:29,329 [INFO] __main__: ⚡ Response: 190ms
+2025-06-21 08:07:29,330 [INFO] __main__: 📊 Tables: 7, Records: 615
+2025-06-21 08:07:29,330 [INFO] __main__: 📋 Key tables: Agents:1, Events:573, Alerts:0, Threats:12, DetectionRules:7
+2025-06-21 08:07:29,365 [INFO] __main__: 🧪 Quick schema validation...
+2025-06-21 08:07:29,487 [INFO] __main__: ✅ Schema validated: 77cf97c0-8516-4ba0-a9d1-adf6927ff8fa
+2025-06-21 08:07:29,488 [INFO] __main__: 🎯 Starting server...
+2025-06-21 08:07:29,488 [INFO] __main__: 🌐 Binding: 192.168.20.85:5000
+2025-06-21 08:07:29,489 [INFO] __main__: 🔧 SPEED OPTIMIZED MODE READY:
+2025-06-21 08:07:29,489 [INFO] __main__:    ✅ Parallel service detection
+2025-06-21 08:07:29,489 [INFO] __main__:    ✅ Cached database operations
+2025-06-21 08:07:29,489 [INFO] __main__:    ✅ Fast connection pooling
+2025-06-21 08:07:29,490 [INFO] __main__:    ✅ Optimized health checks
+2025-06-21 08:07:29,490 [INFO] __main__: 🚀 Launching EDR Server...
+2025-06-21 08:34:29,528 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-21 08:34:29,533 [INFO] __main__: 🛡️ EDR Server - Speed Optimized Mode
+2025-06-21 08:34:29,533 [INFO] __main__: ⚡ Fast environment checks...
+2025-06-21 08:34:29,540 [INFO] __main__: ✅ ODBC drivers ready: 3 found
+2025-06-21 08:34:29,540 [INFO] __main__: 🔍 Fast connection test...
+2025-06-21 08:34:29,541 [INFO] __main__: 🔍 Fast service check...
+2025-06-21 08:34:29,562 [INFO] __main__: ✅ SQL Server (Default Instance) running
+2025-06-21 08:34:29,593 [WARNING] __main__: ⚠️ SQL Browser Service start failed
+2025-06-21 08:34:29,593 [INFO] __main__: ✅ 1 SQL Server services ready
+2025-06-21 08:34:29,798 [INFO] __main__: ✅ Connected to: .
+2025-06-21 08:34:29,798 [INFO] __main__:    Server: Manh
+2025-06-21 08:34:29,799 [INFO] __main__:    Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8 2022 05:58:25 
+	Cop...
+2025-06-21 08:34:29,799 [INFO] __main__: ✅ EDR_System database found
+2025-06-21 08:34:29,799 [INFO] __main__: 🎯 Using server: .
+2025-06-21 08:34:45,919 [INFO] app.database: 🚀 Speed optimized database init: localhost
+2025-06-21 08:34:45,930 [INFO] app.database: ✅ Original config works
+2025-06-21 08:34:45,963 [INFO] app.database: ✅ Speed optimized database engine ready
+2025-06-21 08:34:45,964 [INFO] __main__: ⚡ Fast database initialization...
+2025-06-21 08:34:45,964 [INFO] app.database: ⚡ Speed optimized database initialization...
+2025-06-21 08:34:46,109 [INFO] app.database: ✅ Database connected: Manh / EDR_System
+2025-06-21 08:34:46,109 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 08:34:46,111 [INFO] app.database: ✅ Database connected: Manh / EDR_System
+2025-06-21 08:34:46,111 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 08:34:46,184 [INFO] app.database: ✅ Health check passed in 74ms
+2025-06-21 08:34:46,185 [INFO] app.database: 📊 Connected: Manh / EDR_System
+2025-06-21 08:34:46,185 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 08:34:46,186 [INFO] app.database: 📈 Ready: 7 tables, 726 records - 74ms
+2025-06-21 08:34:46,186 [INFO] app.database: 📋 Agents: 1, Events: 684, Alerts: 0, Threats: 12, DetectionRules: 7
+2025-06-21 08:34:46,186 [INFO] __main__: ✅ Environment ready
+2025-06-21 08:34:46,186 [INFO] __main__: 📊 Database status check...
+2025-06-21 08:34:46,187 [INFO] __main__: ✅ Server: Manh / EDR_System
+2025-06-21 08:34:46,187 [INFO] __main__: 👤 User: Manh\manhh
+2025-06-21 08:34:46,187 [INFO] __main__: ⚡ Response: 74ms
+2025-06-21 08:34:46,188 [INFO] __main__: 📊 Tables: 7, Records: 726
+2025-06-21 08:34:46,188 [INFO] __main__: 📋 Key tables: Agents:1, Events:684, Alerts:0, Threats:12, DetectionRules:7
+2025-06-21 08:34:46,231 [INFO] __main__: 🧪 Quick schema validation...
+2025-06-21 08:34:46,312 [INFO] __main__: ✅ Schema validated: 02d15a16-32e4-47f3-ab77-50f85eba5801
+2025-06-21 08:34:46,313 [INFO] __main__: 🎯 Starting server...
+2025-06-21 08:34:46,313 [INFO] __main__: 🌐 Binding: 192.168.20.85:5000
+2025-06-21 08:34:46,314 [INFO] __main__: 🔧 SPEED OPTIMIZED MODE READY:
+2025-06-21 08:34:46,314 [INFO] __main__:    ✅ Parallel service detection
+2025-06-21 08:34:46,314 [INFO] __main__:    ✅ Cached database operations
+2025-06-21 08:34:46,314 [INFO] __main__:    ✅ Fast connection pooling
+2025-06-21 08:34:46,315 [INFO] __main__:    ✅ Optimized health checks
+2025-06-21 08:34:46,315 [INFO] __main__: 🚀 Launching EDR Server...
+2025-06-21 08:40:01,433 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-21 08:40:01,436 [INFO] __main__: 🛡️ EDR Server - Speed Optimized Mode
+2025-06-21 08:40:01,436 [INFO] __main__: ⚡ Fast environment checks...
+2025-06-21 08:40:01,442 [INFO] __main__: ✅ ODBC drivers ready: 3 found
+2025-06-21 08:40:01,442 [INFO] __main__: 🔍 Fast connection test...
+2025-06-21 08:40:01,443 [INFO] __main__: 🔍 Fast service check...
+2025-06-21 08:40:01,467 [INFO] __main__: ✅ SQL Server (Default Instance) running
+2025-06-21 08:40:01,530 [WARNING] __main__: ⚠️ SQL Browser Service start failed
+2025-06-21 08:40:01,531 [INFO] __main__: ✅ 1 SQL Server services ready
+2025-06-21 08:40:01,735 [INFO] __main__: ✅ Connected to: (local)
+2025-06-21 08:40:01,736 [INFO] __main__:    Server: Manh
+2025-06-21 08:40:01,736 [INFO] __main__:    Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8 2022 05:58:25 
+	Cop...
+2025-06-21 08:40:01,736 [INFO] __main__: ✅ EDR_System database found
+2025-06-21 08:40:01,736 [INFO] __main__: 🎯 Using server: (local)
+2025-06-21 08:40:17,736 [INFO] app.database: 🚀 Speed optimized database init: localhost
+2025-06-21 08:40:17,747 [INFO] app.database: ✅ Original config works
+2025-06-21 08:40:17,771 [INFO] app.database: ✅ Speed optimized database engine ready
+2025-06-21 08:40:17,772 [INFO] __main__: ⚡ Fast database initialization...
+2025-06-21 08:40:17,773 [INFO] app.database: ⚡ Speed optimized database initialization...
+2025-06-21 08:40:17,943 [INFO] app.database: ✅ Database connected: Manh / EDR_System
+2025-06-21 08:40:17,944 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 08:40:17,945 [INFO] app.database: ✅ Database connected: Manh / EDR_System
+2025-06-21 08:40:17,945 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 08:40:18,026 [INFO] app.database: ✅ Health check passed in 82ms
+2025-06-21 08:40:18,027 [INFO] app.database: 📊 Connected: Manh / EDR_System
+2025-06-21 08:40:18,027 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 08:40:18,027 [INFO] app.database: 📈 Ready: 7 tables, 862 records - 82ms
+2025-06-21 08:40:18,027 [INFO] app.database: 📋 Agents: 1, Events: 820, Alerts: 0, Threats: 12, DetectionRules: 7
+2025-06-21 08:40:18,028 [INFO] __main__: ✅ Environment ready
+2025-06-21 08:40:18,028 [INFO] __main__: 📊 Database status check...
+2025-06-21 08:40:18,028 [INFO] __main__: ✅ Server: Manh / EDR_System
+2025-06-21 08:40:18,029 [INFO] __main__: 👤 User: Manh\manhh
+2025-06-21 08:40:18,029 [INFO] __main__: ⚡ Response: 82ms
+2025-06-21 08:40:18,029 [INFO] __main__: 📊 Tables: 7, Records: 862
+2025-06-21 08:40:18,029 [INFO] __main__: 📋 Key tables: Agents:1, Events:820, Alerts:0, Threats:12, DetectionRules:7
+2025-06-21 08:40:18,069 [INFO] __main__: 🧪 Quick schema validation...
+2025-06-21 08:40:18,134 [INFO] __main__: ✅ Schema validated: ae0b322c-f0cc-4b45-969e-d39d8b83f589
+2025-06-21 08:40:18,135 [INFO] __main__: 🎯 Starting server...
+2025-06-21 08:40:18,135 [INFO] __main__: 🌐 Binding: 192.168.20.85:5000
+2025-06-21 08:40:18,136 [INFO] __main__: 🔧 SPEED OPTIMIZED MODE READY:
+2025-06-21 08:40:18,136 [INFO] __main__:    ✅ Parallel service detection
+2025-06-21 08:40:18,136 [INFO] __main__:    ✅ Cached database operations
+2025-06-21 08:40:18,137 [INFO] __main__:    ✅ Fast connection pooling
+2025-06-21 08:40:18,137 [INFO] __main__:    ✅ Optimized health checks
+2025-06-21 08:40:18,137 [INFO] __main__: 🚀 Launching EDR Server...
+2025-06-21 08:49:44,194 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-21 08:49:44,198 [INFO] __main__: 🛡️ EDR Server - Speed Optimized Mode
+2025-06-21 08:49:44,198 [INFO] __main__: ⚡ Fast environment checks...
+2025-06-21 08:49:44,204 [INFO] __main__: ✅ ODBC drivers ready: 3 found
+2025-06-21 08:49:44,206 [INFO] __main__: 🔍 Fast connection test...
+2025-06-21 08:49:44,206 [INFO] __main__: 🔍 Fast service check...
+2025-06-21 08:49:44,241 [INFO] __main__: ✅ SQL Server (Default Instance) running
+2025-06-21 08:49:44,279 [WARNING] __main__: ⚠️ SQL Browser Service start failed
+2025-06-21 08:49:44,279 [INFO] __main__: ✅ 1 SQL Server services ready
+2025-06-21 08:49:44,497 [INFO] __main__: ✅ Connected to: (local)
+2025-06-21 08:49:44,498 [INFO] __main__:    Server: Manh
+2025-06-21 08:49:44,498 [INFO] __main__:    Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8 2022 05:58:25 
+	Cop...
+2025-06-21 08:49:44,498 [INFO] __main__: ✅ EDR_System database found
+2025-06-21 08:49:44,499 [INFO] __main__: 🎯 Using server: (local)
+2025-06-21 08:50:00,387 [INFO] app.database: 🚀 Speed optimized database init: localhost
+2025-06-21 08:50:00,394 [INFO] app.database: ✅ Original config works
+2025-06-21 08:50:00,412 [INFO] app.database: ✅ Speed optimized database engine ready
+2025-06-21 08:50:00,414 [INFO] __main__: ⚡ Fast database initialization...
+2025-06-21 08:50:00,414 [INFO] app.database: ⚡ Speed optimized database initialization...
+2025-06-21 08:50:00,518 [INFO] app.database: ✅ Database connected: Manh / EDR_System
+2025-06-21 08:50:00,518 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 08:50:00,519 [INFO] app.database: ✅ Database connected: Manh / EDR_System
+2025-06-21 08:50:00,520 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 08:50:00,577 [INFO] app.database: ✅ Health check passed in 58ms
+2025-06-21 08:50:00,578 [INFO] app.database: 📊 Connected: Manh / EDR_System
+2025-06-21 08:50:00,578 [INFO] app.database: 👤 User: Manh\manhh
+2025-06-21 08:50:00,578 [INFO] app.database: 📈 Ready: 7 tables, 989 records - 58ms
+2025-06-21 08:50:00,578 [INFO] app.database: 📋 Agents: 1, Events: 947, Alerts: 0, Threats: 12, DetectionRules: 7
+2025-06-21 08:50:00,579 [INFO] __main__: ✅ Environment ready
+2025-06-21 08:50:00,579 [INFO] __main__: 📊 Database status check...
+2025-06-21 08:50:00,579 [INFO] __main__: ✅ Server: Manh / EDR_System
+2025-06-21 08:50:00,579 [INFO] __main__: 👤 User: Manh\manhh
+2025-06-21 08:50:00,579 [INFO] __main__: ⚡ Response: 58ms
+2025-06-21 08:50:00,579 [INFO] __main__: 📊 Tables: 7, Records: 989
+2025-06-21 08:50:00,580 [INFO] __main__: 📋 Key tables: Agents:1, Events:947, Alerts:0, Threats:12, DetectionRules:7
+2025-06-21 08:50:00,604 [INFO] __main__: 🧪 Quick schema validation...
+2025-06-21 08:50:00,644 [INFO] __main__: ✅ Schema validated: c5566951-4080-425e-8b99-65fe260398be
+2025-06-21 08:50:00,645 [INFO] __main__: 🎯 Starting server...
+2025-06-21 08:50:00,645 [INFO] __main__: 🌐 Binding: 192.168.20.85:5000
+2025-06-21 08:50:00,645 [INFO] __main__: 🔧 SPEED OPTIMIZED MODE READY:
+2025-06-21 08:50:00,645 [INFO] __main__:    ✅ Parallel service detection
+2025-06-21 08:50:00,645 [INFO] __main__:    ✅ Cached database operations
+2025-06-21 08:50:00,646 [INFO] __main__:    ✅ Fast connection pooling
+2025-06-21 08:50:00,646 [INFO] __main__:    ✅ Optimized health checks
+2025-06-21 08:50:00,646 [INFO] __main__: 🚀 Launching EDR Server...
