@@ -475,15 +475,28 @@ def init_database() -> bool:
         return False
 
 def get_db() -> Generator[Session, None, None]:
-    """Database dependency for FastAPI - with ANSI fix"""
+    """Database dependency for FastAPI - FIXED for session conflicts"""
     session = db_manager.get_session_realtime()
     try:
         yield session
     except Exception as e:
-        session.rollback()
+        try:
+            session.rollback()
+        except Exception as rollback_error:
+            logger.warning(f"Session rollback failed: {rollback_error}")
         raise e
     finally:
-        session.close()
+        try:
+            # Check if session is still active before closing
+            if session.is_active:
+                session.close()
+        except Exception as close_error:
+            logger.warning(f"Session close failed: {close_error}")
+            # Force close if normal close fails
+            try:
+                session.invalidate()
+            except Exception:
+                pass
 
 def get_database_status() -> Dict[str, Any]:
     """Get comprehensive database status - with ANSI check"""

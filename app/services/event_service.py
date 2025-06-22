@@ -119,10 +119,13 @@ class EventService:
                         alert_id = alert.AlertID
                         self.stats['alerts_created'] += 1
                         
-                        # Send immediate notification to agent
-                        asyncio.create_task(
-                            self._send_alert_to_agent(session, agent, alert)
-                        )
+                        # Send immediate notification to agent with error handling
+                        try:
+                            asyncio.create_task(
+                                self._send_alert_to_agent(session, agent, alert)
+                            )
+                        except Exception as notification_error:
+                            logger.error(f"Failed to create notification task: {notification_error}")
                         
                         logger.warning(f"🚨 ALERT CREATED: ID={alert_id} for Event {event_id}")
                 
@@ -445,10 +448,11 @@ class EventService:
             return None
     
     async def _send_alert_to_agent(self, session: Session, agent: Agent, alert: Alert):
-        """Send alert notification to agent immediately"""
+        """Send alert notification to agent immediately - FIXED for session conflicts"""
         try:
             # Import here to avoid circular imports
             from ..services.agent_communication_service import agent_communication_service
+            from ..database import db_manager
             
             # Create notification for agent
             notification = {
@@ -463,18 +467,23 @@ class EventService:
                 'action_required': True
             }
             
-            # Send to agent via communication service
-            success = await agent_communication_service.send_detection_notifications_to_agent(
-                session, str(alert.AgentID), [notification]
-            )
-            
-            if success:
-                logger.info(f"📤 Alert notification sent to agent {agent.HostName}: Alert {alert.AlertID}")
-                
-                # Disable notification for this process to avoid spam
-                logger.info(f"🔔 Notification disabled: Process: {alert.Title}")
-            else:
-                logger.error(f"Failed to send alert notification to agent {agent.HostName}")
+            # Use new session to avoid conflicts
+            try:
+                with db_manager.get_realtime_session() as new_session:
+                    # Send to agent via communication service
+                    success = await agent_communication_service.send_detection_notifications_to_agent(
+                        new_session, str(alert.AgentID), [notification]
+                    )
+                    
+                    if success:
+                        logger.info(f"📤 Alert notification sent to agent {agent.HostName}: Alert {alert.AlertID}")
+                        
+                        # Disable notification for this process to avoid spam
+                        logger.info(f"🔔 Notification disabled: Process: {alert.Title}")
+                    else:
+                        logger.error(f"Failed to send alert notification to agent {agent.HostName}")
+            except Exception as session_error:
+                logger.error(f"Session error in alert notification: {session_error}")
                 
         except Exception as e:
             logger.error(f"Alert notification failed: {e}")
