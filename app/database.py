@@ -1,6 +1,6 @@
-# app/database.py - REALTIME OPTIMIZED DATABASE MANAGER
+# app/database.py - FIXED VERSION WITH COMPLETE IMPLEMENTATION
 """
-Database Connection Manager for EDR Server - REALTIME OPTIMIZED
+Database Connection Manager for EDR Server - COMPLETE VERSION
 Ultra-high performance database operations for realtime event processing
 """
 
@@ -29,6 +29,23 @@ perf_logger = logging.getLogger('performance')
 
 # SQLAlchemy Base for all models
 Base = declarative_base()
+
+# Database Exceptions
+class DatabaseConnectionError(Exception):
+    """Database connection error"""
+    pass
+
+class DatabaseSessionError(Exception):
+    """Database session error"""
+    pass
+
+class DatabaseIntegrityError(Exception):
+    """Database integrity error"""
+    pass
+
+class DatabaseOperationalError(Exception):
+    """Database operational error"""
+    pass
 
 class RealtimeDatabaseManager:
     """Ultra-high performance database manager optimized for realtime event processing"""
@@ -379,3 +396,228 @@ class RealtimeDatabaseManager:
             if session:
                 session.rollback()
             raise DatabaseOperationalError(f"Database operation failed: {e}")
+            
+        except Exception as e:
+            if session:
+                session.rollback()
+            raise DatabaseConnectionError(f"Database error: {e}")
+            
+        finally:
+            if session:
+                session.close()
+
+# Global database manager instance
+db_manager = RealtimeDatabaseManager()
+
+# FIXED: Add the missing functions that run_server.py expects
+def init_database() -> bool:
+    """Initialize database and test connection"""
+    try:
+        logger.info("🔗 Initializing database connection...")
+        
+        # Test connection
+        if not db_manager.test_connection_realtime():
+            logger.error("❌ Database connection test failed")
+            return False
+        
+        # Test table access
+        try:
+            with db_manager.get_realtime_session() as session:
+                # Quick test query
+                result = session.execute(text("""
+                    SELECT COUNT(*) as table_count 
+                    FROM INFORMATION_SCHEMA.TABLES 
+                    WHERE TABLE_SCHEMA = 'dbo'
+                """))
+                table_count = result.scalar()
+                
+                logger.info(f"✅ Database initialized: {table_count} tables found")
+                return True
+                
+        except Exception as e:
+            logger.error(f"❌ Database table access failed: {e}")
+            return False
+            
+    except Exception as e:
+        logger.error(f"❌ Database initialization failed: {e}")
+        return False
+
+def get_db() -> Generator[Session, None, None]:
+    """Database dependency for FastAPI"""
+    session = db_manager.get_session_realtime()
+    try:
+        yield session
+    except Exception as e:
+        session.rollback()
+        raise e
+    finally:
+        session.close()
+
+def get_database_status() -> Dict[str, Any]:
+    """Get comprehensive database status"""
+    try:
+        start_time = time.time()
+        
+        status = {
+            'healthy': False,
+            'response_time_ms': 0,
+            'server_info': {},
+            'database_info': {},
+            'table_counts': {},
+            'connection_pool': {},
+            'performance_stats': {}
+        }
+        
+        # Test connection and get server info
+        try:
+            with db_manager.get_realtime_session() as session:
+                # Server info query
+                result = session.execute(text("""
+                    SELECT 
+                        @@SERVERNAME as server_name,
+                        DB_NAME() as database_name,
+                        SUSER_SNAME() as login_name,
+                        @@VERSION as sql_version,
+                        @@CONNECTIONS as connection_count,
+                        GETDATE() as server_time
+                """))
+                row = result.fetchone()
+                
+                if row:
+                    status['server_info'] = {
+                        'server_name': row[0],
+                        'database_name': row[1],
+                        'login_name': row[2],
+                        'sql_version': row[3],
+                        'connection_count': row[4],
+                        'server_time': row[5].isoformat() if row[5] else None
+                    }
+                
+                # Get table counts (quick version)
+                table_result = session.execute(text("""
+                    SELECT 
+                        t.TABLE_NAME,
+                        ISNULL(p.rows, 0) as row_count
+                    FROM INFORMATION_SCHEMA.TABLES t
+                    LEFT JOIN sys.partitions p ON p.object_id = OBJECT_ID(t.TABLE_SCHEMA + '.' + t.TABLE_NAME)
+                    WHERE t.TABLE_SCHEMA = 'dbo' 
+                    AND t.TABLE_TYPE = 'BASE TABLE'
+                    AND (p.index_id = 1 OR p.index_id IS NULL)
+                """))
+                
+                table_counts = {}
+                for table_row in table_result:
+                    table_counts[table_row[0]] = table_row[1] or 0
+                
+                status['table_counts'] = table_counts
+                
+                response_time = time.time() - start_time
+                status['response_time_ms'] = round(response_time * 1000, 2)
+                status['healthy'] = True
+                
+                # Add performance stats
+                status['performance_stats'] = db_manager.stats.copy()
+                
+                # Connection pool stats
+                status['connection_pool'] = {
+                    'pool_size': db_manager.engine.pool.size(),
+                    'checked_in': db_manager.engine.pool.checkedin(),
+                    'checked_out': db_manager.engine.pool.checkedout(),
+                    'overflow': db_manager.engine.pool.overflow(),
+                }
+                
+        except Exception as e:
+            logger.error(f"Database status check failed: {e}")
+            status['error'] = str(e)
+            status['response_time_ms'] = round((time.time() - start_time) * 1000, 2)
+        
+        return status
+        
+    except Exception as e:
+        logger.error(f"Database status function failed: {e}")
+        return {
+            'healthy': False,
+            'error': str(e),
+            'response_time_ms': 0
+        }
+
+def test_database_performance() -> Dict[str, Any]:
+    """Test database performance metrics"""
+    try:
+        start_time = time.time()
+        
+        with db_manager.get_realtime_session() as session:
+            # Performance test queries
+            queries = [
+                "SELECT 1",
+                "SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES",
+                "SELECT GETDATE()",
+                "SELECT @@VERSION"
+            ]
+            
+            query_times = []
+            for query in queries:
+                query_start = time.time()
+                session.execute(text(query))
+                query_time = time.time() - query_start
+                query_times.append(query_time * 1000)  # Convert to ms
+            
+            total_time = time.time() - start_time
+            
+            return {
+                'total_time_ms': round(total_time * 1000, 2),
+                'query_times_ms': [round(t, 2) for t in query_times],
+                'average_query_time_ms': round(sum(query_times) / len(query_times), 2),
+                'queries_per_second': round(len(queries) / total_time, 2),
+                'performance_rating': 'Excellent' if total_time < 0.1 else 'Good' if total_time < 0.5 else 'Slow'
+            }
+            
+    except Exception as e:
+        logger.error(f"Performance test failed: {e}")
+        return {
+            'error': str(e),
+            'performance_rating': 'Failed'
+        }
+
+# Helper functions for backward compatibility
+def get_db_session() -> Session:
+    """Get database session (backward compatibility)"""
+    return db_manager.get_session_realtime()
+
+@contextmanager
+def get_db_context() -> Generator[Session, None, None]:
+    """Get database session context manager"""
+    with db_manager.get_realtime_session() as session:
+        yield session
+
+def reset_database_stats():
+    """Reset database performance statistics"""
+    db_manager.stats = {
+        'connections_created': 0,
+        'connections_reused': 0,
+        'queries_executed': 0,
+        'batch_operations': 0,
+        'cache_hits': 0,
+        'cache_misses': 0,
+        'total_query_time': 0.0,
+        'avg_query_time': 0.0,
+        'last_reset': datetime.now()
+    }
+    logger.info("📊 Database statistics reset")
+
+# Test if database is ready
+def is_database_ready() -> bool:
+    """Quick check if database is ready"""
+    try:
+        return db_manager.test_connection_realtime()
+    except Exception:
+        return False
+
+# Export all necessary items for imports
+__all__ = [
+    'Base', 'db_manager', 'init_database', 'get_db', 'get_database_status',
+    'test_database_performance', 'get_db_session', 'get_db_context',
+    'reset_database_stats', 'is_database_ready',
+    'DatabaseConnectionError', 'DatabaseSessionError', 
+    'DatabaseIntegrityError', 'DatabaseOperationalError'
+]

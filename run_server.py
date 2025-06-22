@@ -17,6 +17,7 @@ import subprocess
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
+from typing import Dict, List, Optional, Any
 
 # Add the project root to Python path
 project_root = Path(__file__).resolve().parent

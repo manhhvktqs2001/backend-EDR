@@ -9,10 +9,19 @@ from typing import Optional, Dict, List
 from sqlalchemy import Column, String, DateTime, Boolean, Numeric, Integer, or_, text
 from sqlalchemy.dialects.mssql import UNIQUEIDENTIFIER
 from sqlalchemy.sql import func
+from sqlalchemy.ext.declarative import declarative_base
 from uuid import uuid4
 import logging
 
-from ..database import Base
+# Import Base with fallback
+try:
+    from ..database import Base
+except ImportError:
+    try:
+        from .base import Base
+    except ImportError:
+        from sqlalchemy.ext.declarative import declarative_base
+        Base = declarative_base()
 
 logger = logging.getLogger(__name__)
 
@@ -408,3 +417,31 @@ class Agent(Base):
                 'inactive_agents': 0,
                 'os_breakdown': {}
             }
+    
+    @classmethod
+    def get_online_agents(cls, session, timeout_minutes: int = 5) -> List['Agent']:
+        """Get currently online agents"""
+        try:
+            cutoff_time = datetime.now() - timedelta(minutes=timeout_minutes)
+            return session.query(cls).filter(
+                cls.Status == 'Active',
+                cls.LastHeartbeat >= cutoff_time
+            ).all()
+        except Exception as e:
+            logger.error(f"Error getting online agents: {e}")
+            return []
+    
+    @classmethod
+    def get_offline_agents(cls, session, timeout_minutes: int = 30) -> List['Agent']:
+        """Get offline agents"""
+        try:
+            cutoff_time = datetime.now() - timedelta(minutes=timeout_minutes)
+            return session.query(cls).filter(
+                or_(
+                    cls.Status != 'Active',
+                    cls.LastHeartbeat < cutoff_time
+                )
+            ).all()
+        except Exception as e:
+            logger.error(f"Error getting offline agents: {e}")
+            return []

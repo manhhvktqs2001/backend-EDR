@@ -1,4 +1,4 @@
-# app/services/event_service.py - OPTIMIZED REALTIME VERSION
+# app/services/event_service.py - FIXED VERSION
 """
 Event Processing Service - OPTIMIZED FOR REALTIME
 Tối ưu hóa cho việc nhận và xử lý events realtime từ agents
@@ -7,7 +7,7 @@ Tối ưu hóa cho việc nhận và xử lý events realtime từ agents
 import logging
 import asyncio
 from datetime import datetime, timedelta
-from typing import Optional, Dict, List, Tuple, Any
+from typing import Optional, Dict, List, Tuple, Any  # FIXED: Added Dict import
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 import time
@@ -602,7 +602,7 @@ class EventService:
         except Exception as e:
             logger.error(f"ASYNC notification sending failed: {str(e)}")
     
-    def get_performance_stats(self) -> Dict:
+    def get_performance_stats(self) -> Dict[str, Any]:
         """Get realtime performance statistics"""
         try:
             uptime = datetime.now() - self.stats['last_reset']
@@ -668,7 +668,7 @@ class EventService:
             logger.error(f"Failed to get suspicious events: {str(e)}")
             return []
     
-    def get_event_statistics(self, session: Session, hours: int = 24) -> Dict:
+    def get_event_statistics(self, session: Session, hours: int = 24) -> Dict[str, Any]:
         """Get comprehensive event statistics"""
         try:
             stats = Event.get_events_summary(session, hours)
@@ -726,6 +726,36 @@ class EventService:
             error_msg = f"Event cleanup failed: {str(e)}"
             logger.error(error_msg)
             return 0, error_msg
+    
+    def get_events_timeline(self, session: Session, hours: int = 24) -> List[Dict[str, Any]]:
+        """Get events timeline for dashboard"""
+        try:
+            cutoff_time = datetime.now() - timedelta(hours=hours)
+            
+            # Get hourly event counts
+            timeline = session.query(
+                func.datepart('hour', Event.EventTimestamp).label('hour'),
+                Event.EventType,
+                func.count(Event.EventID).label('count')
+            ).filter(
+                Event.EventTimestamp >= cutoff_time
+            ).group_by(
+                func.datepart('hour', Event.EventTimestamp),
+                Event.EventType
+            ).order_by('hour').all()
+            
+            return [
+                {
+                    'hour': row.hour,
+                    'event_type': row.EventType,
+                    'count': row.count
+                }
+                for row in timeline
+            ]
+            
+        except Exception as e:
+            logger.error(f"Timeline generation failed: {e}")
+            return []
 
 # Global service instance
 event_service = EventService()

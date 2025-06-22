@@ -6665,3 +6665,141 @@ Access is denied.
 2025-06-22 12:55:40,569 [INFO] __main__: 🎯 Using server: .
 2025-06-22 12:55:57,111 [ERROR] __main__: ❌ Import error: cannot import name 'init_database' from 'app.database' (C:\Users\manhh\Desktop\EDR_Project\backend\app\database.py)
 2025-06-22 12:55:57,112 [ERROR] __main__: ❌ Environment check failed
+2025-06-22 13:05:56,147 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-22 13:05:56,151 [INFO] __main__: 🛡️ EDR Server - Speed Optimized Mode
+2025-06-22 13:05:56,151 [INFO] __main__: ⚡ Fast environment checks...
+2025-06-22 13:05:56,157 [INFO] __main__: ✅ ODBC drivers ready: 3 found
+2025-06-22 13:05:56,157 [INFO] __main__: 🔍 Fast connection test...
+2025-06-22 13:05:56,158 [INFO] __main__: 🔍 Fast service check...
+2025-06-22 13:05:56,179 [INFO] __main__: ✅ SQL Server (Default Instance) running
+2025-06-22 13:05:56,214 [WARNING] __main__: ⚠️ SQL Browser Service start failed
+2025-06-22 13:05:56,215 [INFO] __main__: ✅ 1 SQL Server services ready
+2025-06-22 13:05:56,346 [INFO] __main__: ✅ Connected to: (local)
+2025-06-22 13:05:56,347 [INFO] __main__:    Server: Manh
+2025-06-22 13:05:56,347 [INFO] __main__:    Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8 2022 05:58:25 
+	Cop...
+2025-06-22 13:05:56,347 [INFO] __main__: ✅ EDR_System database found
+2025-06-22 13:05:56,348 [INFO] __main__: 🎯 Using server: (local)
+2025-06-22 13:06:12,300 [INFO] app.database: 🚀 REALTIME Database Manager initialization...
+2025-06-22 13:06:12,308 [INFO] app.database: ✅ Ultra-fast connection to localhost: 7.5ms
+2025-06-22 13:06:12,329 [INFO] app.database: ✅ REALTIME Database Engine initialized with ultra-high performance settings
+2025-06-22 13:06:12,330 [INFO] performance: Database pool: 25 connections, 50 overflow
+2025-06-22 13:06:12,331 [INFO] __main__: ⚡ Fast database initialization...
+2025-06-22 13:06:12,331 [INFO] app.database: 🔗 Initializing database connection...
+2025-06-22 13:06:12,464 [INFO] performance: New connection established (Total: 1)
+2025-06-22 13:06:12,465 [INFO] app.database: ✅ REALTIME DB connected: Manh / EDR_System (133.5ms)
+2025-06-22 13:06:12,465 [INFO] performance: DB response time: 133.52ms, Server connections: 6245
+2025-06-22 13:06:12,489 [INFO] app.database: ✅ Database initialized: 7 tables found
+2025-06-22 13:06:12,490 [INFO] __main__: ✅ Environment ready
+2025-06-22 13:06:12,491 [INFO] __main__: 📊 Database status check...
+2025-06-22 13:06:12,555 [INFO] __main__: ✅ Server: Manh / EDR_System
+2025-06-22 13:06:12,556 [INFO] __main__: 👤 User: Manh\manhh
+2025-06-22 13:06:12,556 [INFO] __main__: ⚡ Response: 64.01ms
+2025-06-22 13:06:12,556 [INFO] __main__: 📊 Tables: 7, Records: 192
+2025-06-22 13:06:12,556 [INFO] __main__: 📋 Key tables: Agents:1, Events:149, Threats:12, DetectionRules:7, Alerts:0
+2025-06-22 13:06:12,597 [INFO] app.models: ✅ All 7 models imported successfully
+2025-06-22 13:06:12,598 [INFO] __main__: 🧪 Quick schema validation...
+2025-06-22 13:06:12,598 [WARNING] __main__: ⚠️ Schema test failed: 'RealtimeDatabaseManager' object has no attribute 'get_db_session' (continuing anyway)
+2025-06-22 13:06:12,598 [INFO] __main__: 🎯 Starting server...
+2025-06-22 13:06:12,598 [INFO] __main__: 🌐 Binding: 192.168.20.85:5000
+2025-06-22 13:06:12,598 [INFO] __main__: 🔧 SPEED OPTIMIZED MODE READY:
+2025-06-22 13:06:12,599 [INFO] __main__:    ✅ Parallel service detection
+2025-06-22 13:06:12,599 [INFO] __main__:    ✅ Cached database operations
+2025-06-22 13:06:12,599 [INFO] __main__:    ✅ Fast connection pooling
+2025-06-22 13:06:12,599 [INFO] __main__:    ✅ Optimized health checks
+2025-06-22 13:06:12,599 [INFO] __main__: 🚀 Launching EDR Server...
+2025-06-22 13:06:13,035 [INFO] event_processing: 🚀 REALTIME Event Service initialized - Zero delay processing enabled
+2025-06-22 13:06:13,069 [ERROR] __main__: 💥 Critical failure: name 'Dict' is not defined
+2025-06-22 13:09:00,767 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-22 13:09:00,770 [INFO] __main__: 🛡️ EDR Server - Speed Optimized Mode
+2025-06-22 13:09:00,770 [INFO] __main__: ⚡ Fast environment checks...
+2025-06-22 13:09:00,776 [INFO] __main__: ✅ ODBC drivers ready: 3 found
+2025-06-22 13:09:00,776 [INFO] __main__: 🔍 Fast connection test...
+2025-06-22 13:09:00,776 [INFO] __main__: 🔍 Fast service check...
+2025-06-22 13:09:00,795 [INFO] __main__: ✅ SQL Server (Default Instance) running
+2025-06-22 13:09:00,830 [WARNING] __main__: ⚠️ SQL Browser Service start failed
+2025-06-22 13:09:00,831 [INFO] __main__: ✅ 1 SQL Server services ready
+2025-06-22 13:09:00,987 [INFO] __main__: ✅ Connected to: .
+2025-06-22 13:09:00,987 [INFO] __main__:    Server: Manh
+2025-06-22 13:09:00,987 [INFO] __main__:    Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8 2022 05:58:25 
+	Cop...
+2025-06-22 13:09:00,987 [INFO] __main__: ✅ EDR_System database found
+2025-06-22 13:09:00,988 [INFO] __main__: 🎯 Using server: .
+2025-06-22 13:09:16,900 [INFO] app.database: 🚀 REALTIME Database Manager initialization...
+2025-06-22 13:09:16,907 [INFO] app.database: ✅ Ultra-fast connection to localhost: 6.5ms
+2025-06-22 13:09:16,923 [INFO] app.database: ✅ REALTIME Database Engine initialized with ultra-high performance settings
+2025-06-22 13:09:16,924 [INFO] performance: Database pool: 25 connections, 50 overflow
+2025-06-22 13:09:16,925 [INFO] __main__: ⚡ Fast database initialization...
+2025-06-22 13:09:16,925 [INFO] app.database: 🔗 Initializing database connection...
+2025-06-22 13:09:17,107 [INFO] performance: New connection established (Total: 1)
+2025-06-22 13:09:17,109 [INFO] app.database: ✅ REALTIME DB connected: Manh / EDR_System (183.7ms)
+2025-06-22 13:09:17,109 [INFO] performance: DB response time: 183.67ms, Server connections: 6293
+2025-06-22 13:09:17,136 [INFO] app.database: ✅ Database initialized: 7 tables found
+2025-06-22 13:09:17,137 [INFO] __main__: ✅ Environment ready
+2025-06-22 13:09:17,137 [INFO] __main__: 📊 Database status check...
+2025-06-22 13:09:17,187 [INFO] __main__: ✅ Server: Manh / EDR_System
+2025-06-22 13:09:17,187 [INFO] __main__: 👤 User: Manh\manhh
+2025-06-22 13:09:17,187 [INFO] __main__: ⚡ Response: 48.36ms
+2025-06-22 13:09:17,188 [INFO] __main__: 📊 Tables: 7, Records: 192
+2025-06-22 13:09:17,188 [INFO] __main__: 📋 Key tables: Agents:1, Events:149, Threats:12, DetectionRules:7, Alerts:0
+2025-06-22 13:09:17,217 [INFO] app.models: ✅ All 7 models imported successfully
+2025-06-22 13:09:17,217 [INFO] __main__: 🧪 Quick schema validation...
+2025-06-22 13:09:17,218 [WARNING] __main__: ⚠️ Schema test failed: 'RealtimeDatabaseManager' object has no attribute 'get_db_session' (continuing anyway)
+2025-06-22 13:09:17,218 [INFO] __main__: 🎯 Starting server...
+2025-06-22 13:09:17,218 [INFO] __main__: 🌐 Binding: 192.168.20.85:5000
+2025-06-22 13:09:17,219 [INFO] __main__: 🔧 SPEED OPTIMIZED MODE READY:
+2025-06-22 13:09:17,219 [INFO] __main__:    ✅ Parallel service detection
+2025-06-22 13:09:17,219 [INFO] __main__:    ✅ Cached database operations
+2025-06-22 13:09:17,219 [INFO] __main__:    ✅ Fast connection pooling
+2025-06-22 13:09:17,219 [INFO] __main__:    ✅ Optimized health checks
+2025-06-22 13:09:17,219 [INFO] __main__: 🚀 Launching EDR Server...
+2025-06-22 13:09:17,583 [INFO] event_processing: 🚀 REALTIME Event Service initialized - Zero delay processing enabled
+2025-06-22 13:09:17,603 [ERROR] __main__: 💥 Critical failure: name 'Dict' is not defined
+2025-06-22 13:10:23,949 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-22 13:10:23,953 [INFO] __main__: 🛡️ EDR Server - Speed Optimized Mode
+2025-06-22 13:10:23,953 [INFO] __main__: ⚡ Fast environment checks...
+2025-06-22 13:10:23,957 [INFO] __main__: ✅ ODBC drivers ready: 3 found
+2025-06-22 13:10:23,957 [INFO] __main__: 🔍 Fast connection test...
+2025-06-22 13:10:23,958 [INFO] __main__: 🔍 Fast service check...
+2025-06-22 13:10:23,977 [INFO] __main__: ✅ SQL Server (Default Instance) running
+2025-06-22 13:10:24,006 [WARNING] __main__: ⚠️ SQL Browser Service start failed
+2025-06-22 13:10:24,007 [INFO] __main__: ✅ 1 SQL Server services ready
+2025-06-22 13:10:24,140 [INFO] __main__: ✅ Connected to: (local)
+2025-06-22 13:10:24,140 [INFO] __main__:    Server: Manh
+2025-06-22 13:10:24,140 [INFO] __main__:    Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8 2022 05:58:25 
+	Cop...
+2025-06-22 13:10:24,141 [INFO] __main__: ✅ EDR_System database found
+2025-06-22 13:10:24,141 [INFO] __main__: 🎯 Using server: (local)
+2025-06-22 13:10:40,047 [INFO] app.database: 🚀 REALTIME Database Manager initialization...
+2025-06-22 13:10:40,055 [INFO] app.database: ✅ Ultra-fast connection to localhost: 6.9ms
+2025-06-22 13:10:40,068 [INFO] app.database: ✅ REALTIME Database Engine initialized with ultra-high performance settings
+2025-06-22 13:10:40,068 [INFO] performance: Database pool: 25 connections, 50 overflow
+2025-06-22 13:10:40,069 [INFO] __main__: ⚡ Fast database initialization...
+2025-06-22 13:10:40,069 [INFO] app.database: 🔗 Initializing database connection...
+2025-06-22 13:10:40,169 [INFO] performance: New connection established (Total: 1)
+2025-06-22 13:10:40,171 [INFO] app.database: ✅ REALTIME DB connected: Manh / EDR_System (101.1ms)
+2025-06-22 13:10:40,171 [INFO] performance: DB response time: 101.08ms, Server connections: 6338
+2025-06-22 13:10:40,190 [INFO] app.database: ✅ Database initialized: 7 tables found
+2025-06-22 13:10:40,190 [INFO] __main__: ✅ Environment ready
+2025-06-22 13:10:40,191 [INFO] __main__: 📊 Database status check...
+2025-06-22 13:10:40,227 [INFO] __main__: ✅ Server: Manh / EDR_System
+2025-06-22 13:10:40,228 [INFO] __main__: 👤 User: Manh\manhh
+2025-06-22 13:10:40,228 [INFO] __main__: ⚡ Response: 36.29ms
+2025-06-22 13:10:40,228 [INFO] __main__: 📊 Tables: 7, Records: 192
+2025-06-22 13:10:40,229 [INFO] __main__: 📋 Key tables: Agents:1, Events:149, Threats:12, DetectionRules:7, Alerts:0
+2025-06-22 13:10:40,252 [INFO] app.models: ✅ All 7 models imported successfully
+2025-06-22 13:10:40,253 [INFO] __main__: 🧪 Quick schema validation...
+2025-06-22 13:10:40,253 [WARNING] __main__: ⚠️ Schema test failed: 'RealtimeDatabaseManager' object has no attribute 'get_db_session' (continuing anyway)
+2025-06-22 13:10:40,253 [INFO] __main__: 🎯 Starting server...
+2025-06-22 13:10:40,253 [INFO] __main__: 🌐 Binding: 192.168.20.85:5000
+2025-06-22 13:10:40,253 [INFO] __main__: 🔧 SPEED OPTIMIZED MODE READY:
+2025-06-22 13:10:40,254 [INFO] __main__:    ✅ Parallel service detection
+2025-06-22 13:10:40,254 [INFO] __main__:    ✅ Cached database operations
+2025-06-22 13:10:40,254 [INFO] __main__:    ✅ Fast connection pooling
+2025-06-22 13:10:40,254 [INFO] __main__:    ✅ Optimized health checks
+2025-06-22 13:10:40,254 [INFO] __main__: 🚀 Launching EDR Server...
+2025-06-22 13:10:40,582 [INFO] event_processing: 🚀 REALTIME Event Service initialized - Zero delay processing enabled
+2025-06-22 13:10:40,609 [ERROR] __main__: 💥 Critical failure: name 'Dict' is not defined
