@@ -4,7 +4,7 @@ Event submission, processing, and management with zero-delay processing
 """
 
 import logging
-from typing import List, Optional
+from typing import List, Optional, Dict
 from fastapi import APIRouter, Depends, HTTPException, Request, Header, Query, BackgroundTasks
 from sqlalchemy.orm import Session
 from datetime import datetime
@@ -53,6 +53,10 @@ async def submit_event(
     client_ip = request.client.host
     
     try:
+        # ENHANCED LOGGING: Log event received
+        logger.info(f"📥 EVENT RECEIVED: Type={event_data.event_type}, Action={event_data.event_action}, "
+                   f"Agent={event_data.agent_id}, Client={client_ip}")
+        
         # Update request stats
         request_stats['total_requests'] += 1
         request_stats['total_events'] += 1
@@ -103,6 +107,11 @@ async def submit_event_batch(
     batch_size = len(batch_data.events)
     
     try:
+        # ENHANCED LOGGING: Log batch received
+        event_types = [event.event_type for event in batch_data.events]
+        logger.info(f"📥 BATCH RECEIVED: {batch_size} events, Types={list(set(event_types))}, "
+                   f"Agent={batch_data.agent_id}, Client={client_ip}")
+        
         # Update request stats
         request_stats['total_requests'] += 1
         request_stats['total_events'] += batch_size

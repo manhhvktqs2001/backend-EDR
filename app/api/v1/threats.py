@@ -4,7 +4,7 @@ Threat intelligence management and lookup
 """
 
 import logging
-from typing import List, Optional
+from typing import List, Optional, Dict
 from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from sqlalchemy.orm import Session
 

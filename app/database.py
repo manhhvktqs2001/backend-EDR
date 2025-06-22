@@ -152,8 +152,6 @@ class RealtimeDatabaseManager:
             self._add_realtime_event_listeners()
             
             logger.info("✅ REALTIME Database Engine initialized with ultra-high performance settings")
-            perf_logger.info(f"Database pool: {pool_config['pool_size']} connections, "
-                           f"{pool_config['max_overflow']} overflow")
             
         except Exception as e:
             logger.error(f"❌ REALTIME Database engine init failed: {e}")
@@ -279,7 +277,7 @@ class RealtimeDatabaseManager:
                     dbapi_connection.execute("SET ANSI_WARNINGS OFF")
                     dbapi_connection.execute("SET ANSI_NULL_DFLT_ON ON")
                     
-                perf_logger.info(f"New connection established (Total: {self.stats['connections_created']})")
+                logger.debug(f"New connection established (Total: {self.stats['connections_created']})")
                 
             except Exception as e:
                 logger.warning(f"Connection setup warning: {e}")
@@ -323,8 +321,6 @@ class RealtimeDatabaseManager:
                         if attempt == 0:  # Log details on first success
                             logger.info(f"✅ REALTIME DB connected: {row[2]} / {row[3]} "
                                       f"({response_time*1000:.1f}ms)")
-                            perf_logger.info(f"DB response time: {response_time*1000:.2f}ms, "
-                                           f"Server connections: {row[4]}")
                         
                         # Update performance stats
                         self.stats['queries_executed'] += 1
@@ -361,7 +357,7 @@ class RealtimeDatabaseManager:
             # Performance tracking
             creation_time = time.time() - start_time
             if creation_time > 0.1:  # Warn if session creation is slow
-                perf_logger.warning(f"Slow session creation: {creation_time*1000:.1f}ms")
+                logger.warning(f"Slow session creation: {creation_time*1000:.1f}ms")
             
             return session
             
@@ -385,7 +381,7 @@ class RealtimeDatabaseManager:
             commit_time = time.time() - commit_start
             
             if commit_time > 0.05:  # Warn if commit is slow
-                perf_logger.warning(f"Slow commit: {commit_time*1000:.1f}ms")
+                logger.warning(f"Slow commit: {commit_time*1000:.1f}ms")
             
         except IntegrityError as e:
             if session:

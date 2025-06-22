@@ -1,0 +1,47 @@
+2025-06-22 15:50:37 - app.main - INFO - lifespan:30 - 🚀 Starting EDR Agent Communication Server...
+2025-06-22 15:50:37 - app.database - INFO - init_database:416 - 🔗 Initializing database connection...
+2025-06-22 15:50:37 - app.database - INFO - test_connection_realtime:324 - ✅ REALTIME DB connected: Manh / EDR_System (1.0ms)
+2025-06-22 15:50:37 - app.database - INFO - init_database:434 - ✅ Database initialized: 7 tables found
+2025-06-22 15:50:37 - app.main - INFO - lifespan:37 - ✅ Database initialized successfully
+2025-06-22 15:50:37 - app.main - INFO - lifespan:41 - 🌐 Server binding to: 192.168.20.85:5000
+2025-06-22 15:50:37 - app.main - INFO - lifespan:42 - 🔒 Network access: 192.168.20.0/24
+2025-06-22 15:50:37 - app.main - INFO - lifespan:43 - 🛡️ Detection engine: Enabled
+2025-06-22 15:50:37 - app.main - INFO - lifespan:44 - 📊 Threat intelligence: Enabled
+2025-06-22 15:52:55 - app.main - INFO - lifespan:53 - 👋 Shutting down EDR Agent Communication Server...
+2025-06-22 15:53:15 - app.main - INFO - lifespan:30 - 🚀 Starting EDR Agent Communication Server...
+2025-06-22 15:53:15 - app.database - INFO - init_database:412 - 🔗 Initializing database connection...
+2025-06-22 15:53:15 - app.database - INFO - test_connection_realtime:322 - ✅ REALTIME DB connected: Manh / EDR_System (1.4ms)
+2025-06-22 15:53:15 - app.database - INFO - init_database:430 - ✅ Database initialized: 7 tables found
+2025-06-22 15:53:15 - app.main - INFO - lifespan:37 - ✅ Database initialized successfully
+2025-06-22 15:53:15 - app.main - INFO - lifespan:41 - 🌐 Server binding to: 192.168.20.85:5000
+2025-06-22 15:53:15 - app.main - INFO - lifespan:42 - 🔒 Network access: 192.168.20.0/24
+2025-06-22 15:53:15 - app.main - INFO - lifespan:43 - 🛡️ Detection engine: Enabled
+2025-06-22 15:53:15 - app.main - INFO - lifespan:44 - 📊 Threat intelligence: Enabled
+2025-06-22 15:54:28 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /health - Status: 200 - Time: 0.077s - Client: 192.168.20.133
+2025-06-22 16:08:10 - app.main - INFO - lifespan:53 - 👋 Shutting down EDR Agent Communication Server...
+2025-06-22 16:14:44 - app.main - INFO - lifespan:30 - 🚀 Starting EDR Agent Communication Server...
+2025-06-22 16:14:44 - app.database - INFO - init_database:412 - 🔗 Initializing database connection...
+2025-06-22 16:14:44 - app.database - INFO - test_connection_realtime:322 - ✅ REALTIME DB connected: Manh / EDR_System (1.3ms)
+2025-06-22 16:14:44 - app.database - INFO - init_database:430 - ✅ Database initialized: 7 tables found
+2025-06-22 16:14:44 - app.main - INFO - lifespan:37 - ✅ Database initialized successfully
+2025-06-22 16:14:44 - app.main - INFO - lifespan:41 - 🌐 Server binding to: 192.168.20.85:5000
+2025-06-22 16:14:44 - app.main - INFO - lifespan:42 - 🔒 Network access: 192.168.20.0/24
+2025-06-22 16:14:44 - app.main - INFO - lifespan:43 - 🛡️ Detection engine: Enabled
+2025-06-22 16:14:44 - app.main - INFO - lifespan:44 - 📊 Threat intelligence: Enabled
+2025-06-22 16:35:15 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /health - Status: 200 - Time: 0.045s - Client: 192.168.20.133
+2025-06-22 16:37:24 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /health - Status: 200 - Time: 0.046s - Client: 192.168.20.133
+2025-06-22 16:39:54 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /health - Status: 200 - Time: 0.040s - Client: 192.168.20.133
+2025-06-22 16:46:03 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /health - Status: 200 - Time: 0.037s - Client: 192.168.20.133
+2025-06-22 16:48:02 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /health - Status: 200 - Time: 0.046s - Client: 192.168.20.133
+2025-06-22 16:52:09 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /health - Status: 200 - Time: 0.038s - Client: 192.168.20.133
+2025-06-22 17:00:23 - app.main - INFO - lifespan:53 - 👋 Shutting down EDR Agent Communication Server...
+2025-06-22 17:00:45 - app.main - INFO - lifespan:30 - 🚀 Starting EDR Agent Communication Server...
+2025-06-22 17:00:45 - app.database - INFO - init_database:412 - 🔗 Initializing database connection...
+2025-06-22 17:00:45 - app.database - INFO - test_connection_realtime:322 - ✅ REALTIME DB connected: Manh / EDR_System (1.0ms)
+2025-06-22 17:00:45 - app.database - INFO - init_database:430 - ✅ Database initialized: 7 tables found
+2025-06-22 17:00:45 - app.main - INFO - lifespan:37 - ✅ Database initialized successfully
+2025-06-22 17:00:45 - app.main - INFO - lifespan:41 - 🌐 Server binding to: 192.168.20.85:5000
+2025-06-22 17:00:45 - app.main - INFO - lifespan:42 - 🔒 Network access: 192.168.20.0/24
+2025-06-22 17:00:45 - app.main - INFO - lifespan:43 - 🛡️ Detection engine: Enabled
+2025-06-22 17:00:45 - app.main - INFO - lifespan:44 - 📊 Threat intelligence: Enabled
+2025-06-22 17:01:39 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /health - Status: 200 - Time: 0.042s - Client: 192.168.20.133

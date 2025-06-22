@@ -5,7 +5,7 @@ Database sessions, authentication, and validation helpers for EDR API
 """
 
 import logging
-from typing import Generator, Optional
+from typing import Generator, Optional, Dict
 from fastapi import Depends, HTTPException, Header, Request, status
 from sqlalchemy.orm import Session
 

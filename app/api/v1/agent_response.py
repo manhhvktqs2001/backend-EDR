@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 from ...database import get_db
 from ...models.alert import Alert
 from ...models.agent import Agent
+from ...services.agent_communication_service import agent_communication_service
 
 logger = logging.getLogger('agent_response')
 router = APIRouter()

@@ -31,34 +31,19 @@ class AlertPriority(str, Enum):
 
 # NEW: Agent Alert Submission Schemas
 class AgentAlertSubmission(BaseModel):
-    """Schema for agent to submit alerts to server - NEW"""
-    agent_id: str = Field(..., description="Agent ID submitting the alert")
-    alert_type: str = Field(..., description="Type of alert")
-    title: str = Field(..., min_length=1, max_length=255, description="Alert title")
-    description: str = Field(..., description="Alert description")
-    severity: AlertSeverity = Field(..., description="Alert severity")
-    detected_at: datetime = Field(..., description="When the threat was detected")
-    
-    # Detection context
-    risk_score: Optional[int] = Field(None, ge=0, le=100, description="Risk score")
-    confidence: Optional[float] = Field(None, ge=0.0, le=1.0, description="Confidence level")
-    detection_method: str = Field(default="Agent Detection", description="How it was detected")
-    
-    # MITRE context
-    mitre_tactic: Optional[str] = Field(None, description="MITRE ATT&CK tactic")
-    mitre_technique: Optional[str] = Field(None, description="MITRE ATT&CK technique")
-    
-    # Related data
-    related_events: Optional[List[str]] = Field(None, description="Related event IDs")
-    indicators: Optional[Dict[str, Any]] = Field(None, description="Threat indicators")
-    local_analysis: Optional[Dict[str, Any]] = Field(None, description="Agent's local analysis data")
-    
-    @field_validator('title')
-    @classmethod
-    def validate_title(cls, v):
-        if not v or v.isspace():
-            raise ValueError('Title cannot be empty')
-        return v.strip()
+    """Schema for agent alert submission"""
+    agent_id: str
+    alert_type: str
+    title: str
+    severity: str
+    detection_method: str
+    description: str
+    risk_score: Optional[int] = 50
+    confidence: Optional[float] = 0.8
+    mitre_tactic: Optional[str] = None
+    mitre_technique: Optional[str] = None
+    event_id: Optional[int] = None
+    detected_at: Optional[str] = None
 
 class AgentAlertResponse(BaseModel):
     """Schema for server response to agent alert submission - NEW"""

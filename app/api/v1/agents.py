@@ -5,10 +5,11 @@ Added endpoints for agent to get detection notifications
 """
 
 import logging
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Request, Header
+from typing import List, Optional, Dict
+from fastapi import APIRouter, Depends, HTTPException, Request, Header, Query
 from sqlalchemy.orm import Session
-from datetime import datetime
+from sqlalchemy import func
+from datetime import datetime, timedelta
 import json
 
 from ...database import get_db

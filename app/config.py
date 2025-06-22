@@ -218,7 +218,7 @@ LOGGING_CONFIG = {
         },
         'performance': {
             'format': '%(asctime)s [PERF] %(message)s',
-            'datefmt': '%H:%M:%S.%f'
+            'datefmt': '%H:%M:%S'
         }
     },
     'handlers': {

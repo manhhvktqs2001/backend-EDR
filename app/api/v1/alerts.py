@@ -4,7 +4,7 @@ Alert management, status updates, and monitoring
 """
 
 import logging
-from typing import List, Optional
+from typing import List, Optional, Dict
 from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func, text
@@ -17,7 +17,7 @@ from ...models.agent import Agent
 from ...schemas.alert import (
     AlertResponse, AlertSummary, AlertListResponse,
     AlertStatusUpdateRequest, AlertStatusUpdateResponse,
-    AlertStatsResponse
+    AlertStatsResponse, AgentAlertSubmission
 )
 
 logger = logging.getLogger('alert_management')
@@ -765,3 +765,135 @@ async def get_alert_health_status(
     except Exception as e:
         logger.error(f"Alert health check failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Alert health check failed")
+
+@router.post("/submit-from-agent")
+async def submit_alert_from_agent(
+    request: Request,
+    alert_data: AgentAlertSubmission,
+    session: Session = Depends(get_db)
+):
+    """Submit alert from agent to server - NEW ENDPOINT"""
+    try:
+        # Validate agent exists
+        from ...models.agent import Agent
+        agent = session.query(Agent).filter(Agent.AgentID == alert_data.agent_id).first()
+        if not agent:
+            raise HTTPException(status_code=404, detail="Agent not found")
+        
+        # Create alert in database
+        from ...models.alert import Alert
+        
+        new_alert = Alert.create_alert(
+            agent_id=alert_data.agent_id,
+            alert_type=alert_data.alert_type,
+            title=alert_data.title,
+            severity=alert_data.severity,
+            detection_method=alert_data.detection_method,
+            description=alert_data.description,
+            risk_score=alert_data.risk_score or 50,
+            confidence=alert_data.confidence or 0.8,
+            mitre_tactic=alert_data.mitre_tactic,
+            mitre_technique=alert_data.mitre_technique
+        )
+        
+        session.add(new_alert)
+        session.commit()
+        session.refresh(new_alert)
+        
+        logger.info(f"Alert submitted from agent {agent.HostName}: {new_alert.AlertID}")
+        
+        return {
+            "success": True,
+            "alert_id": new_alert.AlertID,
+            "message": "Alert submitted successfully",
+            "correlation_alerts": [],
+            "recommended_actions": [
+                "Monitor system for additional suspicious activity",
+                "Review related events in the timeline",
+                "Consider isolating the affected system if necessary"
+            ]
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        logger.error(f"Alert submission from agent failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to submit alert")
+
+@router.post("/acknowledge/{alert_id}")
+async def acknowledge_alert(
+    request: Request,
+    alert_id: int,
+    acknowledgment_data: Dict,
+    session: Session = Depends(get_db)
+):
+    """Agent acknowledges receipt of alert - NEW ENDPOINT"""
+    try:
+        alert = session.query(Alert).filter(Alert.AlertID == alert_id).first()
+        if not alert:
+            raise HTTPException(status_code=404, detail="Alert not found")
+        
+        # Update alert with acknowledgment
+        alert.Status = "Acknowledged"
+        alert.ResponseAction = f"Acknowledged by agent: {acknowledgment_data.get('acknowledged_by', 'Unknown')}"
+        alert.UpdatedAt = datetime.now()
+        
+        session.commit()
+        
+        logger.info(f"Alert {alert_id} acknowledged by agent")
+        
+        return {
+            "success": True,
+            "alert_id": alert_id,
+            "message": "Alert acknowledged successfully",
+            "status": "Acknowledged"
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        logger.error(f"Alert acknowledgment failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to acknowledge alert")
+
+@router.get("/pending")
+async def get_pending_alerts(
+    request: Request,
+    agent_id: str = Query(..., description="Agent ID to check alerts for"),
+    session: Session = Depends(get_db)
+):
+    """Get pending alerts for an agent - NEW ENDPOINT"""
+    try:
+        # Get pending alerts for the agent
+        pending_alerts = session.query(Alert).filter(
+            Alert.AgentID == agent_id,
+            Alert.Status == "New"
+        ).limit(10).all()
+        
+        alerts_data = []
+        for alert in pending_alerts:
+            alerts_data.append({
+                'alert_id': alert.AlertID,
+                'title': alert.Title,
+                'description': alert.Description,
+                'severity': alert.Severity,
+                'risk_score': alert.RiskScore,
+                'detection_method': alert.DetectionMethod,
+                'detected_at': alert.CreatedAt.isoformat() if alert.CreatedAt else None,
+                'mitre_tactic': alert.MitreTactic,
+                'mitre_technique': alert.MitreTechnique
+            })
+        
+        logger.info(f"Retrieved {len(alerts_data)} pending alerts for agent {agent_id}")
+        
+        return {
+            "success": True,
+            "agent_id": agent_id,
+            "alerts": alerts_data,
+            "total_pending": len(alerts_data)
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to get pending alerts: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get pending alerts")
