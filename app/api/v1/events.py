@@ -39,7 +39,7 @@ async def submit_event(
     """Submit single event for processing"""
     try:
         client_ip = request.client.host
-        success, response, error = event_service.submit_event(session, event_data, client_ip)
+        success, response, error = await event_service.submit_event(session, event_data, client_ip)
         
         if not success:
             logger.warning(f"Event submission failed: {error}")
