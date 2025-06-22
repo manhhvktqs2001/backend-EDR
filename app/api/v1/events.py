@@ -20,10 +20,13 @@ from ...schemas.event import (
     EventResponse, EventListResponse, EventSummary,
     EventSearchRequest, EventStats
 )
-from ...services.event_service import event_service
+from ...services.event_service import get_event_service
 
 logger = logging.getLogger('event_processing')
 router = APIRouter()
+
+# Get the event service instance
+event_service = get_event_service()
 
 # Performance tracking
 request_stats = {

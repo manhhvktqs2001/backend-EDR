@@ -3,7 +3,7 @@ Business Logic Services Package
 """
 
 from .agent_service import AgentService
-from .event_service import EventService
+from .event_service import EventService, get_event_service
 from .detection_engine import DetectionEngine
 from .alert_service import AlertService
 from .dashboard_service import DashboardService
@@ -12,7 +12,7 @@ from .threat_intel import ThreatIntelService, threat_intel_service
 
 # Create service instances
 agent_service = AgentService()
-event_service = EventService()
+event_service = get_event_service()  # Use singleton pattern
 detection_engine = DetectionEngine()
 alert_service = AlertService()
 dashboard_service = DashboardService()

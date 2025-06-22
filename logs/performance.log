@@ -83,3 +83,20 @@
 18:43:07 [PERF] 🚨 HIGH RISK Event stored: ID=10018, Type=Process, Agent=DESKTOP-O304IOJ, Risk=100, Time=0.036s
 18:43:07 [PERF] 🚨 THREAT EVENT STORED: ID=10018, Risk=100, Client=192.168.20.133, Time=0.038s
 18:43:07 [PERF] 📤 Sent 1 notifications to DESKTOP-O304IOJ
+22:40:50 [PERF] 📥 EVENT RECEIVED: Type=EventType.PROCESS, Action=Start, Agent=f47fbd44-e250-42c4-b1ec-67bc2f23330f, Client=192.168.20.133
+22:40:50 [PERF] 💾 DATABASE INSERT SUCCESS:
+22:40:50 [PERF]    Event ID: 20002
+22:40:50 [PERF]    Type: Process
+22:40:50 [PERF]    Action: Start
+22:40:50 [PERF]    Agent: DESKTOP-O304IOJ (f47fbd44-e250-42c4-b1ec-67bc2f23330f)
+22:40:50 [PERF]    Severity: High
+22:40:50 [PERF]    Timestamp: 2025-06-22 22:40:51.051069
+22:40:50 [PERF]    Client IP: 192.168.20.133
+22:40:50 [PERF]    Process: cmd.exe (PID: 7524)
+22:40:50 [PERF] ✅ EVENT COMMITTED: ID=20002
+22:40:50 [PERF] 🚨 HIGH RISK Event stored successfully:
+22:40:50 [PERF]    ID=20002, Type=Process
+22:40:50 [PERF]    Agent=DESKTOP-O304IOJ, Risk=100
+22:40:50 [PERF]    Processing time: 0.060s
+22:40:50 [PERF] 🚨 THREAT EVENT STORED: ID=20002, Risk=100, Client=192.168.20.133, Time=0.064s
+22:40:51 [PERF] 🔔 Notification disabled: Process: cmd.exe
