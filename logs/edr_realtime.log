@@ -45,3 +45,186 @@
 2025-06-22 17:00:45 - app.main - INFO - lifespan:43 - 🛡️ Detection engine: Enabled
 2025-06-22 17:00:45 - app.main - INFO - lifespan:44 - 📊 Threat intelligence: Enabled
 2025-06-22 17:01:39 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /health - Status: 200 - Time: 0.042s - Client: 192.168.20.133
+2025-06-22 17:42:03 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /health - Status: 200 - Time: 0.054s - Client: 192.168.20.133
+2025-06-22 17:50:56 - app.main - INFO - lifespan:53 - 👋 Shutting down EDR Agent Communication Server...
+2025-06-22 17:51:16 - app.main - INFO - lifespan:30 - 🚀 Starting EDR Agent Communication Server...
+2025-06-22 17:51:16 - app.database - INFO - init_database:412 - 🔗 Initializing database connection...
+2025-06-22 17:51:16 - app.database - INFO - test_connection_realtime:322 - ✅ REALTIME DB connected: Manh / EDR_System (1.4ms)
+2025-06-22 17:51:16 - app.database - INFO - init_database:430 - ✅ Database initialized: 7 tables found
+2025-06-22 17:51:16 - app.main - INFO - lifespan:37 - ✅ Database initialized successfully
+2025-06-22 17:51:16 - app.main - INFO - lifespan:41 - 🌐 Server binding to: 192.168.20.85:5000
+2025-06-22 17:51:16 - app.main - INFO - lifespan:42 - 🔒 Network access: 192.168.20.0/24
+2025-06-22 17:51:16 - app.main - INFO - lifespan:43 - 🛡️ Detection engine: Enabled
+2025-06-22 17:51:16 - app.main - INFO - lifespan:44 - 📊 Threat intelligence: Enabled
+2025-06-22 17:51:47 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /health - Status: 200 - Time: 0.019s - Client: 192.168.20.133
+2025-06-22 17:51:54 - agent_communication - INFO - _update_existing_agent:148 - Existing agent updated: DESKTOP-O304IOJ (192.168.20.133)
+2025-06-22 17:51:54 - agent_communication - INFO - register_agent:52 - Agent registered successfully: DESKTOP-O304IOJ from 192.168.20.133
+2025-06-22 17:51:54 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/agents/register - Status: 200 - Time: 0.082s - Client: 192.168.20.133
+2025-06-22 17:51:54 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /api/v1/agents/f47fbd44-e250-42c4-b1ec-67bc2f23330f/pending-alerts - Status: 404 - Time: 0.000s - Client: 192.168.20.133
+2025-06-22 17:52:35 - app.main - INFO - lifespan:53 - 👋 Shutting down EDR Agent Communication Server...
+2025-06-22 17:52:59 - app.main - INFO - lifespan:30 - 🚀 Starting EDR Agent Communication Server...
+2025-06-22 17:52:59 - app.database - INFO - init_database:412 - 🔗 Initializing database connection...
+2025-06-22 17:52:59 - app.database - INFO - test_connection_realtime:322 - ✅ REALTIME DB connected: Manh / EDR_System (1.2ms)
+2025-06-22 17:52:59 - app.database - INFO - init_database:430 - ✅ Database initialized: 7 tables found
+2025-06-22 17:52:59 - app.main - INFO - lifespan:37 - ✅ Database initialized successfully
+2025-06-22 17:52:59 - app.main - INFO - lifespan:41 - 🌐 Server binding to: 192.168.20.85:5000
+2025-06-22 17:52:59 - app.main - INFO - lifespan:42 - 🔒 Network access: 192.168.20.0/24
+2025-06-22 17:52:59 - app.main - INFO - lifespan:43 - 🛡️ Detection engine: Enabled
+2025-06-22 17:52:59 - app.main - INFO - lifespan:44 - 📊 Threat intelligence: Enabled
+2025-06-22 17:53:15 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/agents/heartbeat - Status: 200 - Time: 0.040s - Client: 192.168.20.133
+2025-06-22 17:53:15 - event_processing - INFO - submit_event:57 - 📥 EVENT RECEIVED: Type=EventType.AUTHENTICATION, Action=Login, Agent=f47fbd44-e250-42c4-b1ec-67bc2f23330f, Client=192.168.20.133
+2025-06-22 17:53:15 - event_processing - ERROR - submit_event:174 - Event submission failed after 0.037s: (pyodbc.ProgrammingError) ('42000', "[42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]INSERT failed because the following SET options have incorrect settings: 'ANSI_WARNINGS'. Verify that SET options are correct for use with indexed views and/or indexes on computed columns and/or filtered indexes and/or query notifications and/or XML data type methods and/or spatial index operations. (1934) (SQLExecDirectW); [42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Statement(s) could not be prepared. (8180)")
+[SQL: INSERT INTO [Events] ([AgentID], [EventType], [EventAction], [EventTimestamp], [Severity], [ProcessID], [ProcessName], [ProcessPath], [CommandLine], [ParentPID], [ParentProcessName], [ProcessUser], [ProcessHash], [FilePath], [FileName], [FileSize], [FileHash], [FileExtension], [FileOperation], [SourceIP], [DestinationIP], [SourcePort], [DestinationPort], [Protocol], [Direction], [RegistryKey], [RegistryValueName], [RegistryValueData], [RegistryOperation], [LoginUser], [LoginType], [LoginResult], [ThreatLevel], [RiskScore], [Analyzed], [AnalyzedAt], [RawEventData], [CreatedAt]) OUTPUT inserted.[EventID], inserted.[CreatedAt] VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate())]
+[parameters: ('f47fbd44-e250-42c4-b1ec-67bc2f23330f', 'Authentication', 'Login', datetime.datetime(2025, 6, 22, 17, 53, 2, 461393), 'Info', None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, 'Manh', None, None, 'None', 0, 0, None, '{"event_source": "Test", "event_id": 4624, "event_time": "2025-06-22T17:53:02.461393", "username": "Manh", "login_type": "Interactive", "test_event": true}')]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-06-22 17:53:15 - event_processing - WARNING - submit_event:68 - ❌ Event submission failed from 192.168.20.133: Event submission failed after 0.037s: (pyodbc.ProgrammingError) ('42000', "[42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]INSERT failed because the following SET options have incorrect settings: 'ANSI_WARNINGS'. Verify that SET options are correct for use with indexed views and/or indexes on computed columns and/or filtered indexes and/or query notifications and/or XML data type methods and/or spatial index operations. (1934) (SQLExecDirectW); [42000] [Microsoft][ODBC Driver 17 for SQL Server][SQL Server]Statement(s) could not be prepared. (8180)")
+[SQL: INSERT INTO [Events] ([AgentID], [EventType], [EventAction], [EventTimestamp], [Severity], [ProcessID], [ProcessName], [ProcessPath], [CommandLine], [ParentPID], [ParentProcessName], [ProcessUser], [ProcessHash], [FilePath], [FileName], [FileSize], [FileHash], [FileExtension], [FileOperation], [SourceIP], [DestinationIP], [SourcePort], [DestinationPort], [Protocol], [Direction], [RegistryKey], [RegistryValueName], [RegistryValueData], [RegistryOperation], [LoginUser], [LoginType], [LoginResult], [ThreatLevel], [RiskScore], [Analyzed], [AnalyzedAt], [RawEventData], [CreatedAt]) OUTPUT inserted.[EventID], inserted.[CreatedAt] VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, getdate())]
+[parameters: ('f47fbd44-e250-42c4-b1ec-67bc2f23330f', 'Authentication', 'Login', datetime.datetime(2025, 6, 22, 17, 53, 2, 461393), 'Info', None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, None, 'Manh', None, None, 'None', 0, 0, None, '{"event_source": "Test", "event_id": 4624, "event_time": "2025-06-22T17:53:02.461393", "username": "Manh", "login_type": "Interactive", "test_event": true}')]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-06-22 17:53:15 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/events/submit - Status: 400 - Time: 0.050s - Client: 192.168.20.133
+2025-06-22 17:53:16 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/agents/heartbeat - Status: 200 - Time: 0.010s - Client: 192.168.20.133
+2025-06-22 17:57:53 - app.main - INFO - lifespan:53 - 👋 Shutting down EDR Agent Communication Server...
+2025-06-22 17:59:45 - app.main - INFO - lifespan:30 - 🚀 Starting EDR Agent Communication Server...
+2025-06-22 17:59:45 - app.database - INFO - init_database:447 - 🔗 Initializing database connection with ANSI_WARNINGS fix...
+2025-06-22 17:59:45 - app.database - INFO - test_connection_realtime:349 - ✅ REALTIME DB connected: Manh / EDR_System (1.1ms) ANSI_WARNINGS: ON
+2025-06-22 17:59:45 - app.database - INFO - init_database:466 - ✅ Database initialized with ANSI fix: 7 tables found
+2025-06-22 17:59:45 - app.main - INFO - lifespan:37 - ✅ Database initialized successfully
+2025-06-22 17:59:45 - app.main - INFO - lifespan:41 - 🌐 Server binding to: 192.168.20.85:5000
+2025-06-22 17:59:45 - app.main - INFO - lifespan:42 - 🔒 Network access: 192.168.20.0/24
+2025-06-22 17:59:45 - app.main - INFO - lifespan:43 - 🛡️ Detection engine: Enabled
+2025-06-22 17:59:45 - app.main - INFO - lifespan:44 - 📊 Threat intelligence: Enabled
+2025-06-22 18:00:05 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /health - Status: 200 - Time: 0.016s - Client: 192.168.20.133
+2025-06-22 18:00:11 - agent_communication - INFO - _update_existing_agent:148 - Existing agent updated: DESKTOP-O304IOJ (192.168.20.133)
+2025-06-22 18:00:11 - agent_communication - INFO - register_agent:52 - Agent registered successfully: DESKTOP-O304IOJ from 192.168.20.133
+2025-06-22 18:00:11 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/agents/register - Status: 200 - Time: 0.036s - Client: 192.168.20.133
+2025-06-22 18:00:12 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /api/v1/agents/f47fbd44-e250-42c4-b1ec-67bc2f23330f/pending-alerts - Status: 404 - Time: 0.000s - Client: 192.168.20.133
+2025-06-22 18:01:12 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/agents/heartbeat - Status: 200 - Time: 0.024s - Client: 192.168.20.133
+2025-06-22 18:01:37 - event_processing - INFO - submit_event:57 - 📥 EVENT RECEIVED: Type=EventType.NETWORK, Action=Create, Agent=f47fbd44-e250-42c4-b1ec-67bc2f23330f, Client=192.168.20.133
+2025-06-22 18:01:37 - event_processing - INFO - submit_event:98 - 💾 DATABASE INSERT: Event ID=10002, Type=Network, Agent=DESKTOP-O304IOJ, Action=Create, Severity=Info, Timestamp=2025-06-22 18:01:08.058092
+2025-06-22 18:01:37 - event_processing - WARNING - submit_event:153 - 🚨 HIGH RISK Event stored: ID=10002, Type=Network, Agent=DESKTOP-O304IOJ, Risk=90, Time=0.042s
+2025-06-22 18:01:37 - event_processing - WARNING - submit_event:77 - 🚨 THREAT EVENT STORED: ID=10002, Risk=90, Client=192.168.20.133, Time=0.043s
+2025-06-22 18:01:37 - event_processing - INFO - _send_notifications_async:613 - 📤 Sent 1 notifications to DESKTOP-O304IOJ
+2025-06-22 18:01:37 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/events/submit - Status: 200 - Time: 0.069s - Client: 192.168.20.133
+2025-06-22 18:01:46 - event_processing - INFO - submit_event:57 - 📥 EVENT RECEIVED: Type=EventType.PROCESS, Action=Start, Agent=f47fbd44-e250-42c4-b1ec-67bc2f23330f, Client=192.168.20.133
+2025-06-22 18:01:46 - event_processing - INFO - submit_event:98 - 💾 DATABASE INSERT: Event ID=10003, Type=Process, Agent=DESKTOP-O304IOJ, Action=Start, Severity=High, Timestamp=2025-06-22 18:00:19.207652
+2025-06-22 18:01:46 - event_processing - WARNING - submit_event:153 - 🚨 HIGH RISK Event stored: ID=10003, Type=Process, Agent=DESKTOP-O304IOJ, Risk=100, Time=0.012s
+2025-06-22 18:01:46 - event_processing - WARNING - submit_event:77 - 🚨 THREAT EVENT STORED: ID=10003, Risk=100, Client=192.168.20.133, Time=0.014s
+2025-06-22 18:01:46 - event_processing - INFO - _send_notifications_async:613 - 📤 Sent 1 notifications to DESKTOP-O304IOJ
+2025-06-22 18:01:46 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/events/submit - Status: 200 - Time: 0.025s - Client: 192.168.20.133
+2025-06-22 18:01:54 - event_processing - INFO - submit_event:57 - 📥 EVENT RECEIVED: Type=EventType.NETWORK, Action=Create, Agent=f47fbd44-e250-42c4-b1ec-67bc2f23330f, Client=192.168.20.133
+2025-06-22 18:01:54 - event_processing - INFO - submit_event:98 - 💾 DATABASE INSERT: Event ID=10004, Type=Network, Agent=DESKTOP-O304IOJ, Action=Create, Severity=Info, Timestamp=2025-06-22 18:01:08.070934
+2025-06-22 18:01:54 - event_processing - WARNING - submit_event:153 - 🚨 HIGH RISK Event stored: ID=10004, Type=Network, Agent=DESKTOP-O304IOJ, Risk=90, Time=0.020s
+2025-06-22 18:01:54 - event_processing - WARNING - submit_event:77 - 🚨 THREAT EVENT STORED: ID=10004, Risk=90, Client=192.168.20.133, Time=0.021s
+2025-06-22 18:01:54 - event_processing - INFO - _send_notifications_async:613 - 📤 Sent 1 notifications to DESKTOP-O304IOJ
+2025-06-22 18:01:54 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/events/submit - Status: 200 - Time: 0.033s - Client: 192.168.20.133
+2025-06-22 18:02:02 - event_processing - INFO - submit_event:57 - 📥 EVENT RECEIVED: Type=EventType.AUTHENTICATION, Action=Login, Agent=f47fbd44-e250-42c4-b1ec-67bc2f23330f, Client=192.168.20.133
+2025-06-22 18:02:02 - event_processing - INFO - submit_event:98 - 💾 DATABASE INSERT: Event ID=10005, Type=Authentication, Agent=DESKTOP-O304IOJ, Action=Login, Severity=Info, Timestamp=2025-06-22 18:01:45.957680
+2025-06-22 18:02:02 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/events/submit - Status: 200 - Time: 0.021s - Client: 192.168.20.133
+2025-06-22 18:02:12 - event_processing - INFO - submit_event:57 - 📥 EVENT RECEIVED: Type=EventType.PROCESS, Action=Start, Agent=f47fbd44-e250-42c4-b1ec-67bc2f23330f, Client=192.168.20.133
+2025-06-22 18:02:12 - event_processing - INFO - submit_event:98 - 💾 DATABASE INSERT: Event ID=10006, Type=Process, Agent=DESKTOP-O304IOJ, Action=Start, Severity=High, Timestamp=2025-06-22 18:00:19.216490
+2025-06-22 18:02:12 - event_processing - WARNING - submit_event:153 - 🚨 HIGH RISK Event stored: ID=10006, Type=Process, Agent=DESKTOP-O304IOJ, Risk=100, Time=0.014s
+2025-06-22 18:02:12 - event_processing - WARNING - submit_event:77 - 🚨 THREAT EVENT STORED: ID=10006, Risk=100, Client=192.168.20.133, Time=0.015s
+2025-06-22 18:02:12 - event_processing - INFO - _send_notifications_async:613 - 📤 Sent 1 notifications to DESKTOP-O304IOJ
+2025-06-22 18:02:12 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/events/submit - Status: 200 - Time: 0.027s - Client: 192.168.20.133
+2025-06-22 18:02:20 - event_processing - INFO - submit_event:57 - 📥 EVENT RECEIVED: Type=EventType.NETWORK, Action=Create, Agent=f47fbd44-e250-42c4-b1ec-67bc2f23330f, Client=192.168.20.133
+2025-06-22 18:02:20 - event_processing - INFO - submit_event:98 - 💾 DATABASE INSERT: Event ID=10007, Type=Network, Agent=DESKTOP-O304IOJ, Action=Create, Severity=Info, Timestamp=2025-06-22 18:01:08.125089
+2025-06-22 18:02:20 - event_processing - WARNING - submit_event:153 - 🚨 HIGH RISK Event stored: ID=10007, Type=Network, Agent=DESKTOP-O304IOJ, Risk=90, Time=0.020s
+2025-06-22 18:02:20 - event_processing - WARNING - submit_event:77 - 🚨 THREAT EVENT STORED: ID=10007, Risk=90, Client=192.168.20.133, Time=0.022s
+2025-06-22 18:02:20 - event_processing - INFO - _send_notifications_async:613 - 📤 Sent 1 notifications to DESKTOP-O304IOJ
+2025-06-22 18:02:20 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/events/submit - Status: 200 - Time: 0.034s - Client: 192.168.20.133
+2025-06-22 18:02:57 - app.main - INFO - lifespan:53 - 👋 Shutting down EDR Agent Communication Server...
+2025-06-22 18:03:19 - app.main - INFO - lifespan:30 - 🚀 Starting EDR Agent Communication Server...
+2025-06-22 18:03:19 - app.database - INFO - init_database:447 - 🔗 Initializing database connection with ANSI_WARNINGS fix...
+2025-06-22 18:03:19 - app.database - INFO - test_connection_realtime:349 - ✅ REALTIME DB connected: Manh / EDR_System (1.1ms) ANSI_WARNINGS: ON
+2025-06-22 18:03:19 - app.database - INFO - init_database:466 - ✅ Database initialized with ANSI fix: 7 tables found
+2025-06-22 18:03:19 - app.main - INFO - lifespan:37 - ✅ Database initialized successfully
+2025-06-22 18:03:19 - app.main - INFO - lifespan:41 - 🌐 Server binding to: 192.168.20.85:5000
+2025-06-22 18:03:19 - app.main - INFO - lifespan:42 - 🔒 Network access: 192.168.20.0/24
+2025-06-22 18:03:19 - app.main - INFO - lifespan:43 - 🛡️ Detection engine: Enabled
+2025-06-22 18:03:19 - app.main - INFO - lifespan:44 - 📊 Threat intelligence: Enabled
+2025-06-22 18:08:54 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /health - Status: 200 - Time: 0.044s - Client: 192.168.20.133
+2025-06-22 18:08:56 - agent_communication - INFO - _update_existing_agent:148 - Existing agent updated: DESKTOP-O304IOJ (192.168.20.133)
+2025-06-22 18:08:56 - agent_communication - INFO - register_agent:53 - Agent registered successfully: DESKTOP-O304IOJ from 192.168.20.133
+2025-06-22 18:08:56 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/agents/register - Status: 200 - Time: 0.055s - Client: 192.168.20.133
+2025-06-22 18:08:56 - agent_communication - INFO - get_pending_alerts:124 - 📋 Retrieved 0 pending alerts for agent DESKTOP-O304IOJ
+2025-06-22 18:08:56 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /api/v1/agents/f47fbd44-e250-42c4-b1ec-67bc2f23330f/pending-alerts - Status: 200 - Time: 0.025s - Client: 192.168.20.133
+2025-06-22 18:08:59 - event_processing - INFO - submit_event:57 - 📥 EVENT RECEIVED: Type=EventType.PROCESS, Action=Start, Agent=f47fbd44-e250-42c4-b1ec-67bc2f23330f, Client=192.168.20.133
+2025-06-22 18:08:59 - event_processing - INFO - submit_event:98 - 💾 DATABASE INSERT: Event ID=10008, Type=Process, Agent=DESKTOP-O304IOJ, Action=Start, Severity=High, Timestamp=2025-06-22 18:08:59.357412
+2025-06-22 18:08:59 - event_processing - WARNING - submit_event:153 - 🚨 HIGH RISK Event stored: ID=10008, Type=Process, Agent=DESKTOP-O304IOJ, Risk=100, Time=0.024s
+2025-06-22 18:08:59 - event_processing - WARNING - submit_event:77 - 🚨 THREAT EVENT STORED: ID=10008, Risk=100, Client=192.168.20.133, Time=0.026s
+2025-06-22 18:08:59 - event_processing - INFO - _send_notifications_async:613 - 📤 Sent 1 notifications to DESKTOP-O304IOJ
+2025-06-22 18:08:59 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/events/submit - Status: 200 - Time: 0.051s - Client: 192.168.20.133
+2025-06-22 18:09:43 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/agents/heartbeat - Status: 200 - Time: 0.027s - Client: 192.168.20.133
+2025-06-22 18:09:43 - agent_communication - INFO - get_pending_alerts:124 - 📋 Retrieved 0 pending alerts for agent DESKTOP-O304IOJ
+2025-06-22 18:09:43 - event_processing - INFO - submit_event:57 - 📥 EVENT RECEIVED: Type=EventType.AUTHENTICATION, Action=Login, Agent=f47fbd44-e250-42c4-b1ec-67bc2f23330f, Client=192.168.20.133
+2025-06-22 18:09:43 - event_processing - INFO - submit_event:98 - 💾 DATABASE INSERT: Event ID=10009, Type=Authentication, Agent=DESKTOP-O304IOJ, Action=Login, Severity=Info, Timestamp=2025-06-22 18:09:33.434023
+2025-06-22 18:09:43 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /api/v1/agents/f47fbd44-e250-42c4-b1ec-67bc2f23330f/pending-alerts - Status: 200 - Time: 0.040s - Client: 192.168.20.133
+2025-06-22 18:09:43 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/events/submit - Status: 200 - Time: 0.040s - Client: 192.168.20.133
+2025-06-22 18:09:50 - event_processing - INFO - submit_event:57 - 📥 EVENT RECEIVED: Type=EventType.PROCESS, Action=Start, Agent=f47fbd44-e250-42c4-b1ec-67bc2f23330f, Client=192.168.20.133
+2025-06-22 18:09:50 - event_processing - INFO - submit_event:98 - 💾 DATABASE INSERT: Event ID=10010, Type=Process, Agent=DESKTOP-O304IOJ, Action=Start, Severity=High, Timestamp=2025-06-22 18:08:59.372626
+2025-06-22 18:09:50 - event_processing - WARNING - submit_event:153 - 🚨 HIGH RISK Event stored: ID=10010, Type=Process, Agent=DESKTOP-O304IOJ, Risk=100, Time=0.015s
+2025-06-22 18:09:50 - event_processing - WARNING - submit_event:77 - 🚨 THREAT EVENT STORED: ID=10010, Risk=100, Client=192.168.20.133, Time=0.016s
+2025-06-22 18:09:50 - event_processing - INFO - _send_notifications_async:613 - 📤 Sent 1 notifications to DESKTOP-O304IOJ
+2025-06-22 18:09:50 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/events/submit - Status: 200 - Time: 0.028s - Client: 192.168.20.133
+2025-06-22 18:09:58 - event_processing - INFO - submit_event:57 - 📥 EVENT RECEIVED: Type=EventType.NETWORK, Action=Create, Agent=f47fbd44-e250-42c4-b1ec-67bc2f23330f, Client=192.168.20.133
+2025-06-22 18:09:58 - event_processing - INFO - submit_event:98 - 💾 DATABASE INSERT: Event ID=10011, Type=Network, Agent=DESKTOP-O304IOJ, Action=Create, Severity=Info, Timestamp=2025-06-22 18:09:33.405635
+2025-06-22 18:09:58 - event_processing - WARNING - submit_event:153 - 🚨 HIGH RISK Event stored: ID=10011, Type=Network, Agent=DESKTOP-O304IOJ, Risk=90, Time=0.011s
+2025-06-22 18:09:58 - event_processing - WARNING - submit_event:77 - 🚨 THREAT EVENT STORED: ID=10011, Risk=90, Client=192.168.20.133, Time=0.012s
+2025-06-22 18:09:58 - event_processing - INFO - _send_notifications_async:613 - 📤 Sent 1 notifications to DESKTOP-O304IOJ
+2025-06-22 18:09:58 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/events/submit - Status: 200 - Time: 0.023s - Client: 192.168.20.133
+2025-06-22 18:10:18 - event_processing - INFO - submit_event:57 - 📥 EVENT RECEIVED: Type=EventType.PROCESS, Action=Start, Agent=f47fbd44-e250-42c4-b1ec-67bc2f23330f, Client=192.168.20.133
+2025-06-22 18:10:18 - event_processing - INFO - submit_event:98 - 💾 DATABASE INSERT: Event ID=10012, Type=Process, Agent=DESKTOP-O304IOJ, Action=Start, Severity=High, Timestamp=2025-06-22 18:08:59.377826
+2025-06-22 18:10:18 - event_processing - WARNING - submit_event:153 - 🚨 HIGH RISK Event stored: ID=10012, Type=Process, Agent=DESKTOP-O304IOJ, Risk=100, Time=0.019s
+2025-06-22 18:10:18 - event_processing - WARNING - submit_event:77 - 🚨 THREAT EVENT STORED: ID=10012, Risk=100, Client=192.168.20.133, Time=0.020s
+2025-06-22 18:10:18 - event_processing - INFO - _send_notifications_async:613 - 📤 Sent 1 notifications to DESKTOP-O304IOJ
+2025-06-22 18:10:18 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/events/submit - Status: 200 - Time: 0.034s - Client: 192.168.20.133
+2025-06-22 18:10:35 - agent_communication - INFO - get_pending_alerts:124 - 📋 Retrieved 0 pending alerts for agent DESKTOP-O304IOJ
+2025-06-22 18:10:35 - event_processing - INFO - submit_event:57 - 📥 EVENT RECEIVED: Type=EventType.AUTHENTICATION, Action=Login, Agent=f47fbd44-e250-42c4-b1ec-67bc2f23330f, Client=192.168.20.133
+2025-06-22 18:10:35 - event_processing - INFO - submit_event:98 - 💾 DATABASE INSERT: Event ID=10013, Type=Authentication, Agent=DESKTOP-O304IOJ, Action=Login, Severity=Info, Timestamp=2025-06-22 18:10:17.641018
+2025-06-22 18:10:35 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /api/v1/agents/f47fbd44-e250-42c4-b1ec-67bc2f23330f/pending-alerts - Status: 200 - Time: 0.030s - Client: 192.168.20.133
+2025-06-22 18:10:35 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/events/submit - Status: 200 - Time: 0.030s - Client: 192.168.20.133
+2025-06-22 18:10:42 - event_processing - INFO - submit_event:57 - 📥 EVENT RECEIVED: Type=EventType.PROCESS, Action=Start, Agent=f47fbd44-e250-42c4-b1ec-67bc2f23330f, Client=192.168.20.133
+2025-06-22 18:10:42 - event_processing - INFO - submit_event:98 - 💾 DATABASE INSERT: Event ID=10014, Type=Process, Agent=DESKTOP-O304IOJ, Action=Start, Severity=High, Timestamp=2025-06-22 18:08:59.389490
+2025-06-22 18:10:42 - event_processing - WARNING - submit_event:153 - 🚨 HIGH RISK Event stored: ID=10014, Type=Process, Agent=DESKTOP-O304IOJ, Risk=100, Time=0.010s
+2025-06-22 18:10:42 - event_processing - WARNING - submit_event:77 - 🚨 THREAT EVENT STORED: ID=10014, Risk=100, Client=192.168.20.133, Time=0.011s
+2025-06-22 18:10:42 - event_processing - INFO - _send_notifications_async:613 - 📤 Sent 1 notifications to DESKTOP-O304IOJ
+2025-06-22 18:10:42 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/events/submit - Status: 200 - Time: 0.020s - Client: 192.168.20.133
+2025-06-22 18:10:51 - event_processing - INFO - submit_event:57 - 📥 EVENT RECEIVED: Type=EventType.NETWORK, Action=Create, Agent=f47fbd44-e250-42c4-b1ec-67bc2f23330f, Client=192.168.20.133
+2025-06-22 18:10:51 - event_processing - INFO - submit_event:98 - 💾 DATABASE INSERT: Event ID=10015, Type=Network, Agent=DESKTOP-O304IOJ, Action=Create, Severity=Info, Timestamp=2025-06-22 18:09:33.406411
+2025-06-22 18:10:51 - event_processing - WARNING - submit_event:153 - 🚨 HIGH RISK Event stored: ID=10015, Type=Network, Agent=DESKTOP-O304IOJ, Risk=90, Time=0.016s
+2025-06-22 18:10:51 - event_processing - WARNING - submit_event:77 - 🚨 THREAT EVENT STORED: ID=10015, Risk=90, Client=192.168.20.133, Time=0.018s
+2025-06-22 18:10:51 - event_processing - INFO - _send_notifications_async:613 - 📤 Sent 1 notifications to DESKTOP-O304IOJ
+2025-06-22 18:10:51 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/events/submit - Status: 200 - Time: 0.032s - Client: 192.168.20.133
+2025-06-22 18:31:08 - app.main - INFO - lifespan:53 - 👋 Shutting down EDR Agent Communication Server...
+2025-06-22 18:31:33 - app.main - INFO - lifespan:30 - 🚀 Starting EDR Agent Communication Server...
+2025-06-22 18:31:33 - app.database - INFO - init_database:447 - 🔗 Initializing database connection with ANSI_WARNINGS fix...
+2025-06-22 18:31:33 - app.database - INFO - test_connection_realtime:349 - ✅ REALTIME DB connected: Manh / EDR_System (1.0ms) ANSI_WARNINGS: ON
+2025-06-22 18:31:33 - app.database - INFO - init_database:466 - ✅ Database initialized with ANSI fix: 7 tables found
+2025-06-22 18:31:33 - app.main - INFO - lifespan:37 - ✅ Database initialized successfully
+2025-06-22 18:31:33 - app.main - INFO - lifespan:41 - 🌐 Server binding to: 192.168.20.85:5000
+2025-06-22 18:31:33 - app.main - INFO - lifespan:42 - 🔒 Network access: 192.168.20.0/24
+2025-06-22 18:31:33 - app.main - INFO - lifespan:43 - 🛡️ Detection engine: Enabled
+2025-06-22 18:31:33 - app.main - INFO - lifespan:44 - 📊 Threat intelligence: Enabled
+2025-06-22 18:31:54 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /health - Status: 200 - Time: 0.047s - Client: 192.168.20.133
+2025-06-22 18:31:57 - agent_communication - INFO - _update_existing_agent:148 - Existing agent updated: DESKTOP-O304IOJ (192.168.20.133)
+2025-06-22 18:31:57 - agent_communication - INFO - register_agent:53 - Agent registered successfully: DESKTOP-O304IOJ from 192.168.20.133
+2025-06-22 18:31:57 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/agents/register - Status: 200 - Time: 0.045s - Client: 192.168.20.133
+2025-06-22 18:31:57 - agent_communication - INFO - get_pending_alerts:124 - 📋 Retrieved 0 pending alerts for agent DESKTOP-O304IOJ
+2025-06-22 18:31:57 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /api/v1/agents/f47fbd44-e250-42c4-b1ec-67bc2f23330f/pending-alerts - Status: 200 - Time: 0.018s - Client: 192.168.20.133
+2025-06-22 18:31:57 - event_processing - INFO - submit_event:57 - 📥 EVENT RECEIVED: Type=EventType.PROCESS, Action=Start, Agent=f47fbd44-e250-42c4-b1ec-67bc2f23330f, Client=192.168.20.133
+2025-06-22 18:31:57 - event_processing - INFO - submit_event:98 - 💾 DATABASE INSERT: Event ID=10016, Type=Process, Agent=DESKTOP-O304IOJ, Action=Start, Severity=High, Timestamp=2025-06-22 18:31:58.039595
+2025-06-22 18:31:57 - event_processing - WARNING - submit_event:153 - 🚨 HIGH RISK Event stored: ID=10016, Type=Process, Agent=DESKTOP-O304IOJ, Risk=100, Time=0.024s
+2025-06-22 18:31:57 - event_processing - WARNING - submit_event:77 - 🚨 THREAT EVENT STORED: ID=10016, Risk=100, Client=192.168.20.133, Time=0.025s
+2025-06-22 18:31:57 - event_processing - INFO - _send_notifications_async:613 - 📤 Sent 1 notifications to DESKTOP-O304IOJ
+2025-06-22 18:31:57 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/events/submit - Status: 200 - Time: 0.048s - Client: 192.168.20.133
+2025-06-22 18:32:38 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/agents/heartbeat - Status: 200 - Time: 0.021s - Client: 192.168.20.133
+2025-06-22 18:33:19 - event_processing - INFO - submit_event:57 - 📥 EVENT RECEIVED: Type=EventType.PROCESS, Action=Start, Agent=f47fbd44-e250-42c4-b1ec-67bc2f23330f, Client=192.168.20.133
+2025-06-22 18:33:19 - event_processing - INFO - submit_event:98 - 💾 DATABASE INSERT: Event ID=10017, Type=Process, Agent=DESKTOP-O304IOJ, Action=Start, Severity=High, Timestamp=2025-06-22 18:31:58.053914
+2025-06-22 18:33:19 - event_processing - WARNING - submit_event:153 - 🚨 HIGH RISK Event stored: ID=10017, Type=Process, Agent=DESKTOP-O304IOJ, Risk=100, Time=0.019s
+2025-06-22 18:33:19 - event_processing - WARNING - submit_event:77 - 🚨 THREAT EVENT STORED: ID=10017, Risk=100, Client=192.168.20.133, Time=0.020s
+2025-06-22 18:33:19 - event_processing - INFO - _send_notifications_async:613 - 📤 Sent 1 notifications to DESKTOP-O304IOJ
+2025-06-22 18:33:19 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/events/submit - Status: 200 - Time: 0.043s - Client: 192.168.20.133
+2025-06-22 18:33:55 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/agents/heartbeat - Status: 200 - Time: 0.087s - Client: 192.168.20.133
+2025-06-22 18:34:04 - agent_communication - INFO - get_pending_alerts:124 - 📋 Retrieved 0 pending alerts for agent DESKTOP-O304IOJ
+2025-06-22 18:34:04 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /api/v1/agents/f47fbd44-e250-42c4-b1ec-67bc2f23330f/pending-alerts - Status: 200 - Time: 0.020s - Client: 192.168.20.133
+2025-06-22 18:34:44 - app.main - INFO - lifespan:53 - 👋 Shutting down EDR Agent Communication Server...

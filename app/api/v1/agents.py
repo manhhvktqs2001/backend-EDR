@@ -1,7 +1,7 @@
-# app/api/v1/agents.py - MODIFIED (Add notification endpoints)
+# app/api/v1/agents.py - FIXED VERSION (Add missing endpoints)
 """
-Agents API Endpoints - MODIFIED
-Added endpoints for agent to get detection notifications
+Agents API Endpoints - FIXED
+Added missing endpoints that agents are trying to access
 """
 
 import logging
@@ -14,6 +14,7 @@ import json
 
 from ...database import get_db
 from ...models.agent import Agent
+from ...models.alert import Alert
 from ...models.system_config import SystemConfig
 from ...schemas.agent import (
     AgentRegisterRequest, AgentRegisterResponse,
@@ -82,7 +83,102 @@ async def heartbeat(
         logger.error(f"Heartbeat processing error: {str(e)}")
         raise HTTPException(status_code=500, detail="Heartbeat processing failed")
 
-# NEW: Detection notifications endpoint
+# FIXED: Add missing pending-alerts endpoint
+@router.get("/{agent_id}/pending-alerts")
+async def get_pending_alerts(
+    request: Request,
+    agent_id: str,
+    session: Session = Depends(get_db),
+    _: bool = Depends(verify_agent_token)
+):
+    """Get pending alerts for agent - MISSING ENDPOINT FIXED"""
+    try:
+        # Validate agent exists
+        agent = Agent.get_by_id(session, agent_id)
+        if not agent:
+            raise HTTPException(status_code=404, detail="Agent not found")
+        
+        # Get pending alerts for the agent
+        pending_alerts = session.query(Alert).filter(
+            Alert.AgentID == agent_id,
+            Alert.Status.in_(['Open', 'Investigating'])
+        ).order_by(Alert.FirstDetected.desc()).limit(20).all()
+        
+        alerts_data = []
+        for alert in pending_alerts:
+            alerts_data.append({
+                'alert_id': alert.AlertID,
+                'title': alert.Title,
+                'description': alert.Description,
+                'severity': alert.Severity,
+                'priority': alert.Priority,
+                'risk_score': alert.RiskScore,
+                'detection_method': alert.DetectionMethod,
+                'first_detected': alert.FirstDetected.isoformat() if alert.FirstDetected else None,
+                'mitre_tactic': alert.MitreTactic,
+                'mitre_technique': alert.MitreTechnique,
+                'event_count': alert.EventCount,
+                'age_minutes': alert.get_age_minutes()
+            })
+        
+        logger.info(f"📋 Retrieved {len(alerts_data)} pending alerts for agent {agent.HostName}")
+        
+        return {
+            "success": True,
+            "agent_id": agent_id,
+            "hostname": agent.HostName,
+            "alerts": alerts_data,
+            "total_pending": len(alerts_data),
+            "retrieved_at": datetime.now().isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Get pending alerts failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get pending alerts")
+
+# NEW: Agent status check endpoint (often requested)
+@router.get("/{agent_id}/status")
+async def get_agent_status(
+    request: Request,
+    agent_id: str,
+    session: Session = Depends(get_db),
+    _: bool = Depends(verify_agent_token)
+):
+    """Get agent status - NEW ENDPOINT"""
+    try:
+        agent = Agent.get_by_id(session, agent_id)
+        if not agent:
+            raise HTTPException(status_code=404, detail="Agent not found")
+        
+        # Get recent activity
+        last_24h = datetime.now() - timedelta(hours=24)
+        recent_events = session.query(Alert).filter(
+            Alert.AgentID == agent_id,
+            Alert.FirstDetected >= last_24h
+        ).count()
+        
+        return {
+            "success": True,
+            "agent_id": agent_id,
+            "hostname": agent.HostName,
+            "status": agent.Status,
+            "connection_status": agent.get_connection_status(),
+            "monitoring_enabled": agent.MonitoringEnabled,
+            "last_heartbeat": agent.LastHeartbeat.isoformat() if agent.LastHeartbeat else None,
+            "recent_events_24h": recent_events,
+            "health_status": agent.get_health_status(),
+            "checked_at": datetime.now().isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Get agent status failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get agent status")
+
+# EXISTING: Detection notifications endpoint
 @router.get("/{agent_id}/notifications")
 async def get_detection_notifications(
     request: Request,
@@ -90,7 +186,7 @@ async def get_detection_notifications(
     session: Session = Depends(get_db),
     _: bool = Depends(verify_agent_token)
 ):
-    """Get pending detection notifications for agent - NEW ENDPOINT"""
+    """Get pending detection notifications for agent"""
     try:
         # Validate agent exists
         agent = Agent.get_by_id(session, agent_id)
@@ -139,7 +235,7 @@ async def get_detection_notifications(
         logger.error(f"Get notifications failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to get notifications")
 
-# NEW: Pending actions endpoint
+# EXISTING: Pending actions endpoint
 @router.get("/{agent_id}/pending-actions")
 async def get_pending_actions(
     request: Request,
@@ -147,7 +243,7 @@ async def get_pending_actions(
     session: Session = Depends(get_db),
     _: bool = Depends(verify_agent_token)
 ):
-    """Get pending response actions for agent - NEW ENDPOINT"""
+    """Get pending response actions for agent"""
     try:
         from ...services.agent_communication_service import agent_communication_service
         
@@ -174,7 +270,112 @@ async def get_pending_actions(
         logger.error(f"Get pending actions failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to get pending actions")
 
-# NEW: Action response endpoint
+# NEW: Agent settings/config endpoint
+@router.get("/{agent_id}/settings")
+async def get_agent_settings(
+    request: Request,
+    agent_id: str,
+    session: Session = Depends(get_db),
+    _: bool = Depends(verify_agent_token)
+):
+    """Get agent settings/configuration - NEW ENDPOINT"""
+    try:
+        agent = Agent.get_by_id(session, agent_id)
+        if not agent:
+            raise HTTPException(status_code=404, detail="Agent not found")
+        
+        # Get agent config
+        config_response = agent_service.get_agent_config(session, agent_id)
+        if not config_response:
+            raise HTTPException(status_code=404, detail="Agent configuration not found")
+        
+        return {
+            "success": True,
+            "agent_id": agent_id,
+            "hostname": agent.HostName,
+            "settings": config_response.dict(),
+            "last_updated": datetime.now().isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Get agent settings failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get agent settings")
+
+# NEW: Agent metrics endpoint
+@router.get("/{agent_id}/metrics")
+async def get_agent_metrics(
+    request: Request,
+    agent_id: str,
+    hours: int = Query(24, description="Time range in hours"),
+    session: Session = Depends(get_db),
+    _: bool = Depends(verify_agent_token)
+):
+    """Get agent metrics and statistics - NEW ENDPOINT"""
+    try:
+        agent = Agent.get_by_id(session, agent_id)
+        if not agent:
+            raise HTTPException(status_code=404, detail="Agent not found")
+        
+        # Get time range
+        cutoff_time = datetime.now() - timedelta(hours=hours)
+        
+        # Get event metrics
+        from ...models.event import Event
+        total_events = session.query(Event).filter(
+            Event.AgentID == agent_id,
+            Event.EventTimestamp >= cutoff_time
+        ).count()
+        
+        # Get alert metrics
+        total_alerts = session.query(Alert).filter(
+            Alert.AgentID == agent_id,
+            Alert.FirstDetected >= cutoff_time
+        ).count()
+        
+        open_alerts = session.query(Alert).filter(
+            Alert.AgentID == agent_id,
+            Alert.Status.in_(['Open', 'Investigating'])
+        ).count()
+        
+        # Event type breakdown
+        event_types = session.query(
+            Event.EventType,
+            func.count(Event.EventID).label('count')
+        ).filter(
+            Event.AgentID == agent_id,
+            Event.EventTimestamp >= cutoff_time
+        ).group_by(Event.EventType).all()
+        
+        return {
+            "success": True,
+            "agent_id": agent_id,
+            "hostname": agent.HostName,
+            "time_range_hours": hours,
+            "metrics": {
+                "total_events": total_events,
+                "total_alerts": total_alerts,
+                "open_alerts": open_alerts,
+                "events_per_hour": total_events // hours if hours > 0 else 0,
+                "event_types": {event_type: count for event_type, count in event_types}
+            },
+            "performance": {
+                "cpu_usage": float(agent.CPUUsage) if agent.CPUUsage else 0.0,
+                "memory_usage": float(agent.MemoryUsage) if agent.MemoryUsage else 0.0,
+                "disk_usage": float(agent.DiskUsage) if agent.DiskUsage else 0.0,
+                "network_latency": agent.NetworkLatency or 0
+            },
+            "generated_at": datetime.now().isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Get agent metrics failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get agent metrics")
+
+# EXISTING: Action response endpoint
 @router.post("/{agent_id}/action-response")
 async def submit_action_response(
     request: Request,
@@ -183,7 +384,7 @@ async def submit_action_response(
     session: Session = Depends(get_db),
     _: bool = Depends(verify_agent_token)
 ):
-    """Submit action response from agent - NEW ENDPOINT"""
+    """Submit action response from agent"""
     try:
         from ...services.agent_communication_service import agent_communication_service
         
@@ -224,7 +425,7 @@ async def submit_action_response(
         logger.error(f"Submit action response failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to submit action response")
 
-# Existing endpoints remain unchanged...
+# Keep all existing endpoints unchanged...
 @router.get("/config/{agent_id}", response_model=AgentConfigResponse)
 async def get_agent_config(
     request: Request,

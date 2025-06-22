@@ -1,6 +1,6 @@
-# app/database.py - FIXED VERSION WITH COMPLETE IMPLEMENTATION
+# app/database.py - FIXED VERSION (ANSI_WARNINGS issue)
 """
-Database Connection Manager for EDR Server - COMPLETE VERSION
+Database Connection Manager for EDR Server - FIXED ANSI_WARNINGS
 Ultra-high performance database operations for realtime event processing
 """
 
@@ -85,9 +85,9 @@ class RealtimeDatabaseManager:
         self._initialize_engine_realtime()
     
     def _initialize_engine_realtime(self):
-        """Initialize database engine with REALTIME optimizations"""
+        """Initialize database engine with REALTIME optimizations - FIXED ANSI_WARNINGS"""
         try:
-            logger.info("🚀 REALTIME Database Manager initialization...")
+            logger.info("🚀 REALTIME Database Manager initialization (FIXED ANSI_WARNINGS)...")
             
             # Fast server detection and connection
             original_server = config['database']['server']
@@ -96,8 +96,8 @@ class RealtimeDatabaseManager:
                 if not self._auto_detect_server_parallel():
                     raise RuntimeError("Could not establish fast database connection")
             
-            # Build ultra-optimized connection URL
-            database_url = self._build_realtime_connection_url()
+            # Build ultra-optimized connection URL with FIXED settings
+            database_url = self._build_realtime_connection_url_fixed()
             pool_config = get_database_pool_config()
             
             # Create REALTIME-optimized engine
@@ -119,7 +119,7 @@ class RealtimeDatabaseManager:
                 future=True,
                 isolation_level="READ_COMMITTED",
                 
-                # REALTIME CONNECTION ARGS
+                # FIXED: Enhanced connection args with proper ANSI settings
                 connect_args={
                     "timeout": config['database']['timeout'],
                     "autocommit": False,  # Explicit control for batching
@@ -127,8 +127,11 @@ class RealtimeDatabaseManager:
                     "login_timeout": config['database']['login_timeout'],
                     "connection_timeout": config['database']['connection_timeout'],
                     "mars_connection": False,  # Disable for better performance
-                    "ansi_null_padding": True,
-                    "ansi_warnings": False
+                    # CRITICAL FIX: Proper ANSI settings
+                    "ansi_null_padding": "yes",
+                    "ansi_warnings": "yes",  # FIXED: Enable ANSI_WARNINGS
+                    "ansi_nulls": "yes",
+                    "quoted_identifier": "yes"
                 },
                 
                 # EXECUTION OPTIONS
@@ -149,19 +152,96 @@ class RealtimeDatabaseManager:
             )
             
             self.metadata = MetaData()
-            self._add_realtime_event_listeners()
+            self._add_realtime_event_listeners_fixed()
             
-            logger.info("✅ REALTIME Database Engine initialized with ultra-high performance settings")
+            logger.info("✅ REALTIME Database Engine initialized with ANSI_WARNINGS fix")
             
         except Exception as e:
             logger.error(f"❌ REALTIME Database engine init failed: {e}")
             raise DatabaseConnectionError(f"Database initialization failed: {e}")
     
+    def _build_realtime_connection_url_fixed(self):
+        """Build connection URL optimized for REALTIME performance - FIXED ANSI settings"""
+        db_config = config['database']
+        server = db_config['server']
+        database = db_config['database']
+        
+        # REALTIME-optimized connection parameters with FIXED ANSI settings
+        connection_params = [
+            f"driver={db_config['driver'].replace(' ', '+')}", 
+            "trusted_connection=yes",
+            "autocommit=false",
+            f"timeout={db_config['timeout']}",
+            f"login_timeout={db_config['login_timeout']}",
+            f"connection_timeout={db_config['connection_timeout']}",
+            "encrypt=no",
+            "trustservercertificate=yes",
+            f"packet_size={db_config['packet_size']}",
+            f"app_name={db_config['application_name']}",
+            
+            # REALTIME SPECIFIC OPTIMIZATIONS
+            "mars_connection=no",  # Disable for better performance
+            "multisubnetfailover=no",
+            "connectretrycount=1",  # Fast fail
+            "connectretryinterval=3",
+            
+            # CRITICAL FIX: Proper ANSI settings for indexed views
+            "ansi_null_padding=yes",
+            "ansi_warnings=yes",  # FIXED: Enable ANSI_WARNINGS
+            "ansi_nulls=yes",
+            "quoted_identifier=yes",
+            "fast_executemany=true"  # Critical for batch operations
+        ]
+        
+        connection_string = "&".join(connection_params)
+        return f"mssql+pyodbc://@{server}/{database}?{connection_string}"
+    
+    def _add_realtime_event_listeners_fixed(self):
+        """Add event listeners optimized for REALTIME operations - FIXED ANSI settings"""
+        
+        @event.listens_for(self.engine, "connect")
+        def receive_connect(dbapi_connection, connection_record):
+            try:
+                self.stats['connections_created'] += 1
+                
+                # CRITICAL FIX: Set proper ANSI settings on each connection
+                if hasattr(dbapi_connection, 'execute'):
+                    # Execute ANSI settings first (CRITICAL FIX)
+                    dbapi_connection.execute("SET ANSI_WARNINGS ON")
+                    dbapi_connection.execute("SET ANSI_NULLS ON") 
+                    dbapi_connection.execute("SET ANSI_NULL_DFLT_ON ON")
+                    dbapi_connection.execute("SET QUOTED_IDENTIFIER ON")
+                    dbapi_connection.execute("SET ANSI_PADDING ON")
+                    
+                    # Then other optimizations
+                    dbapi_connection.execute("SET LOCK_TIMEOUT 5000")  # 5s timeout
+                    dbapi_connection.execute("SET ARITHABORT ON")
+                    
+                logger.debug(f"New connection with ANSI settings (Total: {self.stats['connections_created']})")
+                
+            except Exception as e:
+                logger.warning(f"Connection setup warning: {e}")
+        
+        @event.listens_for(self.engine, "checkout")
+        def receive_checkout(dbapi_connection, connection_record, connection_proxy):
+            self.stats['connections_reused'] += 1
+            self._connection_pool_stats['checkouts'] += 1
+        
+        @event.listens_for(self.engine, "checkin")
+        def receive_checkin(dbapi_connection, connection_record):
+            self._connection_pool_stats['checkins'] += 1
+        
+        @event.listens_for(self.engine, "invalidate")
+        def receive_invalidate(dbapi_connection, connection_record, exception):
+            logger.warning(f"🔄 Connection invalidated: {exception}")
+            self._connection_pool_stats['invalidations'] += 1
+    
     def _test_connection_ultra_fast(self, server: str) -> bool:
-        """Ultra-fast connection test with minimal overhead"""
+        """Ultra-fast connection test with FIXED ANSI settings"""
         try:
             start_time = time.time()
             
+            # FIXED: Connection string with proper ANSI settings
             conn_str = (
                 f"DRIVER={{ODBC Driver 17 for SQL Server}};"
                 f"SERVER={server};"
@@ -173,10 +253,20 @@ class RealtimeDatabaseManager:
                 f"TrustServerCertificate=yes;"
                 f"ApplicationIntent=ReadWrite;"
                 f"PacketSize=8192;"
+                f"AnsiNullPadding=yes;"
+                f"AnsiWarnings=yes;"  # CRITICAL FIX
+                f"AnsiNulls=yes;"
+                f"QuotedIdentifier=yes;"
             )
             
             conn = pyodbc.connect(conn_str)
             cursor = conn.cursor()
+            
+            # CRITICAL FIX: Set ANSI settings immediately
+            cursor.execute("SET ANSI_WARNINGS ON")
+            cursor.execute("SET ANSI_NULLS ON")
+            cursor.execute("SET QUOTED_IDENTIFIER ON")
+            
             cursor.execute("SELECT 1")
             row = cursor.fetchone()
             conn.close()
@@ -184,17 +274,18 @@ class RealtimeDatabaseManager:
             response_time = time.time() - start_time
             
             if row and row[0] == 1 and response_time < 0.1:  # Sub-100ms response
-                logger.info(f"✅ Ultra-fast connection to {server}: {response_time*1000:.1f}ms")
+                logger.info(f"✅ Ultra-fast connection with ANSI fix to {server}: {response_time*1000:.1f}ms")
                 return True
             
             return False
             
-        except Exception:
+        except Exception as e:
+            logger.debug(f"Connection test failed for {server}: {e}")
             return False
     
     def _auto_detect_server_parallel(self) -> bool:
-        """Parallel server detection for maximum speed"""
-        logger.info("🔍 Parallel server detection for realtime...")
+        """Parallel server detection for maximum speed - with ANSI fix"""
+        logger.info("🔍 Parallel server detection with ANSI fix...")
         
         server_options = [
             "localhost",
@@ -219,97 +310,32 @@ class RealtimeDatabaseManager:
                 try:
                     working_server = future.result()
                     if working_server:
-                        logger.info(f"🎯 REALTIME server detected: {working_server}")
+                        logger.info(f"🎯 REALTIME server with ANSI fix: {working_server}")
                         config['database']['server'] = working_server
                         self._detected_server = working_server
                         return True
                 except Exception:
                     continue
         
-        logger.error("❌ No fast server connection found")
+        logger.error("❌ No fast server connection found with ANSI settings")
         return False
     
-    def _build_realtime_connection_url(self):
-        """Build connection URL optimized for REALTIME performance"""
-        db_config = config['database']
-        server = db_config['server']
-        database = db_config['database']
-        
-        # REALTIME-optimized connection parameters
-        connection_params = [
-            f"driver={db_config['driver'].replace(' ', '+')}", 
-            "trusted_connection=yes",
-            "autocommit=false",
-            f"timeout={db_config['timeout']}",
-            f"login_timeout={db_config['login_timeout']}",
-            f"connection_timeout={db_config['connection_timeout']}",
-            "encrypt=no",
-            "trustservercertificate=yes",
-            f"packet_size={db_config['packet_size']}",
-            f"app_name={db_config['application_name']}",
-            
-            # REALTIME SPECIFIC OPTIMIZATIONS
-            "mars_connection=no",  # Disable for better performance
-            "multisubnetfailover=no",
-            "connectretrycount=1",  # Fast fail
-            "connectretryinterval=3",
-            "ansi_null_padding=yes",
-            "ansi_warnings=no",
-            "fast_executemany=true"  # Critical for batch operations
-        ]
-        
-        connection_string = "&".join(connection_params)
-        return f"mssql+pyodbc://@{server}/{database}?{connection_string}"
-    
-    def _add_realtime_event_listeners(self):
-        """Add event listeners optimized for REALTIME operations"""
-        
-        @event.listens_for(self.engine, "connect")
-        def receive_connect(dbapi_connection, connection_record):
-            try:
-                self.stats['connections_created'] += 1
-                
-                # REALTIME connection optimizations
-                if hasattr(dbapi_connection, 'execute'):
-                    # Fast connection setup
-                    dbapi_connection.execute("SET LOCK_TIMEOUT 5000")  # 5s timeout
-                    dbapi_connection.execute("SET ARITHABORT ON")
-                    dbapi_connection.execute("SET ANSI_WARNINGS OFF")
-                    dbapi_connection.execute("SET ANSI_NULL_DFLT_ON ON")
-                    
-                logger.debug(f"New connection established (Total: {self.stats['connections_created']})")
-                
-            except Exception as e:
-                logger.warning(f"Connection setup warning: {e}")
-        
-        @event.listens_for(self.engine, "checkout")
-        def receive_checkout(dbapi_connection, connection_record, connection_proxy):
-            self.stats['connections_reused'] += 1
-            self._connection_pool_stats['checkouts'] += 1
-        
-        @event.listens_for(self.engine, "checkin")
-        def receive_checkin(dbapi_connection, connection_record):
-            self._connection_pool_stats['checkins'] += 1
-        
-        @event.listens_for(self.engine, "invalidate")
-        def receive_invalidate(dbapi_connection, connection_record, exception):
-            logger.warning(f"🔄 Connection invalidated: {exception}")
-            self._connection_pool_stats['invalidations'] += 1
-    
     def test_connection_realtime(self, retry_count: int = 2) -> bool:
-        """REALTIME connection test with performance metrics"""
+        """REALTIME connection test with ANSI fix"""
         for attempt in range(retry_count):
             start_time = time.time()
             
             try:
                 with self.engine.connect() as connection:
+                    # CRITICAL FIX: Test ANSI settings
                     result = connection.execute(text("""
                         SELECT 
                             1 as test, 
                             GETDATE() as server_time,
                             @@SERVERNAME as server_name,
                             DB_NAME() as database_name,
-                            @@CONNECTIONS as connection_count
+                            @@CONNECTIONS as connection_count,
+                            CASE WHEN @@OPTIONS & 16 = 16 THEN 'ON' ELSE 'OFF' END as ansi_warnings
                     """))
                     row = result.fetchone()
                     
@@ -319,8 +345,9 @@ class RealtimeDatabaseManager:
                         self.is_connected = True
                         
                         if attempt == 0:  # Log details on first success
+                            ansi_warnings = row[5] if len(row) > 5 else 'UNKNOWN'
                             logger.info(f"✅ REALTIME DB connected: {row[2]} / {row[3]} "
-                                      f"({response_time*1000:.1f}ms)")
+                                      f"({response_time*1000:.1f}ms) ANSI_WARNINGS: {ansi_warnings}")
                         
                         # Update performance stats
                         self.stats['queries_executed'] += 1
@@ -342,7 +369,7 @@ class RealtimeDatabaseManager:
         return False
     
     def get_session_realtime(self) -> Session:
-        """Get database session optimized for REALTIME operations"""
+        """Get database session optimized for REALTIME operations - with ANSI fix"""
         if not self.SessionLocal:
             raise DatabaseConnectionError("Database not initialized")
         
@@ -350,6 +377,11 @@ class RealtimeDatabaseManager:
         
         try:
             session = self.SessionLocal()
+            
+            # CRITICAL FIX: Ensure ANSI settings on session
+            session.execute(text("SET ANSI_WARNINGS ON"))
+            session.execute(text("SET ANSI_NULLS ON"))
+            session.execute(text("SET QUOTED_IDENTIFIER ON"))
             
             # Ultra-fast validation query
             session.execute(text("SELECT 1"))
@@ -367,7 +399,7 @@ class RealtimeDatabaseManager:
     
     @contextmanager
     def get_realtime_session(self) -> Generator[Session, None, None]:
-        """REALTIME context manager with optimized error handling"""
+        """REALTIME context manager with optimized error handling and ANSI fix"""
         session = None
         start_time = time.time()
         
@@ -386,16 +418,19 @@ class RealtimeDatabaseManager:
         except IntegrityError as e:
             if session:
                 session.rollback()
+            logger.error(f"Database integrity error (may be ANSI_WARNINGS related): {e}")
             raise DatabaseIntegrityError(f"Data integrity violation: {e}")
             
         except OperationalError as e:
             if session:
                 session.rollback()
+            logger.error(f"Database operational error: {e}")
             raise DatabaseOperationalError(f"Database operation failed: {e}")
             
         except Exception as e:
             if session:
                 session.rollback()
+            logger.error(f"Database error: {e}")
             raise DatabaseConnectionError(f"Database error: {e}")
             
         finally:
@@ -407,27 +442,28 @@ db_manager = RealtimeDatabaseManager()
 
 # FIXED: Add the missing functions that run_server.py expects
 def init_database() -> bool:
-    """Initialize database and test connection"""
+    """Initialize database and test connection - with ANSI fix"""
     try:
-        logger.info("🔗 Initializing database connection...")
+        logger.info("🔗 Initializing database connection with ANSI_WARNINGS fix...")
         
         # Test connection
         if not db_manager.test_connection_realtime():
             logger.error("❌ Database connection test failed")
             return False
         
-        # Test table access
+        # Test table access with ANSI settings
         try:
             with db_manager.get_realtime_session() as session:
-                # Quick test query
+                # FIXED: Test with ANSI_WARNINGS enabled
                 result = session.execute(text("""
+                    SET ANSI_WARNINGS ON;
                     SELECT COUNT(*) as table_count 
                     FROM INFORMATION_SCHEMA.TABLES 
                     WHERE TABLE_SCHEMA = 'dbo'
                 """))
                 table_count = result.scalar()
                 
-                logger.info(f"✅ Database initialized: {table_count} tables found")
+                logger.info(f"✅ Database initialized with ANSI fix: {table_count} tables found")
                 return True
                 
         except Exception as e:
@@ -439,7 +475,7 @@ def init_database() -> bool:
         return False
 
 def get_db() -> Generator[Session, None, None]:
-    """Database dependency for FastAPI"""
+    """Database dependency for FastAPI - with ANSI fix"""
     session = db_manager.get_session_realtime()
     try:
         yield session
@@ -450,7 +486,7 @@ def get_db() -> Generator[Session, None, None]:
         session.close()
 
 def get_database_status() -> Dict[str, Any]:
-    """Get comprehensive database status"""
+    """Get comprehensive database status - with ANSI check"""
     try:
         start_time = time.time()
         
@@ -461,13 +497,14 @@ def get_database_status() -> Dict[str, Any]:
             'database_info': {},
             'table_counts': {},
             'connection_pool': {},
-            'performance_stats': {}
+            'performance_stats': {},
+            'ansi_settings': {}  # NEW: ANSI settings check
         }
         
         # Test connection and get server info
         try:
             with db_manager.get_realtime_session() as session:
-                # Server info query
+                # ENHANCED: Check ANSI settings
                 result = session.execute(text("""
                     SELECT 
                         @@SERVERNAME as server_name,
@@ -475,7 +512,10 @@ def get_database_status() -> Dict[str, Any]:
                         SUSER_SNAME() as login_name,
                         @@VERSION as sql_version,
                         @@CONNECTIONS as connection_count,
-                        GETDATE() as server_time
+                        GETDATE() as server_time,
+                        CASE WHEN @@OPTIONS & 16 = 16 THEN 'ON' ELSE 'OFF' END as ansi_warnings,
+                        CASE WHEN @@OPTIONS & 32 = 32 THEN 'ON' ELSE 'OFF' END as ansi_nulls,
+                        CASE WHEN @@OPTIONS & 256 = 256 THEN 'ON' ELSE 'OFF' END as quoted_identifier
                 """))
                 row = result.fetchone()
                 
@@ -487,6 +527,13 @@ def get_database_status() -> Dict[str, Any]:
                         'sql_version': row[3],
                         'connection_count': row[4],
                         'server_time': row[5].isoformat() if row[5] else None
+                    }
+                    
+                    # NEW: ANSI settings status
+                    status['ansi_settings'] = {
+                        'ansi_warnings': row[6],
+                        'ansi_nulls': row[7],
+                        'quoted_identifier': row[8]
                     }
                 
                 # Get table counts (quick version)
@@ -522,6 +569,13 @@ def get_database_status() -> Dict[str, Any]:
                     'overflow': db_manager.engine.pool.overflow(),
                 }
                 
+                # Check for ANSI_WARNINGS issue
+                if status['ansi_settings']['ansi_warnings'] == 'OFF':
+                    logger.warning("⚠️ ANSI_WARNINGS is OFF - this may cause INSERT failures")
+                    status['ansi_warnings_issue'] = True
+                else:
+                    status['ansi_warnings_issue'] = False
+                
         except Exception as e:
             logger.error(f"Database status check failed: {e}")
             status['error'] = str(e)
@@ -537,6 +591,7 @@ def get_database_status() -> Dict[str, Any]:
             'response_time_ms': 0
         }
 
+# Keep all other existing functions unchanged...
 def test_database_performance() -> Dict[str, Any]:
     """Test database performance metrics"""
     try:
