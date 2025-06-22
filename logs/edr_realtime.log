@@ -282,3 +282,27 @@
 2025-06-22 22:40:50 - event_processing - WARNING - submit_event:80 - 🚨 THREAT EVENT STORED: ID=20002, Risk=100, Client=192.168.20.133, Time=0.064s
 2025-06-22 22:40:51 - event_processing - INFO - _send_notifications_async:698 - 🔔 Notification disabled: Process: cmd.exe
 2025-06-22 22:40:51 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/events/submit - Status: 200 - Time: 0.093s - Client: 192.168.20.133
+2025-06-22 23:27:04 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /health - Status: 200 - Time: 0.115s - Client: 192.168.20.133
+2025-06-22 23:27:04 - agent_communication - INFO - _update_existing_agent:148 - Existing agent updated: DESKTOP-O304IOJ (192.168.20.133)
+2025-06-22 23:27:04 - agent_communication - INFO - register_agent:53 - Agent registered successfully: DESKTOP-O304IOJ from 192.168.20.133
+2025-06-22 23:27:04 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/agents/register - Status: 200 - Time: 0.034s - Client: 192.168.20.133
+2025-06-22 23:27:04 - agent_communication - INFO - get_pending_alerts:124 - 📋 Retrieved 0 pending alerts for agent DESKTOP-O304IOJ
+2025-06-22 23:27:04 - app.main - INFO - security_and_logging_middleware:103 - 📡 GET /api/v1/agents/f47fbd44-e250-42c4-b1ec-67bc2f23330f/pending-alerts - Status: 200 - Time: 0.017s - Client: 192.168.20.133
+2025-06-22 23:27:05 - event_processing - INFO - submit_event:60 - 📥 EVENT RECEIVED: Type=EventType.PROCESS, Action=Start, Agent=f47fbd44-e250-42c4-b1ec-67bc2f23330f, Client=192.168.20.133
+2025-06-22 23:27:05 - event_processing - INFO - submit_event:118 - 💾 DATABASE INSERT SUCCESS:
+2025-06-22 23:27:05 - event_processing - INFO - submit_event:119 -    Event ID: 20003
+2025-06-22 23:27:05 - event_processing - INFO - submit_event:120 -    Type: Process
+2025-06-22 23:27:05 - event_processing - INFO - submit_event:121 -    Action: Start
+2025-06-22 23:27:05 - event_processing - INFO - submit_event:122 -    Agent: DESKTOP-O304IOJ (f47fbd44-e250-42c4-b1ec-67bc2f23330f)
+2025-06-22 23:27:05 - event_processing - INFO - submit_event:123 -    Severity: High
+2025-06-22 23:27:05 - event_processing - INFO - submit_event:124 -    Timestamp: 2025-06-22 23:27:04.573375
+2025-06-22 23:27:05 - event_processing - INFO - submit_event:125 -    Client IP: 192.168.20.133
+2025-06-22 23:27:05 - event_processing - INFO - submit_event:129 -    Process: cmd.exe (PID: 7524)
+2025-06-22 23:27:05 - event_processing - INFO - submit_event:193 - ✅ EVENT COMMITTED: ID=20003
+2025-06-22 23:27:05 - event_processing - WARNING - submit_event:207 - 🚨 HIGH RISK Event stored successfully:
+2025-06-22 23:27:05 - event_processing - WARNING - submit_event:208 -    ID=20003, Type=Process
+2025-06-22 23:27:05 - event_processing - WARNING - submit_event:209 -    Agent=DESKTOP-O304IOJ, Risk=100
+2025-06-22 23:27:05 - event_processing - WARNING - submit_event:210 -    Processing time: 0.030s
+2025-06-22 23:27:05 - event_processing - WARNING - submit_event:80 - 🚨 THREAT EVENT STORED: ID=20003, Risk=100, Client=192.168.20.133, Time=0.032s
+2025-06-22 23:27:05 - event_processing - INFO - _send_notifications_async:698 - 🔔 Notification disabled: Process: cmd.exe
+2025-06-22 23:27:05 - app.main - INFO - security_and_logging_middleware:103 - 📡 POST /api/v1/events/submit - Status: 200 - Time: 0.044s - Client: 192.168.20.133
