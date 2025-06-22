@@ -1,8 +1,8 @@
-# app/main.py - EDR Server Main Application (UPDATED with Agent Response)
+# app/main.py - EDR Server Main Application (UPDATED - No Auto Alerts)
 """
 EDR System - Main FastAPI Application
 Agent Communication Server running on 192.168.20.85:5000
-Updated with Agent Response API integration
+MODIFIED: Server chỉ gửi notifications cho agent, KHÔNG tự động tạo alerts
 """
 
 import logging
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     """Application lifespan management"""
     # Startup
-    logger.info("🚀 Starting EDR Agent Communication Server...")
+    logger.info("🚀 Starting EDR Agent Communication Server (No Auto Alerts Mode)...")
     
     try:
         # Initialize database
@@ -43,7 +43,8 @@ async def lifespan(app: FastAPI):
         logger.info(f"🔒 Network access: {config['network']['allowed_agent_network']}")
         logger.info(f"🛡️ Detection engine: {'Enabled' if config['detection']['rules_enabled'] else 'Disabled'}")
         logger.info(f"📊 Threat intelligence: {'Enabled' if config['detection']['threat_intel_enabled'] else 'Disabled'}")
-        logger.info(f"🔄 Agent response system: Enabled")  # NEW
+        logger.info(f"🔔 Notification system: Enabled")  # MODIFIED
+        logger.info(f"🚫 Auto alert creation: DISABLED")  # NEW - Important change
         
         yield
         
@@ -56,8 +57,8 @@ async def lifespan(app: FastAPI):
 
 # Create FastAPI application
 app = FastAPI(
-    title=config['server']['title'],
-    description=config['server']['description'],
+    title=config['server']['title'] + " (No Auto Alerts)",  # MODIFIED title
+    description=config['server']['description'] + " - Server only sends notifications to agents, does not auto-create alerts",
     version=config['server']['version'],
     docs_url="/docs",
     redoc_url="/redoc",
@@ -89,7 +90,7 @@ async def security_and_logging_middleware(request: Request, call_next):
     # Network access validation for agent endpoints
     if (request.url.path.startswith("/api/v1/agents") or 
         request.url.path.startswith("/api/v1/events") or
-        request.url.path.startswith("/api/v1/agents/") and "/response" in request.url.path):  # NEW
+        request.url.path.startswith("/api/v1/alerts/submit-from-agent")):  # MODIFIED: Include agent alert submission
         if not is_internal_ip(client_ip, config['network']['allowed_agent_network']):
             logger.warning(f"🚫 Unauthorized access attempt from: {client_ip} to {request.url.path}")
             return JSONResponse(
@@ -117,20 +118,29 @@ async def root():
     """Root endpoint with server information"""
     server_config = config['server']
     return {
-        "message": "EDR Agent Communication Server",
+        "message": "EDR Agent Communication Server (No Auto Alerts Mode)",  # MODIFIED
         "version": server_config['version'],
         "description": server_config['description'],
         "server_endpoint": f"http://{server_config['bind_host']}:{server_config['bind_port']}",
         "api_docs": "/docs",
         "health_check": "/health",
         "status": "running",
+        "mode": "notifications_only",  # NEW: Indicate mode
         "features": {
             "authentication": False,  # Simplified - no auth
             "detection_engine": config['detection']['rules_enabled'],
             "threat_intelligence": config['detection']['threat_intel_enabled'],
             "agent_registration": config['features']['agent_registration'],
             "event_collection": config['features']['event_collection'],
-            "automated_response": True  # NEW
+            "notification_system": True,  # NEW
+            "auto_alert_creation": False,  # NEW - Important
+            "agent_alert_submission": True  # NEW - Agents can submit alerts
+        },
+        "workflow": {
+            "event_processing": "Server processes events and detects threats",
+            "notification_sending": "Server sends notifications to agents",
+            "alert_creation": "Agents create alerts and send back to server",  # NEW
+            "alert_management": "Server manages alerts submitted by agents"
         },
         "timestamp": time.time()
     }
@@ -146,6 +156,7 @@ async def health_check():
         health_data = {
             "status": "healthy" if db_status.get('healthy') else "unhealthy",
             "timestamp": time.time(),
+            "mode": "notifications_only",  # NEW
             "server": {
                 "host": server_config['bind_host'],
                 "port": server_config['bind_port'],
@@ -166,11 +177,20 @@ async def health_check():
                 "agent_registration": config['features']['agent_registration'],
                 "event_collection": config['features']['event_collection'],
                 "real_time_detection": config['features']['real_time_detection'],
-                "automated_response": True  # NEW
+                "notification_system": True,  # NEW
+                "auto_alert_creation": False,  # NEW - Important
+                "agent_alert_submission": True  # NEW
             },
             "network": {
                 "allowed_network": config['network']['allowed_agent_network'],
                 "max_agents": config['network']['max_agents']
+            },
+            "workflow_status": {
+                "event_processing": "active",
+                "threat_detection": "active" if config['detection']['rules_enabled'] else "disabled",
+                "notification_sending": "active",
+                "alert_auto_creation": "disabled",  # NEW
+                "agent_alert_reception": "active"  # NEW
             }
         }
         
@@ -202,7 +222,9 @@ async def system_status():
                 "database": "connected" if db_status.get('healthy') else "disconnected",
                 "detection_engine": "enabled" if config['detection']['rules_enabled'] else "disabled",
                 "threat_intel": "enabled" if config['detection']['threat_intel_enabled'] else "disabled",
-                "automated_response": "enabled",  # NEW
+                "notification_system": "enabled",  # NEW
+                "auto_alert_creation": "disabled",  # NEW - Important
+                "agent_alert_submission": "enabled",  # NEW
                 "authentication": "disabled"  # Simplified version
             },
             "database_info": {
@@ -226,10 +248,16 @@ async def system_status():
                 "event_processing": True,
                 "threat_detection": config['detection']['rules_enabled'],
                 "threat_intelligence": config['detection']['threat_intel_enabled'],
-                "alert_management": True,
+                "notification_sending": True,  # NEW
+                "alert_reception": True,  # NEW
+                "alert_auto_creation": False,  # NEW - Important
                 "dashboard_api": True,
-                "detection_rules": True,
-                "automated_response": True  # NEW
+                "detection_rules": True
+            },
+            "workflow": {
+                "event_flow": "Agent -> Server (process & detect) -> Agent (notifications)",
+                "alert_flow": "Agent (create alerts) -> Server (manage alerts)",  # NEW
+                "auto_alert_creation": False  # NEW - Important
             },
             "timestamp": time.time()
         }
@@ -243,15 +271,18 @@ async def system_status():
 async def discover_server():
     """Server discovery endpoint for agents"""
     return {
-        "server_name": "EDR Agent Communication Server",
+        "server_name": "EDR Agent Communication Server (No Auto Alerts)",  # MODIFIED
         "server_version": config['server']['version'],
+        "mode": "notifications_only",  # NEW
         "endpoints": {
             "agent_register": "/api/v1/agents/register",
             "agent_heartbeat": "/api/v1/agents/heartbeat",
             "event_submit": "/api/v1/events/submit",
             "event_batch": "/api/v1/events/batch",
-            "pending_actions": "/api/v1/agents/{agent_id}/pending-actions",  # NEW
-            "action_response": "/api/v1/agents/{agent_id}/action-response"   # NEW
+            "get_notifications": "/api/v1/agents/{agent_id}/notifications",  # NEW
+            "submit_alert": "/api/v1/alerts/submit-from-agent",  # NEW
+            "pending_actions": "/api/v1/agents/{agent_id}/pending-actions",
+            "action_response": "/api/v1/agents/{agent_id}/action-response"
         },
         "capabilities": {
             "max_agents": config['network']['max_agents'],
@@ -259,7 +290,14 @@ async def discover_server():
             "heartbeat_interval": config['agent']['heartbeat_interval'],
             "detection_engine": config['detection']['rules_enabled'],
             "threat_intelligence": config['detection']['threat_intel_enabled'],
-            "automated_response": True  # NEW
+            "notification_system": True,  # NEW
+            "auto_alert_creation": False,  # NEW - Important
+            "agent_alert_submission": True  # NEW
+        },
+        "workflow": {
+            "event_processing": "Server processes events and sends notifications",
+            "alert_creation": "Agents create and submit alerts to server",  # NEW
+            "alert_management": "Server manages alerts from agents"
         },
         "authentication": {
             "required": True,  # Agents still need token
@@ -272,19 +310,19 @@ async def discover_server():
 app.include_router(
     agents.router,
     prefix="/api/v1/agents",
-    tags=["🖥️ Agent Management"]
+    tags=["🖥️ Agent Management & Notifications"]  # MODIFIED tag
 )
 
 app.include_router(
     events.router,
     prefix="/api/v1/events", 
-    tags=["📊 Event Processing"]
+    tags=["📊 Event Processing & Detection"]  # MODIFIED tag
 )
 
 app.include_router(
     alerts.router,
     prefix="/api/v1/alerts",
-    tags=["🚨 Alert Management"]
+    tags=["🚨 Alert Management (From Agents)"]  # MODIFIED tag
 )
 
 app.include_router(
@@ -305,7 +343,6 @@ app.include_router(
     tags=["🎯 Detection Rules"]
 )
 
-# NEW: Include Agent Response Router
 app.include_router(
     agent_response.router,
     prefix="/api/v1",
@@ -369,11 +406,17 @@ async def value_error_handler(request: Request, exc: ValueError):
 if __name__ == "__main__":
     server_config = config['server']
     print(f"""
-🚀 EDR Agent Communication Server with Automated Response
+🚀 EDR Agent Communication Server (No Auto Alerts Mode)
 🌐 Starting on: http://{server_config['bind_host']}:{server_config['bind_port']}
 📚 API Documentation: http://{server_config['bind_host']}:{server_config['bind_port']}/docs
 🔍 Health Check: http://{server_config['bind_host']}:{server_config['bind_port']}/health
-🔄 Agent Response: Enabled
+
+🔔 WORKFLOW MODE: Notifications Only
+   • Server processes events and detects threats
+   • Server sends notifications to agents
+   • Agents create alerts and send back to server
+   • Server manages alerts from agents
+   • NO automatic alert creation by server
     """)
     
     uvicorn.run(

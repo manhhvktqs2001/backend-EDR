@@ -1,7 +1,8 @@
-# app/services/detection_engine_sync.py - Synchronous Detection Engine
+# app/services/detection_engine.py - MODIFIED (No auto alert creation)
 """
-Synchronous Detection Engine
-Core detection logic without async dependencies for reliable rule evaluation
+Detection Engine - MODIFIED
+Core detection logic WITHOUT automatic alert creation
+Only prepares notifications for agents
 """
 
 import logging
@@ -14,15 +15,14 @@ from sqlalchemy import func
 
 from ..models.agent import Agent
 from ..models.event import Event
-from ..models.alert import Alert
 from ..models.threat import Threat
 from ..models.detection_rule import DetectionRule
 from ..config import config
 
-logger = logging.getLogger('detection_engine_sync')
+logger = logging.getLogger('detection_engine')
 
-class DetectionEngineSync:
-    """Synchronous detection engine for reliable rule evaluation"""
+class DetectionEngine:
+    """Detection engine for threat analysis WITHOUT automatic alert creation"""
     
     def __init__(self):
         self.detection_config = config['detection']
@@ -34,13 +34,13 @@ class DetectionEngineSync:
         self.stats = {
             'events_analyzed': 0,
             'threats_detected': 0,
-            'alerts_generated': 0,
+            'notifications_generated': 0,  # MODIFIED: notifications instead of alerts
             'rules_matched': 0
         }
     
-    def analyze_event_sync(self, session: Session, event: Event) -> Optional[Dict]:
+    def analyze_event_for_notifications(self, session: Session, event: Event) -> Optional[Dict]:
         """
-        Synchronous event analysis with rule evaluation and alert generation - ENHANCED LOGGING
+        MODIFIED: Analyze event and prepare notifications (NO alert creation)
         """
         try:
             logger.info(f"🔍 Analyzing event {event.EventID}: {event.EventType}")
@@ -56,7 +56,7 @@ class DetectionEngineSync:
                 'detection_methods': [],
                 'matched_rules': [],
                 'matched_threats': [],
-                'alerts_generated': [],
+                'notifications': [],  # MODIFIED: notifications instead of alerts
                 'behavioral_indicators': [],
                 'recommendations': [],
                 'analysis_time': datetime.now().isoformat()
@@ -85,13 +85,13 @@ class DetectionEngineSync:
             # Step 5: Determine threat level
             detection_results['threat_level'] = self._determine_threat_level(detection_results['risk_score'])
             
-            # Step 6: Generate alerts if threshold exceeded
+            # Step 6: Generate notifications if threshold exceeded (NOT alerts)
             risk_threshold = self.detection_config.get('risk_score_threshold', 70)
             if detection_results['risk_score'] >= risk_threshold:
-                alerts = self._generate_alerts(session, event, detection_results)
-                detection_results['alerts_generated'] = alerts
+                notifications = self._generate_notifications(session, event, detection_results)
+                detection_results['notifications'] = notifications
                 detection_results['threat_detected'] = True
-                self.stats['alerts_generated'] += len(alerts)
+                self.stats['notifications_generated'] += len(notifications)
             
             # Step 7: Generate recommendations
             detection_results['recommendations'] = self._generate_recommendations(detection_results)
@@ -102,7 +102,7 @@ class DetectionEngineSync:
                 logger.info(f"   Risk Score: {detection_results.get('risk_score', 0)}")
                 logger.info(f"   Threat Level: {detection_results.get('threat_level', 'None')}")
                 logger.info(f"   Methods: {', '.join(detection_results.get('detection_methods', []))}")
-                logger.info(f"   Alerts Generated: {len(detection_results.get('alerts_generated', []))}")
+                logger.info(f"   Notifications Generated: {len(detection_results.get('notifications', []))}")
             
             logger.debug(f"Event {event.EventID} analyzed - Risk: {detection_results['risk_score']}, "
                         f"Threat: {detection_results['threat_level']}, "
@@ -131,7 +131,8 @@ class DetectionEngineSync:
                 'detection_methods': ['Rules Engine'],
                 'matched_rules': [],
                 'rule_details': [],
-                'risk_score': 0
+                'risk_score': 0,
+                'notifications': []  # MODIFIED: notifications instead of alerts
             }
             
             for rule in active_rules:
@@ -147,6 +148,10 @@ class DetectionEngineSync:
                             'mitre_tactic': rule.MitreTactic,
                             'mitre_technique': rule.MitreTechnique
                         })
+                        
+                        # MODIFIED: Create notification instead of alert
+                        notification = self._create_rule_notification(event, rule)
+                        results['notifications'].append(notification)
                         
                         logger.info(f"🔍 Rule matched: {rule.RuleName} for event {event.EventID}")
                 except Exception as e:
@@ -169,7 +174,8 @@ class DetectionEngineSync:
                 'detection_methods': ['Threat Intelligence'],
                 'matched_threats': [],
                 'threat_details': [],
-                'risk_score': 0
+                'risk_score': 0,
+                'notifications': []  # MODIFIED: notifications instead of alerts
             }
             
             # Check file hashes
@@ -189,6 +195,11 @@ class DetectionEngineSync:
                             'hash_type': hash_field,
                             'hash_value': hash_value
                         })
+                        
+                        # MODIFIED: Create notification instead of alert
+                        notification = self._create_threat_notification(event, threat)
+                        results['notifications'].append(notification)
+                        
                         logger.warning(f"🚨 Threat hash detected: {hash_value} -> {threat.ThreatName}")
             
             # Check IP addresses
@@ -208,6 +219,11 @@ class DetectionEngineSync:
                             'ip_type': ip_field,
                             'ip_value': ip_value
                         })
+                        
+                        # MODIFIED: Create notification instead of alert
+                        notification = self._create_threat_notification(event, threat)
+                        results['notifications'].append(notification)
+                        
                         logger.warning(f"🚨 Malicious IP detected: {ip_value} -> {threat.ThreatName}")
             
             return results if results['matched_threats'] else None
@@ -222,7 +238,8 @@ class DetectionEngineSync:
             results = {
                 'detection_methods': ['Behavioral Analysis'],
                 'behavioral_indicators': [],
-                'risk_score': 0
+                'risk_score': 0,
+                'notifications': []  # MODIFIED: notifications instead of alerts
             }
             
             # Process behavior analysis
@@ -242,6 +259,11 @@ class DetectionEngineSync:
                 indicators = self._check_network_behavior(event)
                 results['behavioral_indicators'].extend(indicators)
                 results['risk_score'] += len(indicators) * 12
+            
+            # Generate behavioral notification if enough indicators
+            if len(results['behavioral_indicators']) >= 3:
+                notification = self._create_behavioral_notification(event, results['behavioral_indicators'])
+                results['notifications'].append(notification)
             
             return results if results['behavioral_indicators'] else None
             
@@ -484,140 +506,138 @@ class DetectionEngineSync:
         return min(risk_score, 100)  # Cap at 100
     
     def _determine_threat_level(self, risk_score: int) -> str:
-        """Determine threat level based on risk score - FIXED"""
+        """Determine threat level based on risk score"""
         if risk_score >= 85:
-            return 'Malicious'  # Changed from 'Critical'
+            return 'Malicious'
         elif risk_score >= 50:
-            return 'Suspicious'  # Changed from 'High'
+            return 'Suspicious'
         else:
-            return 'None'  # All other cases
+            return 'None'
     
-    def _generate_alerts(self, session: Session, event: Event, detection_results: Dict) -> List[int]:
-        """Generate alerts for detected threats"""
+    def _generate_notifications(self, session: Session, event: Event, detection_results: Dict) -> List[Dict]:
+        """MODIFIED: Generate notifications for detected threats (NOT alerts)"""
         try:
-            alerts_generated = []
+            notifications_generated = []
             
-            # Generate alerts for matched rules
+            # Generate notifications for matched rules
             for rule_detail in detection_results.get('rule_details', []):
                 try:
                     rule_id = rule_detail['rule_id']
                     rule = session.query(DetectionRule).filter(DetectionRule.RuleID == rule_id).first()
                     
                     if rule and not rule.TestMode:
-                        alert = self._create_rule_alert(event, rule, detection_results)
-                        if alert:
-                            session.add(alert)
-                            session.flush()  # Get alert ID
-                            alerts_generated.append(alert.AlertID)
-                            logger.info(f"🚨 Alert created: {rule.RuleName} -> Alert #{alert.AlertID}")
+                        notification = self._create_rule_notification(event, rule)
+                        if notification:
+                            notifications_generated.append(notification)
+                            logger.info(f"🔔 Rule notification created: {rule.RuleName}")
                 except Exception as e:
-                    logger.error(f"Failed to create rule alert: {e}")
+                    logger.error(f"Failed to create rule notification: {e}")
                     continue
             
-            # Generate alerts for threat matches
+            # Generate notifications for threat matches
             for threat_detail in detection_results.get('threat_details', []):
                 try:
                     threat_id = threat_detail['threat_id']
                     threat = session.query(Threat).filter(Threat.ThreatID == threat_id).first()
                     
                     if threat:
-                        alert = self._create_threat_alert(event, threat, detection_results)
-                        if alert:
-                            session.add(alert)
-                            session.flush()
-                            alerts_generated.append(alert.AlertID)
-                            logger.warning(f"🚨 Threat alert created: {threat.ThreatName} -> Alert #{alert.AlertID}")
+                        notification = self._create_threat_notification(event, threat)
+                        if notification:
+                            notifications_generated.append(notification)
+                            logger.warning(f"🔔 Threat notification created: {threat.ThreatName}")
                 except Exception as e:
-                    logger.error(f"Failed to create threat alert: {e}")
+                    logger.error(f"Failed to create threat notification: {e}")
                     continue
             
-            # Generate behavioral alert if many indicators
+            # Generate behavioral notification if many indicators
             behavioral_indicators = detection_results.get('behavioral_indicators', [])
             if len(behavioral_indicators) >= 3:
                 try:
-                    alert = self._create_behavioral_alert(event, behavioral_indicators, detection_results)
-                    if alert:
-                        session.add(alert)
-                        session.flush()
-                        alerts_generated.append(alert.AlertID)
-                        logger.warning(f"🚨 Behavioral alert created: {len(behavioral_indicators)} indicators -> Alert #{alert.AlertID}")
+                    notification = self._create_behavioral_notification(event, behavioral_indicators)
+                    if notification:
+                        notifications_generated.append(notification)
+                        logger.warning(f"🔔 Behavioral notification created: {len(behavioral_indicators)} indicators")
                 except Exception as e:
-                    logger.error(f"Failed to create behavioral alert: {e}")
+                    logger.error(f"Failed to create behavioral notification: {e}")
             
-            return alerts_generated
+            return notifications_generated
             
         except Exception as e:
-            logger.error(f"Alert generation failed: {str(e)}")
+            logger.error(f"Notification generation failed: {str(e)}")
             return []
     
-    def _create_rule_alert(self, event: Event, rule: DetectionRule, detection_results: Dict) -> Optional[Alert]:
-        """Create alert for matched detection rule - FIXED"""
+    def _create_rule_notification(self, event: Event, rule: DetectionRule) -> Optional[Dict]:
+        """Create notification for matched detection rule"""
         try:
-            alert_description = f"Detection rule '{rule.RuleName}' triggered"
+            notification_description = f"Detection rule '{rule.RuleName}' triggered"
             if rule.AlertDescription:
-                alert_description += f": {rule.AlertDescription}"
+                notification_description += f": {rule.AlertDescription}"
             
-            alert = Alert.create_alert(
-                agent_id=str(event.AgentID),
-                alert_type=rule.AlertType or 'Rule Detection',
-                title=rule.AlertTitle or f"Rule Detection: {rule.RuleName}",
-                severity=rule.AlertSeverity or 'Medium',
-                detection_method="Rules Engine",
-                Description=alert_description,
-                EventID=event.EventID,
-                RuleID=rule.RuleID,
-                MitreTactic=rule.MitreTactic,
-                MitreTechnique=rule.MitreTechnique,
-                RiskScore=detection_results.get('risk_score', 0),
-                Confidence=0.8
-            )
+            notification = {
+                'type': 'rule_detection',
+                'event_id': event.EventID,
+                'rule_id': rule.RuleID,
+                'rule_name': rule.RuleName,
+                'alert_type': rule.AlertType or 'Rule Detection',
+                'title': rule.AlertTitle or f"Rule Detection: {rule.RuleName}",
+                'description': notification_description,
+                'severity': rule.AlertSeverity or 'Medium',
+                'mitre_tactic': rule.MitreTactic,
+                'mitre_technique': rule.MitreTechnique,
+                'detected_at': datetime.now().isoformat(),
+                'confidence': 0.8,
+                'recommendations': [
+                    f"Review rule: {rule.RuleName}",
+                    "Investigate suspicious activity",
+                    "Consider additional monitoring"
+                ]
+            }
             
-            logger.info(f"🚨 Alert created: {rule.RuleName} -> {rule.AlertSeverity}")
-            return alert
+            logger.info(f"🔔 Rule notification prepared: {rule.RuleName} -> {rule.AlertSeverity}")
+            return notification
             
         except Exception as e:
-            logger.error(f"Rule alert creation failed: {str(e)}")
+            logger.error(f"Rule notification creation failed: {str(e)}")
             return None
     
-    def _create_threat_alert(self, event: Event, threat: Threat, detection_results: Dict) -> Optional[Alert]:
-        """Create alert for threat intelligence match"""
+    def _create_threat_notification(self, event: Event, threat: Threat) -> Optional[Dict]:
+        """Create notification for threat intelligence match"""
         try:
             description = f"Threat detected: {threat.ThreatName}"
             if threat.Description:
                 description += f" - {threat.Description}"
             
-            alert = Alert(
-                EventID=event.EventID,
-                AgentID=event.AgentID,
-                RuleID=None,
-                ThreatID=threat.ThreatID,
-                AlertType='Threat Intelligence',
-                Title=f"Threat Detected: {threat.ThreatName}",
-                Description=description,
-                Severity=threat.Severity,
-                Priority=threat.Severity,
-                Confidence=float(threat.Confidence) if threat.Confidence else 0.7,
-                DetectionMethod='Threat Intelligence',
-                RiskScore=detection_results.get('risk_score', 0),
-                MitreTactic=threat.MitreTactic,
-                MitreTechnique=threat.MitreTechnique,
-                Status='Open',
-                FirstDetected=datetime.now(),
-                LastDetected=datetime.now(),
-                EventCount=1,
-                CreatedAt=datetime.now(),
-                UpdatedAt=datetime.now()
-            )
+            notification = {
+                'type': 'threat_intelligence',
+                'event_id': event.EventID,
+                'threat_id': threat.ThreatID,
+                'threat_name': threat.ThreatName,
+                'threat_type': threat.ThreatType,
+                'title': f"Threat Detected: {threat.ThreatName}",
+                'description': description,
+                'severity': threat.Severity,
+                'category': getattr(threat, 'ThreatCategory', 'Unknown'),
+                'mitre_tactic': threat.MitreTactic,
+                'mitre_technique': threat.MitreTechnique,
+                'detected_at': datetime.now().isoformat(),
+                'confidence': float(threat.Confidence) if threat.Confidence else 0.7,
+                'source': getattr(threat, 'ThreatSource', 'Internal'),
+                'recommendations': [
+                    "Immediate investigation required",
+                    "Consider endpoint isolation",
+                    "Review threat intelligence data",
+                    "Check for lateral movement"
+                ]
+            }
             
-            return alert
+            return notification
             
         except Exception as e:
-            logger.error(f"Threat alert creation failed: {str(e)}")
+            logger.error(f"Threat notification creation failed: {str(e)}")
             return None
     
-    def _create_behavioral_alert(self, event: Event, behavioral_indicators: List[str], 
-                               detection_results: Dict) -> Optional[Alert]:
-        """Create alert for behavioral anomalies"""
+    def _create_behavioral_notification(self, event: Event, behavioral_indicators: List[str]) -> Optional[Dict]:
+        """Create notification for behavioral anomalies"""
         try:
             description = f"Multiple suspicious behaviors detected: {len(behavioral_indicators)} indicators"
             
@@ -629,33 +649,26 @@ class DetectionEngineSync:
             else:
                 severity = 'Low'
             
-            alert = Alert(
-                EventID=event.EventID,
-                AgentID=event.AgentID,
-                RuleID=None,
-                ThreatID=None,
-                AlertType='Behavioral Analysis',
-                Title="Suspicious Behavior Detected",
-                Description=description,
-                Severity=severity,
-                Priority=severity,
-                Confidence=0.6,  # Medium confidence for behavioral
-                DetectionMethod='Behavioral Analysis',
-                RiskScore=detection_results.get('risk_score', 0),
-                MitreTactic=None,
-                MitreTechnique=None,
-                Status='Open',
-                FirstDetected=datetime.now(),
-                LastDetected=datetime.now(),
-                EventCount=1,
-                CreatedAt=datetime.now(),
-                UpdatedAt=datetime.now()
-            )
+            notification = {
+                'type': 'behavioral_analysis',
+                'event_id': event.EventID,
+                'title': "Suspicious Behavior Detected",
+                'description': description,
+                'severity': severity,
+                'indicators': behavioral_indicators,
+                'detected_at': datetime.now().isoformat(),
+                'confidence': 0.6,  # Medium confidence for behavioral
+                'recommendations': [
+                    "Review endpoint behavior patterns",
+                    "Analyze process execution chains",
+                    "Consider behavioral baseline updates"
+                ]
+            }
             
-            return alert
+            return notification
             
         except Exception as e:
-            logger.error(f"Behavioral alert creation failed: {str(e)}")
+            logger.error(f"Behavioral notification creation failed: {str(e)}")
             return None
     
     def _generate_recommendations(self, detection_results: Dict) -> List[str]:
@@ -721,6 +734,11 @@ class DetectionEngineSync:
             new_threats = new_results.get('matched_threats', [])
             base_results['matched_threats'] = list(set(base_threats + new_threats))
             
+            # Merge notifications
+            base_notifications = base_results.get('notifications', [])
+            new_notifications = new_results.get('notifications', [])
+            base_results['notifications'] = base_notifications + new_notifications
+            
             # Merge details
             for detail_key in ['rule_details', 'threat_details', 'behavioral_indicators']:
                 base_details = base_results.get(detail_key, [])
@@ -742,10 +760,10 @@ class DetectionEngineSync:
         return {
             'events_analyzed': self.stats['events_analyzed'],
             'threats_detected': self.stats['threats_detected'],
-            'alerts_generated': self.stats['alerts_generated'],
+            'notifications_generated': self.stats['notifications_generated'],  # MODIFIED
             'rules_matched': self.stats['rules_matched'],
             'detection_rate': (self.stats['threats_detected'] / max(self.stats['events_analyzed'], 1)) * 100,
-            'alert_rate': (self.stats['alerts_generated'] / max(self.stats['events_analyzed'], 1)) * 100
+            'notification_rate': (self.stats['notifications_generated'] / max(self.stats['events_analyzed'], 1)) * 100
         }
     
     def reset_stats(self):
@@ -753,28 +771,9 @@ class DetectionEngineSync:
         self.stats = {
             'events_analyzed': 0,
             'threats_detected': 0,
-            'alerts_generated': 0,
+            'notifications_generated': 0,  # MODIFIED
             'rules_matched': 0
         }
 
-    def _alert_to_dict(self, alert: Alert) -> Dict:
-        """Convert alert object to dictionary - FIXED"""
-        return {
-            'alert_id': alert.AlertID,  # This will be the actual ID, not None
-            'event_id': alert.EventID,
-            'agent_id': str(alert.AgentID),
-            'rule_id': alert.RuleID,
-            'threat_id': alert.ThreatID,
-            'alert_type': alert.AlertType,
-            'severity': alert.Severity,
-            'title': alert.Title,
-            'description': alert.Description,
-            'status': alert.Status,
-            'risk_score': alert.RiskScore,
-            'created_at': alert.CreatedAt.isoformat() if alert.CreatedAt else None,
-            'detection_method': getattr(alert, 'DetectionMethod', 'Unknown')
-        }
-
-
-# Global synchronous detection engine instance
-detection_engine = DetectionEngineSync()
+# Global detection engine instance
+detection_engine = DetectionEngine()

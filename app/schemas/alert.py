@@ -1,7 +1,7 @@
-# app/schemas/alert.py - Complete Alert Schemas
+# app/schemas/alert.py - MODIFIED (Add Agent Alert Submission Schemas)
 """
-Alert API Schemas
-Pydantic models for alert-related API requests and responses
+Alert API Schemas - MODIFIED
+Added schemas for agent to submit alerts back to server
 """
 
 from pydantic import BaseModel, Field, field_validator
@@ -29,7 +29,46 @@ class AlertPriority(str, Enum):
     HIGH = "High"
     CRITICAL = "Critical"
 
-# Alert Request Schemas
+# NEW: Agent Alert Submission Schemas
+class AgentAlertSubmission(BaseModel):
+    """Schema for agent to submit alerts to server - NEW"""
+    agent_id: str = Field(..., description="Agent ID submitting the alert")
+    alert_type: str = Field(..., description="Type of alert")
+    title: str = Field(..., min_length=1, max_length=255, description="Alert title")
+    description: str = Field(..., description="Alert description")
+    severity: AlertSeverity = Field(..., description="Alert severity")
+    detected_at: datetime = Field(..., description="When the threat was detected")
+    
+    # Detection context
+    risk_score: Optional[int] = Field(None, ge=0, le=100, description="Risk score")
+    confidence: Optional[float] = Field(None, ge=0.0, le=1.0, description="Confidence level")
+    detection_method: str = Field(default="Agent Detection", description="How it was detected")
+    
+    # MITRE context
+    mitre_tactic: Optional[str] = Field(None, description="MITRE ATT&CK tactic")
+    mitre_technique: Optional[str] = Field(None, description="MITRE ATT&CK technique")
+    
+    # Related data
+    related_events: Optional[List[str]] = Field(None, description="Related event IDs")
+    indicators: Optional[Dict[str, Any]] = Field(None, description="Threat indicators")
+    local_analysis: Optional[Dict[str, Any]] = Field(None, description="Agent's local analysis data")
+    
+    @field_validator('title')
+    @classmethod
+    def validate_title(cls, v):
+        if not v or v.isspace():
+            raise ValueError('Title cannot be empty')
+        return v.strip()
+
+class AgentAlertResponse(BaseModel):
+    """Schema for server response to agent alert submission - NEW"""
+    success: bool
+    alert_id: Optional[int] = None
+    message: str
+    correlation_alerts: List[int] = Field(default=[], description="Correlated alert IDs")
+    recommended_actions: List[str] = Field(default=[], description="Recommended actions")
+
+# Existing schemas remain the same...
 class AlertStatusUpdateRequest(BaseModel):
     """Schema for updating alert status"""
     status: AlertStatus = Field(..., description="New alert status")
@@ -132,7 +171,7 @@ class AlertStatsResponse(BaseModel):
     top_alert_types: List[Dict[str, Any]]
     mitre_tactics: List[Dict[str, Any]]
 
-# Alert Search and Filter Schemas
+# Keep all other existing schemas unchanged...
 class AlertSearchRequest(BaseModel):
     """Schema for alert search request"""
     agent_id: Optional[str] = None
@@ -150,147 +189,3 @@ class AlertSearchRequest(BaseModel):
     risk_score_max: Optional[int] = Field(None, ge=0, le=100)
     limit: int = Field(default=100, le=1000)
     offset: int = Field(default=0, ge=0)
-
-class AlertExportRequest(BaseModel):
-    """Schema for alert export request"""
-    alert_ids: Optional[List[int]] = None
-    start_time: Optional[datetime] = None
-    end_time: Optional[datetime] = None
-    status: Optional[List[AlertStatus]] = None
-    severity: Optional[List[AlertSeverity]] = None
-    format: str = Field(default="json", pattern=r"^(json|csv|xlsx)$")
-    include_event_details: bool = False
-    include_rule_details: bool = False
-
-# Alert Analysis and Reporting Schemas
-class AlertTrendAnalysis(BaseModel):
-    """Schema for alert trend analysis"""
-    time_period: str
-    total_alerts: int
-    alert_types: Dict[str, int]
-    severity_trends: Dict[str, List[int]]
-    detection_method_trends: Dict[str, List[int]]
-    top_affected_agents: List[Dict[str, Any]]
-    mitre_tactics_frequency: Dict[str, int]
-
-class AlertCorrelationRequest(BaseModel):
-    """Schema for alert correlation request"""
-    alert_id: int
-    correlation_window_hours: int = Field(default=24, ge=1, le=168)
-    correlation_criteria: List[str] = Field(default=["agent_id", "alert_type", "mitre_tactic"])
-
-class AlertCorrelationResponse(BaseModel):
-    """Schema for alert correlation response"""
-    source_alert_id: int
-    correlated_alerts: List[AlertSummary]
-    correlation_score: float
-    correlation_criteria: List[str]
-    time_window_hours: int
-    analysis_summary: str
-
-# Alert Workflow Schemas
-class AlertEscalationRequest(BaseModel):
-    """Schema for alert escalation"""
-    alert_id: int
-    escalation_reason: str
-    escalated_by: str
-    escalated_to: str
-    escalation_notes: Optional[str] = None
-
-class AlertEscalationResponse(BaseModel):
-    """Schema for alert escalation response"""
-    success: bool
-    message: str
-    alert_id: int
-    escalated_from: str
-    escalated_to: str
-    escalation_timestamp: datetime
-
-# Alert Metrics and KPIs
-class AlertMetrics(BaseModel):
-    """Schema for alert metrics and KPIs"""
-    time_period: str
-    total_alerts_generated: int
-    total_alerts_resolved: int
-    average_resolution_time_hours: float
-    false_positive_rate: float
-    critical_alerts_percentage: float
-    top_detection_methods: List[Dict[str, Any]]
-    alert_volume_trend: List[Dict[str, Any]]
-    mean_time_to_acknowledge: float
-    mean_time_to_resolve: float
-
-class AlertDashboardSummary(BaseModel):
-    """Schema for alert dashboard summary"""
-    current_open_alerts: int
-    critical_alerts_requiring_attention: int
-    alerts_last_24_hours: int
-    alerts_resolved_last_24_hours: int
-    average_response_time_minutes: float
-    top_alert_types_today: List[Dict[str, Any]]
-    top_affected_agents: List[Dict[str, Any]]
-    recent_critical_alerts: List[AlertSummary]
-    alert_severity_distribution: Dict[str, int]
-    detection_effectiveness: Dict[str, float]
-
-# Alert Notification Schemas
-class AlertNotificationRequest(BaseModel):
-    """Schema for alert notification configuration"""
-    alert_id: int
-    notification_type: str = Field(..., pattern=r"^(email|sms|webhook|slack)$")
-    recipients: List[str]
-    message_template: Optional[str] = None
-    immediate: bool = True
-
-class AlertNotificationResponse(BaseModel):
-    """Schema for alert notification response"""
-    success: bool
-    message: str
-    alert_id: int
-    notification_type: str
-    recipients_notified: List[str]
-    notification_timestamp: datetime
-
-# Alert Rule and Detection Schemas
-class AlertSuppressionRule(BaseModel):
-    """Schema for alert suppression rules"""
-    rule_name: str
-    alert_type: Optional[str] = None
-    agent_id: Optional[str] = None
-    mitre_tactic: Optional[str] = None
-    suppression_duration_hours: int = Field(..., ge=1, le=8760)  # Max 1 year
-    reason: str
-    created_by: str
-    is_active: bool = True
-
-class AlertSuppressionRuleResponse(BaseModel):
-    """Schema for alert suppression rule response"""
-    rule_id: int
-    rule_name: str
-    alert_type: Optional[str]
-    agent_id: Optional[str]
-    mitre_tactic: Optional[str]
-    suppression_duration_hours: int
-    reason: str
-    created_by: str
-    created_at: datetime
-    is_active: bool
-    alerts_suppressed_count: int
-
-# Alert Quality and Feedback Schemas
-class AlertFeedbackRequest(BaseModel):
-    """Schema for alert quality feedback"""
-    alert_id: int
-    feedback_type: str = Field(..., pattern=r"^(accurate|false_positive|needs_tuning|informational)$")
-    feedback_notes: Optional[str] = None
-    analyst: str
-    confidence_rating: int = Field(..., ge=1, le=5)
-
-class AlertFeedbackResponse(BaseModel):
-    """Schema for alert feedback response"""
-    success: bool
-    message: str
-    alert_id: int
-    feedback_type: str
-    analyst: str
-    feedback_timestamp: datetime

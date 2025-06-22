@@ -1,7 +1,7 @@
 # app/services/event_service.py - MODIFIED (No auto alert creation)
 """
 Event Processing Service - MODIFIED
-Server chỉ phát hiện và gửi cảnh báo cho Agent, KHÔNG tự động tạo alerts
+Server chỉ phát hiện và gửi thông báo cho Agent, KHÔNG tự động tạo alerts
 """
 
 import logging
@@ -307,18 +307,14 @@ class EventService:
                 except Exception as e:
                     logger.error(f"Threat checking failed: {e}")
             
-            # Determine threat level
+            # Determine threat level based on risk score
             risk_score = min(detection_results['risk_score'], 100)
             detection_results['risk_score'] = risk_score
             
             if risk_score >= 80:
-                detection_results['threat_level'] = 'Critical'
-            elif risk_score >= 60:
-                detection_results['threat_level'] = 'High'
-            elif risk_score >= 40:
-                detection_results['threat_level'] = 'Medium'
-            elif risk_score >= 20:
-                detection_results['threat_level'] = 'Low'
+                detection_results['threat_level'] = 'Malicious'
+            elif risk_score >= 50:
+                detection_results['threat_level'] = 'Suspicious'
             else:
                 detection_results['threat_level'] = 'None'
             
@@ -660,6 +656,109 @@ class EventService:
         except Exception as e:
             logger.error(f"Failed to get event statistics: {str(e)}")
             return {}
+    
+    def get_events_timeline(self, session: Session, hours: int = 24) -> List[Dict]:
+        """Get events timeline for dashboard"""
+        try:
+            cutoff_time = datetime.now() - timedelta(hours=hours)
+            
+            timeline_data = session.query(
+                func.date_part('hour', Event.EventTimestamp).label('hour'),
+                Event.EventType,
+                func.count(Event.EventID).label('count')
+            ).filter(
+                Event.EventTimestamp >= cutoff_time
+            ).group_by(
+                func.date_part('hour', Event.EventTimestamp),
+                Event.EventType
+            ).order_by('hour').all()
+            
+            timeline = []
+            for hour, event_type, count in timeline_data:
+                timeline.append({
+                    'hour': int(hour),
+                    'event_type': event_type,
+                    'count': count
+                })
+            
+            return timeline
+            
+        except Exception as e:
+            logger.error(f"Events timeline failed: {str(e)}")
+            return []
+    
+    def analyze_event_patterns(self, session: Session, agent_id: Optional[str] = None, 
+                              hours: int = 24) -> Dict:
+        """Analyze event patterns for anomaly detection"""
+        try:
+            cutoff_time = datetime.now() - timedelta(hours=hours)
+            query = session.query(Event).filter(Event.EventTimestamp >= cutoff_time)
+            
+            if agent_id:
+                query = query.filter(Event.AgentID == agent_id)
+            
+            events = query.all()
+            
+            patterns = {
+                'total_events': len(events),
+                'event_types': {},
+                'time_distribution': {},
+                'suspicious_patterns': []
+            }
+            
+            # Analyze event types
+            for event in events:
+                event_type = event.EventType
+                patterns['event_types'][event_type] = patterns['event_types'].get(event_type, 0) + 1
+            
+            # Analyze time patterns
+            for event in events:
+                hour = event.EventTimestamp.hour
+                patterns['time_distribution'][hour] = patterns['time_distribution'].get(hour, 0) + 1
+            
+            # Look for suspicious patterns
+            if patterns['event_types'].get('Process', 0) > 1000:
+                patterns['suspicious_patterns'].append('High process activity detected')
+            
+            if patterns['event_types'].get('Network', 0) > 500:
+                patterns['suspicious_patterns'].append('High network activity detected')
+            
+            return patterns
+            
+        except Exception as e:
+            logger.error(f"Pattern analysis failed: {str(e)}")
+            return {}
+    
+    def cleanup_old_events(self, session: Session, retention_days: int = 365) -> Tuple[int, str]:
+        """Clean up old events based on retention policy"""
+        try:
+            cutoff_date = datetime.now() - timedelta(days=retention_days)
+            
+            # Count events to be deleted
+            old_events_count = session.query(Event).filter(
+                Event.EventTimestamp < cutoff_date
+            ).count()
+            
+            if old_events_count == 0:
+                return 0, "No old events to clean up"
+            
+            # Delete old events
+            deleted_count = session.query(Event).filter(
+                Event.EventTimestamp < cutoff_date
+            ).delete()
+            
+            session.commit()
+            
+            message = f"Cleaned up {deleted_count:,} events older than {retention_days} days"
+            logger.info(message)
+            
+            return deleted_count, message
+            
+        except Exception as e:
+            session.rollback()
+            error_msg = f"Event cleanup failed: {str(e)}"
+            logger.error(error_msg)
+            return 0, error_msg
 
 # Global service instance
 event_service = EventService()
