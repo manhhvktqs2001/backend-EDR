@@ -9,6 +9,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Query
 from sqlalchemy.orm import Session
 from sqlalchemy import func, text
 from datetime import datetime, timedelta
+import json
 
 from ...database import get_db
 from ...models.alert import Alert
@@ -462,39 +463,194 @@ async def get_agent_alerts(
         logger.error(f"Get agent alerts failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to get agent alerts")
 
-@router.post("/acknowledge/{alert_id}")
-async def acknowledge_alert(
+@router.post("/{alert_id}/acknowledge")
+async def acknowledge_alert_by_id(
     request: Request,
     alert_id: int,
-    acknowledged_by: str,
     session: Session = Depends(get_db)
 ):
-    """Acknowledge an alert"""
+    """Acknowledge an alert by ID - Enhanced for agent acknowledgment"""
     try:
+        # Get request body for acknowledgment details
+        body = await request.json()
+        
         alert = session.query(Alert).filter(Alert.AlertID == alert_id).first()
         if not alert:
             raise HTTPException(status_code=404, detail="Alert not found")
         
-        # Update alert to investigating status
-        alert.update_status(status='Investigating', assigned_to=acknowledged_by)
+        # Extract acknowledgment details
+        status = body.get('status', 'acknowledged')
+        acknowledged_by = body.get('acknowledged_by', 'agent')
+        details = body.get('details', {})
+        agent_id = body.get('agent_id')
+        
+        # Validate agent_id matches alert
+        if agent_id and str(alert.AgentID) != agent_id:
+            raise HTTPException(status_code=403, detail="Agent ID mismatch")
+        
+        # Update alert status
+        if status == 'acknowledged':
+            new_status = 'Investigating'
+        elif status == 'dismissed':
+            new_status = 'Suppressed'
+        else:
+            new_status = status
+        
+        alert.update_status(status=new_status, assigned_to=acknowledged_by)
+        
+        # Add acknowledgment details to response action
+        ack_details = f"Alert acknowledged at {datetime.now().isoformat()}"
+        if details.get('notification_displayed'):
+            ack_details += f" - Notification displayed via {details.get('display_method', 'unknown')}"
+        if details.get('agent_version'):
+            ack_details += f" - Agent version: {details['agent_version']}"
+        
+        alert.add_response_action(ack_details)
+        
         session.commit()
         
-        logger.info(f"Alert {alert_id} acknowledged by {acknowledged_by}")
+        logger.info(f"Alert {alert_id} acknowledged by {acknowledged_by} via agent")
         
         return {
             "success": True,
             "message": f"Alert acknowledged by {acknowledged_by}",
             "alert_id": alert_id,
             "acknowledged_by": acknowledged_by,
-            "new_status": "Investigating"
+            "new_status": new_status,
+            "acknowledgment_details": details,
+            "timestamp": datetime.now().isoformat()
         }
         
     except HTTPException:
         raise
     except Exception as e:
         session.rollback()
-        logger.error(f"Acknowledge alert failed: {str(e)}")
+        logger.error(f"Alert acknowledgment failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to acknowledge alert")
+
+@router.post("/{alert_id}/feedback")
+async def send_alert_feedback(
+    request: Request,
+    alert_id: int,
+    session: Session = Depends(get_db)
+):
+    """Send alert feedback from agent - NEW"""
+    try:
+        # Get request body
+        body = await request.json()
+        
+        alert = session.query(Alert).filter(Alert.AlertID == alert_id).first()
+        if not alert:
+            raise HTTPException(status_code=404, detail="Alert not found")
+        
+        # Extract feedback details
+        feedback_type = body.get('feedback_type', 'general')
+        feedback_data = body.get('feedback_data', {})
+        agent_id = body.get('agent_id')
+        timestamp = body.get('timestamp', datetime.now().isoformat())
+        
+        # Validate agent_id matches alert
+        if agent_id and str(alert.AgentID) != agent_id:
+            raise HTTPException(status_code=403, detail="Agent ID mismatch")
+        
+        # Add feedback to response action
+        feedback_text = f"Feedback ({feedback_type}) at {timestamp}"
+        if feedback_data:
+            feedback_text += f" - {json.dumps(feedback_data, default=str)}"
+        
+        alert.add_response_action(feedback_text)
+        
+        # Update alert based on feedback type
+        if feedback_type == "notification_displayed_successfully":
+            if feedback_data.get('display_success'):
+                alert.add_response_action("✅ Notification displayed successfully to user")
+            else:
+                alert.add_response_action("⚠️ Notification display failed")
+        
+        elif feedback_type == "user_clicked":
+            alert.add_response_action("👆 User clicked on notification")
+            alert.update_status(status='Investigating', assigned_to='user')
+        
+        elif feedback_type == "user_dismissed":
+            alert.add_response_action("❌ User dismissed notification")
+        
+        session.commit()
+        
+        logger.info(f"Alert {alert_id} feedback received: {feedback_type}")
+        
+        return {
+            "success": True,
+            "message": f"Feedback received for alert {alert_id}",
+            "alert_id": alert_id,
+            "feedback_type": feedback_type,
+            "timestamp": timestamp
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        logger.error(f"Alert feedback failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to process alert feedback")
+
+@router.put("/{alert_id}/status")
+async def update_alert_status_enhanced(
+    request: Request,
+    alert_id: int,
+    session: Session = Depends(get_db)
+):
+    """Update alert status - Enhanced for agent updates"""
+    try:
+        # Get request body
+        body = await request.json()
+        
+        alert = session.query(Alert).filter(Alert.AlertID == alert_id).first()
+        if not alert:
+            raise HTTPException(status_code=404, detail="Alert not found")
+        
+        # Extract update details
+        new_status = body.get('status')
+        updated_by = body.get('updated_by', 'agent')
+        details = body.get('details', {})
+        agent_id = body.get('agent_id')
+        
+        # Validate agent_id matches alert
+        if agent_id and str(alert.AgentID) != agent_id:
+            raise HTTPException(status_code=403, detail="Agent ID mismatch")
+        
+        # Validate status
+        valid_statuses = ['Open', 'Investigating', 'Resolved', 'False Positive', 'Suppressed']
+        if new_status not in valid_statuses:
+            raise HTTPException(status_code=400, detail=f"Invalid status. Must be one of {valid_statuses}")
+        
+        # Update alert
+        alert.update_status(status=new_status, assigned_to=updated_by)
+        
+        # Add status change details
+        status_text = f"Status updated to '{new_status}' by {updated_by}"
+        if details:
+            status_text += f" - {json.dumps(details, default=str)}"
+        alert.add_response_action(status_text)
+        
+        session.commit()
+        
+        logger.info(f"Alert {alert_id} status updated to {new_status} by {updated_by}")
+        
+        return {
+            "success": True,
+            "message": f"Alert status updated to {new_status}",
+            "alert_id": alert_id,
+            "new_status": new_status,
+            "updated_by": updated_by,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        session.rollback()
+        logger.error(f"Alert status update failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to update alert status")
 
 @router.get("/search/mitre")
 async def search_alerts_by_mitre(
