@@ -31,6 +31,15 @@ class ThreatLevel(str, Enum):
     MALICIOUS = "Malicious"
 
 # Event Submission Schema
+class GeneratedAlert(BaseModel):
+    id: int
+    title: str
+    description: str
+    severity: str
+    risk_score: int
+    timestamp: str
+    detection_method: str
+
 class EventSubmissionRequest(BaseModel):
     """Schema for generic event submission"""
     agent_id: str = Field(..., description="Agent ID")
@@ -127,10 +136,10 @@ class EventSubmissionResponse(BaseModel):
     """Schema for event submission response"""
     success: bool
     message: str
-    event_id: Optional[int] = None
+    event_id: int
     threat_detected: bool = False
     risk_score: int = 0
-    alerts_generated: List[int] = []
+    alerts_generated: List[GeneratedAlert] = []
 
 class EventBatchResponse(BaseModel):
     """Schema for batch event submission response"""

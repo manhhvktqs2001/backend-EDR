@@ -98,7 +98,7 @@ class EventService:
             # 5. REALTIME detection and alert creation
             threat_detected = False
             risk_score = 0
-            alert_id = None
+            alerts_generated = []
             
             try:
                 # Fast threat detection
@@ -116,18 +116,23 @@ class EventService:
                 if threat_detected:
                     alert = self._create_alert_realtime(session, event, agent, detection_result)
                     if alert:
-                        alert_id = alert.AlertID
+                        alerts_generated.append({
+                            'id': alert.AlertID,
+                            'title': alert.Title,
+                            'description': alert.Description,
+                            'severity': alert.Severity,
+                            'risk_score': alert.RiskScore,
+                            'timestamp': alert.FirstDetected.isoformat(),
+                            'detection_method': alert.DetectionMethod
+                        })
                         self.stats['alerts_created'] += 1
                         
-                        # Send immediate notification to agent with error handling
-                        try:
-                            asyncio.create_task(
-                                self._send_alert_to_agent(session, agent, alert)
-                            )
-                        except Exception as notification_error:
-                            logger.error(f"Failed to create notification task: {notification_error}")
+                        # Send immediate notification to agent
+                        asyncio.create_task(
+                            self._send_alert_to_agent(session, agent, alert)
+                        )
                         
-                        logger.warning(f"🚨 ALERT CREATED: ID={alert_id} for Event {event_id}")
+                        logger.warning(f"🚨 ALERT CREATED: ID={alert.AlertID} for Event {event_id}")
                 
             except Exception as e:
                 logger.error(f"Detection error: {e}")
@@ -160,7 +165,7 @@ class EventService:
                 event_id=event_id,
                 threat_detected=threat_detected,
                 risk_score=risk_score,
-                alerts_generated=[alert_id] if alert_id else []
+                alerts_generated=alerts_generated
             )
             
             return True, response, None
