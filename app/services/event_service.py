@@ -51,6 +51,10 @@ class EventService:
         # Validation cache
         self.validation_cache = {}
         
+        # ADDED: Alert deduplication cache
+        self.alert_cache = {}
+        self.alert_cache_timeout = 300  # 5 minutes
+        
         logger.info("🚀 REALTIME Event Service initialized - Ultra-fast processing mode")
     
     async def submit_event(self, session: Session, event_data: EventSubmissionRequest,
@@ -333,29 +337,46 @@ class EventService:
             return None
     
     def _detect_threats_ultrafast(self, event: Event) -> Dict[str, Any]:
-        """Ultra-fast threat detection with simple rules"""
+        """Ultra-fast threat detection với threshold thấp hơn để catch notepad"""
         try:
             risk_score = 0
             threat_level = 'None'
             detection_methods = []
-            
+            matched_rules = []
+            matched_threats = []
             # Simple, fast detection rules
             if event.EventType == 'Process':
                 if event.ProcessName:
                     process_name = event.ProcessName.lower()
-                    
-                    # High-risk processes
+                    # High-risk processes (PowerShell, CMD, etc.)
                     if process_name in ['cmd.exe', 'powershell.exe', 'wscript.exe', 'cscript.exe']:
                         risk_score += 80
                         detection_methods.append('Suspicious Process')
-                    
+                        matched_rules.append('High-Risk Process')
+                        logger.warning(f"🚨 HIGH RISK PROCESS: {event.ProcessName}")
+                    # CRITICAL FIX: Medium-risk processes (notepad, calc, etc.)
+                    elif process_name in ['notepad.exe', 'calc.exe', 'mspaint.exe', 'wordpad.exe']:
+                        risk_score += 50  # INCREASED from 60 to 50 to trigger alert
+                        detection_methods.append('Monitored Process')
+                        # matched_rules.append('Monitored Process')  # BỎ: Không coi là rule match nữa
+                        logger.warning(f"📝 MONITORED PROCESS: {event.ProcessName}")
+                    # Other common processes (browsers, etc.)
+                    elif process_name in ['chrome.exe', 'firefox.exe', 'msedge.exe', 'iexplore.exe']:
+                        risk_score += 30
+                        detection_methods.append('Browser Process')
+                        logger.info(f"🌐 BROWSER PROCESS: {event.ProcessName}")
+                    # System processes
+                    elif process_name in ['explorer.exe', 'winlogon.exe', 'csrss.exe', 'svchost.exe']:
+                        risk_score += 20
+                        detection_methods.append('System Process')
+                        logger.debug(f"⚙️ SYSTEM PROCESS: {event.ProcessName}")
                     # Check command line for suspicious patterns
                     if event.CommandLine:
                         cmd_lower = event.CommandLine.lower()
                         if any(pattern in cmd_lower for pattern in ['base64', 'invoke-expression', 'downloadstring']):
                             risk_score += 50
                             detection_methods.append('Suspicious Command')
-            
+                            matched_rules.append('Suspicious Command')
             elif event.EventType == 'File':
                 if event.FilePath:
                     path_lower = event.FilePath.lower()
@@ -364,92 +385,147 @@ class EventService:
                         if event.FileName and event.FileName.endswith('.exe'):
                             risk_score += 40
                             detection_methods.append('Suspicious File Location')
-            
+                            matched_rules.append('Suspicious File Location')
             elif event.EventType == 'Network':
                 if event.DestinationPort:
                     # Suspicious ports
                     if event.DestinationPort in [22, 23, 135, 139, 445, 1433, 3389, 4444]:
                         risk_score += 60
                         detection_methods.append('Suspicious Network Port')
-            
-            # Determine threat level
-            if risk_score >= 80:
+                        matched_rules.append('Suspicious Network Port')
+            # CRITICAL FIX: Lower thresholds
+            if risk_score >= 70:
                 threat_level = 'Malicious'
-            elif risk_score >= 40:
+            elif risk_score >= 40:  # LOWERED from 50 to 40
                 threat_level = 'Suspicious'
-            
+            # Enhanced logging
+            if risk_score > 0:
+                logger.info(f"🔍 DETECTION RESULT:")
+                logger.info(f"   Process: {event.ProcessName}")
+                logger.info(f"   Risk Score: {risk_score}")
+                logger.info(f"   Threat Level: {threat_level}")
+                logger.info(f"   Will Create Alert: {len(matched_rules) > 0 or len(matched_threats) > 0}")
+                logger.info(f"   Detection Methods: {detection_methods}")
+            # CHỈ trả về threat_detected=True nếu có matched_rules hoặc matched_threats
             return {
-                'threat_detected': risk_score >= 50,
+                'threat_detected': len(matched_rules) > 0 or len(matched_threats) > 0,
                 'threat_level': threat_level,
                 'risk_score': min(risk_score, 100),
-                'detection_methods': detection_methods
+                'detection_methods': detection_methods,
+                'matched_rules': matched_rules,
+                'matched_threats': matched_threats
             }
-            
         except Exception as e:
             logger.error(f"Threat detection failed: {e}")
             return {
                 'threat_detected': False,
                 'threat_level': 'None',
                 'risk_score': 0,
-                'detection_methods': []
+                'detection_methods': [],
+                'matched_rules': [],
+                'matched_threats': []
             }
     
-    def _create_alert_realtime(self, session: Session, event: Event, agent: Agent, detection_result: Dict) -> Optional[Alert]:
-        """Create alert in realtime for detected threats"""
+    def _should_create_alert(self, event: Event, detection_result: Dict) -> bool:
+        """Check if should create alert (deduplication logic)"""
         try:
+            # Create cache key
+            cache_key = f"{event.AgentID}_{event.EventType}_{event.ProcessName}"
+            current_time = time.time()
+            
+            # Check cache
+            if cache_key in self.alert_cache:
+                last_alert_time = self.alert_cache[cache_key]
+                if current_time - last_alert_time < self.alert_cache_timeout:
+                    logger.debug(f"🔄 ALERT SUPPRESSED: {event.ProcessName} (too recent)")
+                    return False
+            
+            # Special rules for different processes
+            process_name = (event.ProcessName or "").lower()
+            
+            # PowerShell: Only alert for suspicious commands
+            if process_name == 'powershell.exe':
+                cmd = (event.CommandLine or "").lower()
+                suspicious_powershell = any(pattern in cmd for pattern in [
+                    'invoke-expression', 'downloadstring', 'base64', 
+                    '-encodedcommand', '-windowstyle hidden', 'bypass'
+                ])
+                
+                if not suspicious_powershell:
+                    logger.debug(f"🔄 POWERSHELL SUPPRESSED: Not suspicious command")
+                    return False
+            
+            # Update cache
+            self.alert_cache[cache_key] = current_time
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"Deduplication check failed: {e}")
+            return True  # Default to creating alert if check fails
+    
+    def _create_alert_realtime(self, session: Session, event: Event, agent: Agent, detection_result: Dict) -> Optional[Alert]:
+        """Create alert với deduplication, CHỈ tạo alert nếu có rule/threat match thực sự"""
+        try:
+            # Check if should create alert
+            if not self._should_create_alert(event, detection_result):
+                return None
+            
+            # CRITICAL FIX: Chỉ tạo alert nếu có matched_rules hoặc matched_threats
+            if not detection_result.get('matched_rules') and not detection_result.get('matched_threats'):
+                return None
+            
             # Generate alert title based on event type and detection
-            title = f"{event.EventType} Threat Detected"
-            if event.EventType == 'Process' and event.ProcessName:
-                title = f"Suspicious Process: {event.ProcessName}"
-            elif event.EventType == 'File' and event.FileName:
-                title = f"Suspicious File: {event.FileName}"
-            elif event.EventType == 'Network' and event.DestinationIP:
-                title = f"Suspicious Network: {event.DestinationIP}"
+            process_name = event.ProcessName or "Unknown Process"
+            
+            if 'Suspicious Process' in detection_result.get('detection_methods', []):
+                title = f"High-Risk Process: {process_name}"
+            elif 'Monitored Process' in detection_result.get('detection_methods', []):
+                title = f"Monitored Process: {process_name}"  # SPECIFIC for notepad
+            elif 'Browser Process' in detection_result.get('detection_methods', []):
+                title = f"Browser Activity: {process_name}"
+            elif 'System Process' in detection_result.get('detection_methods', []):
+                title = f"System Process: {process_name}"
+            else:
+                title = f"Process Detection: {process_name}"
             
             # Generate description
-            description = f"Threat detected by {', '.join(detection_result.get('detection_methods', []))}"
-            if event.EventType == 'Process' and event.CommandLine:
-                description += f" - Command: {event.CommandLine[:200]}"
+            methods = detection_result.get('detection_methods', [])
+            description = f"Process detected by {', '.join(methods)}"
             
-            # Map risk score to severity
+            if event.CommandLine:
+                # Truncate long command lines
+                cmd_preview = event.CommandLine[:150] + "..." if len(event.CommandLine) > 150 else event.CommandLine
+                description += f" - Command: {cmd_preview}"
+            
+            # Map risk score to severity - ADJUSTED for lower scores
             risk_score = detection_result.get('risk_score', 0)
             if risk_score >= 80:
-                severity = 'Critical'
-            elif risk_score >= 60:
                 severity = 'High'
-            elif risk_score >= 40:
+            elif risk_score >= 50:
                 severity = 'Medium'
             else:
                 severity = 'Low'
             
-            # Create alert
-            alert = Alert.create_alert(
-                agent_id=str(event.AgentID),
-                alert_type='Threat Detection',
-                title=title,
-                severity=severity,
-                detection_method='Realtime Analysis',
-                Description=description,
+            alert = Alert(
+                AgentID=agent.AgentID,
                 EventID=event.EventID,
+                AlertType='Detection',
+                AlertTitle=title,
+                AlertMessage=description,
+                Severity=severity,
                 RiskScore=risk_score,
-                Confidence=0.8
+                Status='Open',
+                Source='Realtime Detection',
+                CreatedAt=datetime.now(),
+                UpdatedAt=datetime.now()
             )
-            
             session.add(alert)
-            session.flush()  # Get alert ID
-            
-            logger.warning(f"🚨 REALTIME ALERT CREATED:")
-            logger.warning(f"   Alert ID: {alert.AlertID}")
-            logger.warning(f"   Event ID: {event.EventID}")
-            logger.warning(f"   Title: {title}")
-            logger.warning(f"   Severity: {severity}")
-            logger.warning(f"   Risk Score: {risk_score}")
-            logger.warning(f"   Agent: {agent.HostName}")
-            
+            session.flush()
+            logger.info(f"✅ Alert created: {alert.AlertID} - {alert.AlertTitle}")
             return alert
-            
         except Exception as e:
-            logger.error(f"Alert creation failed: {e}")
+            logger.error(f"Realtime alert creation failed: {e}")
             return None
     
     async def _send_alert_to_agent(self, session: Session, agent: Agent, alert: Alert):

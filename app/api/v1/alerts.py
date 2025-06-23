@@ -134,6 +134,18 @@ async def list_alerts_implementation(
                 alert_data['hostname'] = agent.HostName
                 alert_data['agent_ip'] = agent.IPAddress
             
+            # BỔ SUNG: Nếu là rule/threat alert, thêm trường nhận diện cho agent
+            if getattr(alert, 'RuleID', None):
+                alert_data['rule_violation'] = True
+                alert_data['rule_id'] = alert.RuleID
+                alert_data['server_generated'] = True
+                alert_data['rule_name'] = getattr(alert, 'Title', None) or getattr(alert, 'AlertTitle', None)
+            if getattr(alert, 'ThreatID', None):
+                alert_data['rule_violation'] = True
+                alert_data['threat_id'] = alert.ThreatID
+                alert_data['server_generated'] = True
+                alert_data['rule_name'] = getattr(alert, 'Title', None) or getattr(alert, 'AlertTitle', None)
+            
             # Convert to AlertSummary object safely
             try:
                 alert_summary = AlertSummary(**alert_data)
@@ -892,3 +904,28 @@ async def search_alerts_by_mitre(
     except Exception as e:
         logger.error(f"MITRE search failed: {str(e)}")
         raise HTTPException(status_code=500, detail="MITRE search failed")
+
+@router.post("/cleanup-nonrule-alerts")
+async def cleanup_nonrule_alerts(
+    request: Request,
+    session: Session = Depends(get_db)
+):
+    """Cleanup (resolve) all alerts không phải rule/threat match (RuleID, ThreatID null/0, trạng thái Open/Investigating)"""
+    try:
+        alerts = session.query(Alert).filter(
+            (Alert.RuleID == None) | (Alert.RuleID == 0),
+            (Alert.ThreatID == None) | (Alert.ThreatID == 0),
+            Alert.Status.in_(['Open', 'Investigating'])
+        ).all()
+        count = 0
+        for alert in alerts:
+            alert.Status = 'Resolved'
+            alert.ResolvedAt = datetime.now()
+            count += 1
+        session.commit()
+        logger.info(f"✅ Cleaned up {count} non-rule alerts (set to Resolved)")
+        return {"success": True, "resolved_alerts": count}
+    except Exception as e:
+        session.rollback()
+        logger.error(f"Cleanup non-rule alerts failed: {e}")
+        return {"success": False, "error": str(e)}
