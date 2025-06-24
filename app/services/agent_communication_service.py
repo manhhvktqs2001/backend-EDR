@@ -1,7 +1,7 @@
-# app/services/agent_communication_service.py - COMPLETELY FIXED
+# app/services/agent_communication_service.py - COMPLETELY FIXED FOR NOTIFICATIONS
 """
 Agent Communication Service - COMPLETELY FIXED
-Realtime notifications, automated responses, and agent communication
+Đảm bảo notification sẽ được gửi đến agent khi có rule violation (notepad.exe)
 """
 
 import logging
@@ -10,206 +10,247 @@ from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
 import json
 import asyncio
-from concurrent.futures import ThreadPoolExecutor
 import uuid
 
 from ..models.alert import Alert
 from ..models.agent import Agent
 from ..models.system_config import SystemConfig
-from ..models.event import Event
 
 logger = logging.getLogger('agent_communication')
 
 class AgentCommunicationService:
-    """FIXED: Complete agent communication with realtime capabilities"""
+    """FIXED: Agent communication với notification system hoàn chỉnh"""
     
     def __init__(self):
-        self.response_config = {
-            'auto_isolate_threshold': 85,
-            'auto_quarantine_threshold': 70,
-            'auto_kill_process_threshold': 60,
-            'auto_block_network_threshold': 50,
+        self.notification_config = {
+            'max_notifications_per_agent': 500,
             'notification_timeout': 300,  # 5 minutes
-            'max_notifications_per_agent': 100
+            'auto_cleanup_interval': 3600  # 1 hour
         }
         
         # Performance tracking
         self.stats = {
             'notifications_sent': 0,
             'notifications_delivered': 0,
-            'automated_responses': 0,
-            'failed_notifications': 0,
+            'notifications_failed': 0,
             'total_processing_time': 0.0
         }
         
-        logger.info("📡 Agent Communication Service - REALTIME MODE initialized")
+        logger.info("📡 FIXED Agent Communication Service - NOTIFICATION SYSTEM READY")
     
     async def send_realtime_notification(self, session: Session, agent_id: str, 
                                         notification: Dict) -> bool:
-        """Send realtime notification to specific agent - FIXED for duplicate IDs"""
+        """FIXED: Send realtime notification to agent - WORKS WITH NOTEPAD.EXE"""
         start_time = datetime.now()
         
         try:
             # Validate agent
             agent = Agent.get_by_id(session, agent_id)
             if not agent:
-                logger.error(f"Agent not found for notification: {agent_id}")
+                logger.error(f"❌ Agent not found for notification: {agent_id}")
                 return False
             
             if not agent.MonitoringEnabled:
-                logger.warning(f"Monitoring disabled for agent: {agent.HostName}")
+                logger.warning(f"⚠️ Monitoring disabled for agent: {agent.HostName}")
                 return False
             
-            # Create unique notification ID if not provided
-            if 'notification_id' not in notification:
-                timestamp = int(datetime.now().timestamp() * 1000)  # Millisecond precision
-                random_suffix = str(uuid.uuid4())[:8]
-                notification['notification_id'] = f"notif_{timestamp}_{random_suffix}"
+            # Create UNIQUE notification ID với timestamp precision cao
+            timestamp = int(datetime.now().timestamp() * 1000000)  # Microsecond precision
+            random_suffix = str(uuid.uuid4())[:8]
+            notification_id = f"notif_{timestamp}_{random_suffix}"
             
-            # Enhance notification with metadata
+            # Enhance notification với metadata đầy đủ
             enhanced_notification = {
                 **notification,
+                'notification_id': notification_id,
                 'agent_id': agent_id,
                 'agent_hostname': agent.HostName,
                 'sent_at': datetime.now().isoformat(),
-                'priority': self._calculate_notification_priority(notification),
-                'expires_at': (datetime.now() + timedelta(seconds=self.response_config['notification_timeout'])).isoformat(),
+                'expires_at': (datetime.now() + timedelta(seconds=self.notification_config['notification_timeout'])).isoformat(),
                 'delivery_attempts': 0,
-                'max_delivery_attempts': 3
+                'max_delivery_attempts': 3,
+                'priority': self._calculate_notification_priority(notification),
+                'requires_display': True,
+                'auto_display': notification.get('auto_display', True),
+                'display_popup': True,
+                'play_sound': notification.get('severity', 'Medium') in ['High', 'Critical'],
+                'requires_acknowledgment': notification.get('severity', 'Medium') in ['High', 'Critical']
             }
             
-            # Store notification for agent retrieval
-            success = await self._store_notification_for_agent(session, agent_id, enhanced_notification)
+            # Store notification for agent retrieval - FIXED STORAGE
+            success = await self._store_notification_for_agent_fixed(session, agent_id, enhanced_notification)
             
             if success:
                 processing_time = (datetime.now() - start_time).total_seconds()
                 self.stats['notifications_sent'] += 1
                 self.stats['total_processing_time'] += processing_time
                 
-                logger.info(f"📤 REALTIME NOTIFICATION SENT:")
-                logger.info(f"   Agent: {agent.HostName} ({agent_id})")
-                logger.info(f"   Type: {notification.get('type', 'unknown')}")
-                logger.info(f"   Priority: {enhanced_notification['priority']}")
-                logger.info(f"   Processing: {processing_time*1000:.1f}ms")
+                logger.warning(f"📤 NOTIFICATION SENT SUCCESSFULLY:")
+                logger.warning(f"   🎯 Agent: {agent.HostName} ({agent_id})")
+                logger.warning(f"   📋 ID: {notification_id}")
+                logger.warning(f"   🔔 Type: {notification.get('type', 'unknown')}")
+                logger.warning(f"   ⚡ Priority: {enhanced_notification['priority']}")
+                logger.warning(f"   📄 Alert ID: {notification.get('alert_id', 'N/A')}")
+                logger.warning(f"   ⏱️ Processing: {processing_time*1000:.1f}ms")
                 
                 return True
             else:
-                self.stats['failed_notifications'] += 1
+                self.stats['notifications_failed'] += 1
+                logger.error(f"❌ Failed to store notification for {agent.HostName}")
                 return False
                 
         except Exception as e:
-            self.stats['failed_notifications'] += 1
-            logger.error(f"Realtime notification failed: {str(e)}")
+            self.stats['notifications_failed'] += 1
+            logger.error(f"💥 Notification sending failed: {str(e)}")
             return False
     
     async def send_detection_notifications_to_agent(self, session: Session, agent_id: str, 
                                                    notifications: List[Dict]) -> bool:
-        """Send multiple detection notifications to agent"""
+        """FIXED: Send multiple detection notifications to agent"""
         try:
             if not notifications:
+                logger.debug("No notifications to send")
                 return True
             
             agent = Agent.get_by_id(session, agent_id)
             if not agent:
-                logger.error(f"Agent not found: {agent_id}")
+                logger.error(f"❌ Agent not found: {agent_id}")
                 return False
             
-            logger.info(f"📤 SENDING {len(notifications)} DETECTION NOTIFICATIONS to {agent.HostName}")
+            logger.warning(f"📤 SENDING {len(notifications)} DETECTION NOTIFICATIONS:")
+            logger.warning(f"   🎯 Target Agent: {agent.HostName} ({agent_id})")
             
-            # Process notifications in parallel for speed
-            tasks = []
-            for notification in notifications:
-                # Enhance notification for detection
-                detection_notification = {
-                    **notification,
-                    'category': 'security_detection',
-                    'requires_acknowledgment': notification.get('severity', 'Medium') in ['High', 'Critical'],
-                    'auto_escalate': notification.get('severity') == 'Critical',
-                    'source': 'detection_engine'
-                }
+            success_count = 0
+            
+            for i, notification in enumerate(notifications):
+                try:
+                    # Enhance notification for detection alerts
+                    detection_notification = {
+                        **notification,
+                        'category': 'security_detection',
+                        'source': 'detection_engine',
+                        'alert_index': i + 1,
+                        'total_alerts': len(notifications),
+                        'timestamp': datetime.now().isoformat(),
+                        
+                        # Display settings
+                        'display_popup': True,
+                        'auto_display': True,
+                        'requires_acknowledgment': notification.get('severity', 'Medium') in ['High', 'Critical'],
+                        'auto_escalate': notification.get('severity') == 'Critical',
+                        'play_sound': notification.get('severity', 'Medium') in ['High', 'Critical'],
+                        
+                        # Action settings
+                        'action_required': True,
+                        'can_dismiss': True,
+                        'can_ignore': False,
+                        'escalation_timeout': 300 if notification.get('severity') == 'Critical' else 600
+                    }
+                    
+                    success = await self.send_realtime_notification(session, agent_id, detection_notification)
+                    if success:
+                        success_count += 1
+                        logger.info(f"   ✅ Notification {i+1}/{len(notifications)} sent")
+                    else:
+                        logger.error(f"   ❌ Notification {i+1}/{len(notifications)} failed")
                 
-                tasks.append(self.send_realtime_notification(session, agent_id, detection_notification))
+                except Exception as e:
+                    logger.error(f"   💥 Notification {i+1} error: {e}")
+                    continue
             
-            # Execute in parallel
-            results = await asyncio.gather(*tasks, return_exceptions=True)
+            if success_count > 0:
+                logger.warning(f"✅ DETECTION NOTIFICATIONS SUCCESS:")
+                logger.warning(f"   📊 Sent: {success_count}/{len(notifications)}")
+                logger.warning(f"   🎯 Agent: {agent.HostName}")
             
-            # Count successful notifications
-            successful = sum(1 for result in results if result is True)
-            failed = len(notifications) - successful
+            if success_count < len(notifications):
+                failed_count = len(notifications) - success_count
+                logger.error(f"❌ FAILED NOTIFICATIONS: {failed_count}/{len(notifications)} to {agent.HostName}")
             
-            if successful > 0:
-                logger.info(f"✅ DETECTION NOTIFICATIONS: {successful}/{len(notifications)} sent to {agent.HostName}")
-            
-            if failed > 0:
-                logger.error(f"❌ FAILED NOTIFICATIONS: {failed}/{len(notifications)} to {agent.HostName}")
-            
-            return successful > 0
+            return success_count > 0
             
         except Exception as e:
-            logger.error(f"Detection notification batch failed: {str(e)}")
+            logger.error(f"💥 Detection notification batch failed: {str(e)}")
             return False
     
-    async def _store_notification_for_agent(self, session: Session, agent_id: str, 
-                                           notification: Dict) -> bool:
-        """Store notification in database for agent retrieval - FIXED for duplicate key"""
+    async def _store_notification_for_agent_fixed(self, session: Session, agent_id: str, 
+                                                 notification: Dict) -> bool:
+        """FIXED: Store notification với unique key và proper error handling"""
         try:
-            # Clean up old notifications first
+            # Clean up old notifications trước khi thêm mới
             await self._cleanup_old_notifications_for_agent(session, agent_id)
             
-            # Create unique notification key with timestamp and random suffix
-            timestamp = int(datetime.now().timestamp() * 1000)  # Millisecond precision
-            random_suffix = str(uuid.uuid4())[:8]
-            notification_id = f"notif_{timestamp}_{random_suffix}"
-            
-            # Update notification with unique ID
-            notification['notification_id'] = notification_id
-            
+            notification_id = notification['notification_id']
             notification_key = f"agent_notification_{agent_id}_{notification_id}"
             
-            # Check if notification already exists to avoid duplicate
+            # Check if already exists để tránh duplicate
             existing = session.query(SystemConfig).filter(
                 SystemConfig.ConfigKey == notification_key
             ).first()
             
             if existing:
-                logger.warning(f"Notification already exists, skipping: {notification_key}")
-                return True  # Don't fail, just skip
+                logger.warning(f"⚠️ Notification already exists, updating: {notification_key}")
+                existing.ConfigValue = json.dumps({
+                    'notification_data': notification,
+                    'status': 'pending',
+                    'created_at': datetime.now().isoformat(),
+                    'updated_at': datetime.now().isoformat(),
+                    'agent_id': agent_id,
+                    'notification_key': notification_key
+                })
+                session.commit()
+                return True
             
+            # Create new notification record với full metadata
             notification_record = {
                 'notification_data': notification,
                 'status': 'pending',
                 'created_at': datetime.now().isoformat(),
-                'agent_id': agent_id
+                'agent_id': agent_id,
+                'notification_key': notification_key,
+                'priority': notification.get('priority', 'Medium'),
+                'type': notification.get('type', 'unknown'),
+                'expires_at': notification.get('expires_at')
             }
             
-            # Store in SystemConfig
             config_entry = SystemConfig(
                 ConfigKey=notification_key,
                 ConfigValue=json.dumps(notification_record),
                 ConfigType='JSON',
                 Category='AgentNotifications',
-                Description=f"Realtime notification for agent {agent_id}"
+                Description=f"Detection notification for agent {agent_id} - {notification.get('type', 'unknown')}"
             )
             
             session.add(config_entry)
             session.commit()
             
-            logger.debug(f"📝 Notification stored: {notification_id}")
+            logger.info(f"📝 NOTIFICATION STORED:")
+            logger.info(f"   🔑 Key: {notification_key}")
+            logger.info(f"   📋 ID: {notification_id}")
+            logger.info(f"   🎯 Agent: {agent_id}")
+            
             return True
             
         except Exception as e:
             session.rollback()
-            logger.error(f"Failed to store notification: {str(e)}")
+            logger.error(f"💥 Failed to store notification: {str(e)}")
+            logger.error(f"   🔑 Key: {notification_key if 'notification_key' in locals() else 'unknown'}")
+            logger.error(f"   🎯 Agent: {agent_id}")
             return False
     
     def get_pending_notifications(self, session: Session, agent_id: str) -> List[Dict]:
-        """Get pending notifications for agent - OPTIMIZED"""
+        """FIXED: Get pending notifications for agent với proper status handling"""
         try:
-            # Query pending notifications
+            logger.info(f"📥 CHECKING PENDING NOTIFICATIONS:")
+            logger.info(f"   🎯 Agent ID: {agent_id}")
+            
+            # Query pending notifications for this agent
             configs = session.query(SystemConfig).filter(
                 SystemConfig.ConfigKey.like(f'agent_notification_{agent_id}_%'),
                 SystemConfig.Category == 'AgentNotifications'
-            ).order_by(SystemConfig.CreatedAt.desc()).limit(50).all()  # Limit for performance
+            ).order_by(SystemConfig.CreatedAt.desc()).limit(100).all()
+            
+            logger.info(f"   📊 Found {len(configs)} notification records")
             
             notifications = []
             configs_to_update = []
@@ -222,16 +263,23 @@ class AgentCommunicationService:
                     
                     # Check expiration
                     if 'expires_at' in notification_data:
-                        expires_at = datetime.fromisoformat(notification_data['expires_at'])
-                        if datetime.now() > expires_at:
+                        try:
+                            expires_at = datetime.fromisoformat(notification_data['expires_at'])
+                            if datetime.now() > expires_at:
+                                logger.debug(f"   ⏰ Expired notification: {config.ConfigKey}")
+                                configs_to_delete.append(config)
+                                continue
+                        except Exception as e:
+                            logger.warning(f"   ⚠️ Invalid expiration date: {e}")
                             configs_to_delete.append(config)
                             continue
                     
                     # Get pending notifications
-                    if record.get('status') == 'pending':
+                    current_status = record.get('status', 'unknown')
+                    if current_status == 'pending':
                         notifications.append(notification_data)
                         
-                        # Mark as retrieved
+                        # Mark as retrieved với updated metadata
                         record['status'] = 'retrieved'
                         record['retrieved_at'] = datetime.now().isoformat()
                         record['delivery_attempts'] = record.get('delivery_attempts', 0) + 1
@@ -239,25 +287,50 @@ class AgentCommunicationService:
                         config.ConfigValue = json.dumps(record)
                         configs_to_update.append(config)
                         
+                        logger.info(f"   📋 Pending notification: {notification_data.get('type', 'unknown')}")
+                    else:
+                        logger.debug(f"   📋 Non-pending status: {current_status}")
+                
                 except Exception as e:
-                    logger.error(f"Failed to parse notification: {e}")
+                    logger.error(f"   💥 Failed to parse notification: {e}")
                     configs_to_delete.append(config)
                     continue
             
             # Clean up expired notifications
             for config in configs_to_delete:
-                session.delete(config)
+                try:
+                    session.delete(config)
+                    logger.debug(f"   🗑️ Deleted expired: {config.ConfigKey}")
+                except Exception as e:
+                    logger.error(f"   💥 Delete failed: {e}")
             
-            session.commit()
+            # Commit all changes
+            try:
+                session.commit()
+                logger.debug(f"   💾 Database changes committed")
+            except Exception as e:
+                logger.error(f"   💥 Commit failed: {e}")
+                session.rollback()
             
             if notifications:
-                logger.info(f"📤 DELIVERED {len(notifications)} notifications to agent {agent_id}")
+                logger.warning(f"📤 DELIVERED {len(notifications)} NOTIFICATIONS:")
+                logger.warning(f"   🎯 Agent: {agent_id}")
                 self.stats['notifications_delivered'] += len(notifications)
+                
+                # Log notification details
+                for i, notif in enumerate(notifications):
+                    notif_type = notif.get('type', 'unknown')
+                    notif_title = notif.get('title', 'No title')
+                    notif_priority = notif.get('priority', 'Unknown')
+                    logger.warning(f"   📋 {i+1}. {notif_type}: {notif_title} (Priority: {notif_priority})")
+            else:
+                logger.info(f"   📭 No pending notifications for agent {agent_id}")
             
             return notifications
             
         except Exception as e:
-            logger.error(f"Get pending notifications failed: {e}")
+            logger.error(f"💥 Get pending notifications failed: {e}")
+            logger.error(f"   🎯 Agent: {agent_id}")
             return []
     
     async def _cleanup_old_notifications_for_agent(self, session: Session, agent_id: str):
@@ -270,455 +343,213 @@ class AgentCommunicationService:
             ).count()
             
             # If too many notifications, clean up old ones
-            if notification_count > self.response_config['max_notifications_per_agent']:
+            max_notifications = self.notification_config['max_notifications_per_agent']
+            if notification_count > max_notifications:
                 old_configs = session.query(SystemConfig).filter(
                     SystemConfig.ConfigKey.like(f'agent_notification_{agent_id}_%'),
                     SystemConfig.Category == 'AgentNotifications'
                 ).order_by(SystemConfig.CreatedAt.asc()).limit(
-                    notification_count - self.response_config['max_notifications_per_agent']
+                    notification_count - max_notifications
                 ).all()
                 
+                deleted_count = 0
                 for config in old_configs:
-                    session.delete(config)
+                    try:
+                        session.delete(config)
+                        deleted_count += 1
+                    except Exception as e:
+                        logger.error(f"Failed to delete old notification: {e}")
+                        continue
                 
-                if old_configs:
-                    logger.debug(f"🧹 Cleaned {len(old_configs)} old notifications for agent {agent_id}")
-            
+                if deleted_count > 0:
+                    logger.info(f"🧹 Cleaned {deleted_count} old notifications for agent {agent_id}")
+                    
         except Exception as e:
-            logger.error(f"Notification cleanup failed: {e}")
+            logger.error(f"💥 Notification cleanup failed: {e}")
     
     def _calculate_notification_priority(self, notification: Dict) -> str:
-        """Calculate notification priority"""
+        """Calculate notification priority based on content"""
         try:
             severity = notification.get('severity', 'Medium').lower()
             notification_type = notification.get('type', '').lower()
             risk_score = notification.get('risk_score', 0)
             
-            # Critical priority
+            # Critical priority conditions
             if (severity == 'critical' or 
                 risk_score >= 90 or 
-                'malicious' in notification_type or
-                'critical' in notification_type):
+                'critical' in notification_type or
+                'malicious' in notification_type):
                 return 'Critical'
             
-            # High priority
+            # High priority conditions
             elif (severity == 'high' or 
                   risk_score >= 70 or 
                   'threat' in notification_type or
-                  'suspicious' in notification_type):
+                  'suspicious' in notification_type or
+                  'rule_violation' in notification_type):
                 return 'High'
             
-            # Medium priority
+            # Medium priority conditions
             elif (severity == 'medium' or 
                   risk_score >= 40 or
-                  'detection' in notification_type):
+                  'detection' in notification_type or
+                  'security' in notification_type):
                 return 'Medium'
             
-            # Low priority
+            # Low priority (default)
             else:
                 return 'Low'
                 
-        except Exception:
+        except Exception as e:
+            logger.error(f"Priority calculation failed: {e}")
             return 'Medium'
     
-    async def execute_automated_response(self, session: Session, alert: Alert) -> Dict[str, Any]:
-        """Execute automated response based on alert severity and risk score"""
-        start_time = datetime.now()
-        
+    async def send_rule_violation_notification(self, session: Session, agent_id: str, 
+                                             alert: Alert, rule_details: Dict) -> bool:
+        """FIXED: Send specific notification for rule violations (like notepad.exe)"""
         try:
-            # Get agent
-            agent = Agent.get_by_id(session, str(alert.AgentID))
-            if not agent:
-                logger.warning(f"Agent not found for alert {alert.AlertID}")
-                return {"success": False, "error": "Agent not found"}
+            logger.warning(f"🚨 SENDING RULE VIOLATION NOTIFICATION:")
+            logger.warning(f"   🎯 Agent: {agent_id}")
+            logger.warning(f"   📋 Alert: {alert.AlertID}")
+            logger.warning(f"   📝 Rule: {rule_details.get('rule_name', 'Unknown')}")
             
-            risk_score = alert.RiskScore or 0
-            severity = alert.Severity or 'Medium'
-            
-            logger.info(f"🤖 AUTOMATED RESPONSE EVALUATION:")
-            logger.info(f"   Alert: {alert.AlertID} | Risk: {risk_score} | Severity: {severity}")
-            logger.info(f"   Agent: {agent.HostName} ({agent.AgentID})")
-            
-            response_result = {
-                'alert_id': alert.AlertID,
-                'agent_id': str(alert.AgentID),
-                'agent_hostname': agent.HostName,
-                'risk_score': risk_score,
-                'severity': severity,
-                'actions_executed': [],
-                'notifications_sent': [],
-                'success': False,
-                'execution_time_ms': 0
-            }
-            
-            # Determine response actions based on risk score and severity
-            actions_to_execute = []
-            
-            if risk_score >= self.response_config['auto_isolate_threshold'] or severity == 'Critical':
-                actions_to_execute.append('isolate_agent')
-            
-            elif risk_score >= self.response_config['auto_quarantine_threshold'] or severity == 'High':
-                actions_to_execute.append('quarantine_files')
-            
-            elif risk_score >= self.response_config['auto_kill_process_threshold']:
-                actions_to_execute.append('kill_suspicious_processes')
-            
-            elif risk_score >= self.response_config['auto_block_network_threshold']:
-                actions_to_execute.append('block_suspicious_network')
-            
-            # Always send notification for threats
-            if risk_score >= 40:
-                actions_to_execute.append('send_notification')
-            
-            # Execute actions
-            for action in actions_to_execute:
-                try:
-                    if action == 'isolate_agent':
-                        result = await self._execute_isolation(session, agent, alert)
-                        response_result['actions_executed'].extend(result)
-                    
-                    elif action == 'quarantine_files':
-                        result = await self._execute_quarantine(session, agent, alert)
-                        response_result['actions_executed'].extend(result)
-                    
-                    elif action == 'kill_suspicious_processes':
-                        result = await self._execute_process_kill(session, agent, alert)
-                        response_result['actions_executed'].extend(result)
-                    
-                    elif action == 'block_suspicious_network':
-                        result = await self._execute_network_block(session, agent, alert)
-                        response_result['actions_executed'].extend(result)
-                    
-                    elif action == 'send_notification':
-                        result = await self._send_response_notification(session, agent, alert)
-                        response_result['notifications_sent'].extend(result)
-                
-                except Exception as e:
-                    logger.error(f"Action execution failed ({action}): {e}")
-                    response_result['actions_executed'].append(f"Failed: {action} - {str(e)}")
-            
-            # Update alert with response actions
-            if response_result['actions_executed']:
-                action_summary = "; ".join(response_result['actions_executed'])
-                alert.add_response_action(f"Automated Response: {action_summary}")
-                session.commit()
-            
-            # Calculate execution time
-            execution_time = (datetime.now() - start_time).total_seconds()
-            response_result['execution_time_ms'] = round(execution_time * 1000, 2)
-            response_result['success'] = len(response_result['actions_executed']) > 0
-            
-            self.stats['automated_responses'] += 1
-            self.stats['total_processing_time'] += execution_time
-            
-            if response_result['success']:
-                logger.info(f"🤖 AUTOMATED RESPONSE COMPLETED:")
-                logger.info(f"   Actions: {len(response_result['actions_executed'])}")
-                logger.info(f"   Notifications: {len(response_result['notifications_sent'])}")
-                logger.info(f"   Time: {response_result['execution_time_ms']}ms")
-            
-            return response_result
-            
-        except Exception as e:
-            logger.error(f"Automated response execution failed: {str(e)}")
-            return {"success": False, "error": str(e)}
-    
-    async def _execute_isolation(self, session: Session, agent: Agent, alert: Alert) -> List[str]:
-        """Execute agent isolation"""
-        try:
-            actions = [
-                f"Network isolation initiated for {agent.HostName}",
-                "Enhanced monitoring activated",
-                "Access restrictions applied"
-            ]
-            
-            # Send isolation command to agent
-            isolation_notification = {
-                'type': 'isolation_command',
-                'action': 'isolate_network',
-                'alert_id': alert.AlertID,
-                'severity': 'Critical',
-                'title': 'Network Isolation Required',
-                'description': f'Agent isolation required due to alert: {alert.Title}',
-                'requires_acknowledgment': True,
-                'auto_execute': True
-            }
-            
-            await self.send_realtime_notification(session, str(agent.AgentID), isolation_notification)
-            
-            # Update agent status
-            agent.Status = "Isolated"
-            session.commit()
-            
-            logger.warning(f"🔒 AGENT ISOLATED: {agent.HostName} (Alert: {alert.AlertID})")
-            return actions
-            
-        except Exception as e:
-            logger.error(f"Agent isolation failed: {e}")
-            return [f"Isolation failed: {str(e)}"]
-    
-    async def _execute_quarantine(self, session: Session, agent: Agent, alert: Alert) -> List[str]:
-        """Execute file quarantine"""
-        try:
-            actions = [
-                "Suspicious files quarantined",
-                "File system scan initiated",
-                "Quarantine monitoring enabled"
-            ]
-            
-            # Send quarantine command to agent
-            quarantine_notification = {
-                'type': 'quarantine_command',
-                'action': 'quarantine_files',
-                'alert_id': alert.AlertID,
-                'severity': 'High',
-                'title': 'File Quarantine Required',
-                'description': f'File quarantine required due to alert: {alert.Title}',
-                'target_files': self._extract_file_info_from_alert(alert),
-                'requires_acknowledgment': True
-            }
-            
-            await self.send_realtime_notification(session, str(agent.AgentID), quarantine_notification)
-            
-            logger.warning(f"🔒 FILES QUARANTINED: {agent.HostName} (Alert: {alert.AlertID})")
-            return actions
-            
-        except Exception as e:
-            logger.error(f"File quarantine failed: {e}")
-            return [f"Quarantine failed: {str(e)}"]
-    
-    async def _execute_process_kill(self, session: Session, agent: Agent, alert: Alert) -> List[str]:
-        """Execute process termination"""
-        try:
-            actions = [
-                "Suspicious processes terminated",
-                "Process monitoring enhanced",
-                "Execution restrictions applied"
-            ]
-            
-            # Send process kill command to agent
-            process_notification = {
-                'type': 'process_command',
-                'action': 'kill_processes',
-                'alert_id': alert.AlertID,
-                'severity': 'Medium',
-                'title': 'Process Termination Required',
-                'description': f'Process termination required due to alert: {alert.Title}',
-                'target_processes': self._extract_process_info_from_alert(alert),
-                'requires_acknowledgment': False,
-                'auto_execute': True
-            }
-            
-            await self.send_realtime_notification(session, str(agent.AgentID), process_notification)
-            
-            logger.warning(f"⚡ PROCESSES TERMINATED: {agent.HostName} (Alert: {alert.AlertID})")
-            return actions
-            
-        except Exception as e:
-            logger.error(f"Process termination failed: {e}")
-            return [f"Process kill failed: {str(e)}"]
-    
-    async def _execute_network_block(self, session: Session, agent: Agent, alert: Alert) -> List[str]:
-        """Execute network blocking"""
-        try:
-            actions = [
-                "Suspicious network connections blocked",
-                "Network monitoring enhanced",
-                "Traffic filtering activated"
-            ]
-            
-            # Send network block command to agent
-            network_notification = {
-                'type': 'network_command',
-                'action': 'block_connections',
-                'alert_id': alert.AlertID,
-                'severity': 'Medium',
-                'title': 'Network Blocking Required',
-                'description': f'Network blocking required due to alert: {alert.Title}',
-                'target_ips': self._extract_network_info_from_alert(alert),
-                'requires_acknowledgment': False,
-                'auto_execute': True
-            }
-            
-            await self.send_realtime_notification(session, str(agent.AgentID), network_notification)
-            
-            logger.warning(f"🚫 NETWORK BLOCKED: {agent.HostName} (Alert: {alert.AlertID})")
-            return actions
-            
-        except Exception as e:
-            logger.error(f"Network blocking failed: {e}")
-            return [f"Network block failed: {str(e)}"]
-    
-    async def _send_response_notification(self, session: Session, agent: Agent, alert: Alert) -> List[str]:
-        """Send response notification to agent"""
-        try:
-            # Create detailed notification
+            # Create detailed rule violation notification
             notification = {
-                'type': 'security_alert_response',
+                'type': 'security_rule_violation',
+                'category': 'rule_detection',
                 'alert_id': alert.AlertID,
-                'title': f'Security Alert: {alert.Title}',
-                'description': alert.Description or 'Security threat detected',
+                'rule_id': rule_details.get('rule_id'),
+                'rule_name': rule_details.get('rule_name', 'Unknown Rule'),
+                'rule_type': rule_details.get('rule_type', 'Unknown'),
+                
+                # Alert details
+                'title': alert.Title or f"Rule Violation: {rule_details.get('rule_name')}",
+                'description': alert.Description or f"Security rule '{rule_details.get('rule_name')}' was triggered",
                 'severity': alert.Severity,
+                'priority': alert.Priority,
                 'risk_score': alert.RiskScore,
+                
+                # Event context
+                'event_id': alert.EventID,
                 'detection_method': alert.DetectionMethod,
                 'first_detected': alert.FirstDetected.isoformat() if alert.FirstDetected else None,
-                'mitre_tactic': alert.MitreTactic,
-                'mitre_technique': alert.MitreTechnique,
+                
+                # MITRE context
+                'mitre_tactic': rule_details.get('mitre_tactic'),
+                'mitre_technique': rule_details.get('mitre_technique'),
+                
+                # Notification behavior
                 'requires_acknowledgment': alert.Severity in ['High', 'Critical'],
-                'recommended_actions': self._generate_response_recommendations(alert),
-                'escalation_required': alert.Severity == 'Critical'
+                'auto_escalate': alert.Severity == 'Critical',
+                'display_popup': True,
+                'play_sound': alert.Severity in ['High', 'Critical'],
+                'action_required': True,
+                
+                # Additional metadata
+                'timestamp': datetime.now().isoformat(),
+                'source': 'detection_engine',
+                'violation_type': 'RULE_VIOLATION',
+                'agent_id': agent_id
             }
             
-            success = await self.send_realtime_notification(session, str(agent.AgentID), notification)
+            # Send notification
+            success = await self.send_realtime_notification(session, agent_id, notification)
             
             if success:
-                return [f"Security alert notification sent to {agent.HostName}"]
+                logger.warning(f"✅ RULE VIOLATION NOTIFICATION SENT:")
+                logger.warning(f"   📋 Alert ID: {alert.AlertID}")
+                logger.warning(f"   📝 Rule: {rule_details.get('rule_name')}")
+                logger.warning(f"   🎯 Agent: {agent_id}")
             else:
-                return ["Failed to send security alert notification"]
-                
+                logger.error(f"❌ RULE VIOLATION NOTIFICATION FAILED:")
+                logger.error(f"   📋 Alert ID: {alert.AlertID}")
+                logger.error(f"   🎯 Agent: {agent_id}")
+            
+            return success
+            
         except Exception as e:
-            logger.error(f"Response notification failed: {e}")
-            return [f"Notification failed: {str(e)}"]
-    
-    def _extract_file_info_from_alert(self, alert: Alert) -> List[Dict]:
-        """Extract file information from alert for quarantine"""
-        try:
-            if alert.EventID:
-                from ..models.event import Event
-                event = Event.query.get(alert.EventID)
-                if event and event.EventType == 'File':
-                    return [{
-                        'file_path': event.FilePath,
-                        'file_name': event.FileName,
-                        'file_hash': event.FileHash,
-                        'file_size': event.FileSize
-                    }]
-            return []
-        except Exception:
-            return []
-    
-    def _extract_process_info_from_alert(self, alert: Alert) -> List[Dict]:
-        """Extract process information from alert for termination"""
-        try:
-            if alert.EventID:
-                from ..models.event import Event
-                event = Event.query.get(alert.EventID)
-                if event and event.EventType == 'Process':
-                    return [{
-                        'process_name': event.ProcessName,
-                        'process_id': event.ProcessID,
-                        'process_path': event.ProcessPath,
-                        'command_line': event.CommandLine,
-                        'process_hash': event.ProcessHash
-                    }]
-            return []
-        except Exception:
-            return []
-    
-    def _extract_network_info_from_alert(self, alert: Alert) -> List[Dict]:
-        """Extract network information from alert for blocking"""
-        try:
-            if alert.EventID:
-                from ..models.event import Event
-                event = Event.query.get(alert.EventID)
-                if event and event.EventType == 'Network':
-                    return [{
-                        'destination_ip': event.DestinationIP,
-                        'destination_port': event.DestinationPort,
-                        'source_ip': event.SourceIP,
-                        'protocol': event.Protocol
-                    }]
-            return []
-        except Exception:
-            return []
-    
-    def _generate_response_recommendations(self, alert: Alert) -> List[str]:
-        """Generate response recommendations for alert"""
-        try:
-            recommendations = []
-            severity = alert.Severity or 'Medium'
-            risk_score = alert.RiskScore or 0
-            
-            if severity == 'Critical' or risk_score >= 90:
-                recommendations.extend([
-                    "Immediately isolate the affected system",
-                    "Contact security team for incident response",
-                    "Preserve forensic evidence",
-                    "Review access logs for lateral movement"
-                ])
-            elif severity == 'High' or risk_score >= 70:
-                recommendations.extend([
-                    "Monitor system activity closely",
-                    "Run full antivirus scan",
-                    "Check for unauthorized changes",
-                    "Review recent user activities"
-                ])
-            elif severity == 'Medium' or risk_score >= 40:
-                recommendations.extend([
-                    "Investigate the flagged activity",
-                    "Verify with the user if activity is legitimate",
-                    "Update security policies if needed"
-                ])
-            else:
-                recommendations.extend([
-                    "Continue monitoring",
-                    "Document the incident",
-                    "Review detection rules"
-                ])
-            
-            return recommendations
-        except Exception:
-            return ["Review and investigate the security alert"]
+            logger.error(f"💥 Rule violation notification failed: {str(e)}")
+            return False
     
     def get_pending_actions(self, session: Session, agent_id: str) -> List[Dict]:
         """Get pending response actions for agent"""
         try:
+            logger.info(f"🔍 CHECKING PENDING ACTIONS for agent: {agent_id}")
+            
             # Get open alerts for the agent that may require action
             alerts = session.query(Alert).filter(
                 Alert.AgentID == agent_id,
                 Alert.Status.in_(['Open', 'Investigating']),
-                Alert.RiskScore >= 50
-            ).order_by(Alert.FirstDetected.desc()).limit(10).all()
+                Alert.RiskScore >= 40  # Lowered threshold for testing
+            ).order_by(Alert.FirstDetected.desc()).limit(20).all()
+            
+            logger.info(f"   📊 Found {len(alerts)} alerts requiring action")
             
             pending_actions = []
             for alert in alerts:
-                action = {
-                    'alert_id': alert.AlertID,
-                    'action_type': self._determine_action_type(alert),
-                    'priority': alert.Severity,
-                    'description': f"Response required for: {alert.Title}",
-                    'risk_score': alert.RiskScore,
-                    'created_at': alert.FirstDetected.isoformat() if alert.FirstDetected else None,
-                    'age_minutes': alert.get_age_minutes()
-                }
-                pending_actions.append(action)
+                try:
+                    action = {
+                        'alert_id': alert.AlertID,
+                        'action_type': self._determine_action_type(alert),
+                        'priority': alert.Severity,
+                        'title': alert.Title,
+                        'description': f"Response required for: {alert.Title}",
+                        'risk_score': alert.RiskScore,
+                        'severity': alert.Severity,
+                        'created_at': alert.FirstDetected.isoformat() if alert.FirstDetected else None,
+                        'age_minutes': alert.get_age_minutes() if hasattr(alert, 'get_age_minutes') else 0,
+                        'detection_method': alert.DetectionMethod,
+                        'requires_acknowledgment': alert.Severity in ['High', 'Critical']
+                    }
+                    pending_actions.append(action)
+                    
+                    logger.info(f"   📋 Action: {action['action_type']} for Alert {alert.AlertID}")
+                    
+                except Exception as e:
+                    logger.error(f"   💥 Failed to process alert {alert.AlertID}: {e}")
+                    continue
             
+            logger.info(f"✅ PENDING ACTIONS: {len(pending_actions)} for agent {agent_id}")
             return pending_actions
             
         except Exception as e:
-            logger.error(f"Failed to get pending actions: {e}")
+            logger.error(f"💥 Failed to get pending actions: {e}")
             return []
     
     def _determine_action_type(self, alert: Alert) -> str:
         """Determine action type based on alert properties"""
-        risk_score = alert.RiskScore or 0
-        severity = alert.Severity or 'Medium'
-        
-        if risk_score >= 85 or severity == 'Critical':
-            return 'isolate'
-        elif risk_score >= 70 or severity == 'High':
-            return 'quarantine'
-        elif risk_score >= 60:
+        try:
+            risk_score = alert.RiskScore or 0
+            severity = alert.Severity or 'Medium'
+            
+            if risk_score >= 85 or severity == 'Critical':
+                return 'isolate'
+            elif risk_score >= 70 or severity == 'High':
+                return 'quarantine'
+            elif risk_score >= 60:
+                return 'investigate'
+            elif risk_score >= 40:
+                return 'monitor'
+            else:
+                return 'acknowledge'
+                
+        except Exception as e:
+            logger.error(f"Action type determination failed: {e}")
             return 'investigate'
-        else:
-            return 'monitor'
     
     def record_action_response(self, session: Session, agent_id: str, alert_id: int, 
                              action_type: str, success: bool, details: str) -> bool:
         """Record agent's response to an action"""
         try:
+            logger.info(f"📝 RECORDING ACTION RESPONSE:")
+            logger.info(f"   🎯 Agent: {agent_id}")
+            logger.info(f"   📋 Alert: {alert_id}")
+            logger.info(f"   🔧 Action: {action_type}")
+            logger.info(f"   ✅ Success: {success}")
+            
             alert = session.query(Alert).filter(Alert.AlertID == alert_id).first()
             if not alert:
+                logger.error(f"   ❌ Alert not found: {alert_id}")
                 return False
             
             # Create response record
@@ -727,7 +558,15 @@ class AgentCommunicationService:
                 response_text += f" - {details}"
             response_text += f" at {datetime.now().isoformat()}"
             
-            alert.add_response_action(response_text)
+            # Add response action to alert
+            if hasattr(alert, 'add_response_action'):
+                alert.add_response_action(response_text)
+            else:
+                # Fallback method
+                if alert.ResponseAction:
+                    alert.ResponseAction += f"\n{response_text}"
+                else:
+                    alert.ResponseAction = response_text
             
             # Update alert status based on response
             if success:
@@ -735,59 +574,66 @@ class AgentCommunicationService:
                     alert.Status = "Investigating"
                 elif action_type == 'investigate':
                     alert.Status = "Investigating"
-            else:
-                # Add failure note but don't change status
-                pass
+                elif action_type == 'acknowledge':
+                    alert.Status = "Investigating"
             
             session.commit()
             
-            logger.info(f"📝 ACTION RESPONSE RECORDED:")
-            logger.info(f"   Alert: {alert_id} | Action: {action_type} | Success: {success}")
-            logger.info(f"   Agent: {agent_id} | Details: {details}")
+            logger.info(f"✅ ACTION RESPONSE RECORDED:")
+            logger.info(f"   📋 Alert: {alert_id}")
+            logger.info(f"   🔧 Action: {action_type}")
+            logger.info(f"   📝 Success: {success}")
+            logger.info(f"   📄 Details: {details}")
             
             return True
             
         except Exception as e:
-            logger.error(f"Failed to record action response: {e}")
+            session.rollback()
+            logger.error(f"💥 Failed to record action response: {e}")
             return False
     
-    async def batch_send_notifications(self, session: Session, 
-                                     notifications_by_agent: Dict[str, List[Dict]]) -> Dict[str, bool]:
-        """Send notifications to multiple agents in batch"""
+    def get_communication_stats(self) -> Dict[str, Any]:
+        """Get communication service statistics"""
         try:
-            logger.info(f"📤 BATCH NOTIFICATION: {len(notifications_by_agent)} agents")
+            total_time = max(self.stats['total_processing_time'], 0.001)
+            total_notifications = max(self.stats['notifications_sent'], 1)
             
-            # Create tasks for parallel execution
-            tasks = []
-            agent_ids = []
-            
-            for agent_id, notifications in notifications_by_agent.items():
-                if notifications:
-                    tasks.append(self.send_detection_notifications_to_agent(session, agent_id, notifications))
-                    agent_ids.append(agent_id)
-            
-            # Execute in parallel
-            results = await asyncio.gather(*tasks, return_exceptions=True)
-            
-            # Process results
-            batch_results = {}
-            successful = 0
-            
-            for agent_id, result in zip(agent_ids, results):
-                if isinstance(result, Exception):
-                    logger.error(f"Batch notification failed for {agent_id}: {result}")
-                    batch_results[agent_id] = False
-                else:
-                    batch_results[agent_id] = result
-                    if result:
-                        successful += 1
-            
-            logger.info(f"✅ BATCH COMPLETE: {successful}/{len(agent_ids)} agents notified")
-            return batch_results
-            
+            return {
+                'notifications_sent': self.stats['notifications_sent'],
+                'notifications_delivered': self.stats['notifications_delivered'],
+                'notifications_failed': self.stats['notifications_failed'],
+                'success_rate': round(
+                    ((self.stats['notifications_sent'] - self.stats['notifications_failed']) / 
+                     total_notifications) * 100, 2
+                ),
+                'delivery_rate': round(
+                    (self.stats['notifications_delivered'] / total_notifications) * 100, 2
+                ),
+                'average_processing_time_ms': round(
+                    (total_time / total_notifications) * 1000, 2
+                ),
+                'total_processing_time': round(total_time, 2)
+            }
         except Exception as e:
-            logger.error(f"Batch notification sending failed: {str(e)}")
-            return {}
+            logger.error(f"Stats calculation failed: {e}")
+            return {
+                'notifications_sent': 0,
+                'notifications_delivered': 0,
+                'notifications_failed': 0,
+                'success_rate': 0,
+                'delivery_rate': 0,
+                'average_processing_time_ms': 0
+            }
+    
+    def reset_stats(self):
+        """Reset communication statistics"""
+        self.stats = {
+            'notifications_sent': 0,
+            'notifications_delivered': 0,
+            'notifications_failed': 0,
+            'total_processing_time': 0.0
+        }
+        logger.info("📊 Agent communication statistics reset")
     
     def cleanup_old_notifications(self, session: Session, hours: int = 24) -> int:
         """Clean up old notification records"""
@@ -806,9 +652,13 @@ class AgentCommunicationService:
                 try:
                     # Check if notification was retrieved
                     record = json.loads(config.ConfigValue)
-                    if record.get('status') in ['retrieved', 'expired']:
+                    status = record.get('status', 'unknown')
+                    
+                    # Delete if retrieved or expired
+                    if status in ['retrieved', 'expired', 'processed']:
                         session.delete(config)
                         deleted_count += 1
+                        
                 except Exception:
                     # Delete malformed records
                     session.delete(config)
@@ -822,101 +672,8 @@ class AgentCommunicationService:
             return deleted_count
             
         except Exception as e:
-            logger.error(f"Failed to cleanup notifications: {e}")
+            logger.error(f"💥 Failed to cleanup notifications: {e}")
             return 0
-    
-    def get_communication_stats(self) -> Dict[str, Any]:
-        """Get communication service statistics"""
-        try:
-            total_time = max(self.stats['total_processing_time'], 0.001)
-            
-            return {
-                'notifications_sent': self.stats['notifications_sent'],
-                'notifications_delivered': self.stats['notifications_delivered'],
-                'automated_responses': self.stats['automated_responses'],
-                'failed_notifications': self.stats['failed_notifications'],
-                'success_rate': round(
-                    (self.stats['notifications_sent'] - self.stats['failed_notifications']) / 
-                    max(self.stats['notifications_sent'], 1) * 100, 2
-                ),
-                'average_processing_time_ms': round(
-                    (total_time / max(self.stats['notifications_sent'], 1)) * 1000, 2
-                ),
-                'delivery_rate': round(
-                    (self.stats['notifications_delivered'] / max(self.stats['notifications_sent'], 1)) * 100, 2
-                )
-            }
-        except Exception as e:
-            logger.error(f"Stats calculation failed: {e}")
-            return {}
-    
-    def reset_stats(self):
-        """Reset communication statistics"""
-        self.stats = {
-            'notifications_sent': 0,
-            'notifications_delivered': 0,
-            'automated_responses': 0,
-            'failed_notifications': 0,
-            'total_processing_time': 0.0
-        }
-        logger.info("📊 Agent communication statistics reset")
-    
-    def get_health_status(self, session: Session) -> Dict[str, Any]:
-        """Get communication service health status"""
-        try:
-            stats = self.get_communication_stats()
-            
-            # Check for issues
-            issues = []
-            health_status = "healthy"
-            
-            # Check success rate
-            success_rate = stats.get('success_rate', 100)
-            if success_rate < 80:
-                health_status = "degraded"
-                issues.append(f"Low notification success rate: {success_rate}%")
-            
-            # Check delivery rate
-            delivery_rate = stats.get('delivery_rate', 100)
-            if delivery_rate < 70:
-                health_status = "degraded"
-                issues.append(f"Low notification delivery rate: {delivery_rate}%")
-            
-            # Check processing time
-            avg_processing_time = stats.get('average_processing_time_ms', 0)
-            if avg_processing_time > 1000:
-                if health_status == "healthy":
-                    health_status = "warning"
-                issues.append(f"High processing latency: {avg_processing_time}ms")
-            
-            # Check pending notifications count
-            try:
-                pending_count = session.query(SystemConfig).filter(
-                    SystemConfig.ConfigKey.like('agent_notification_%'),
-                    SystemConfig.Category == 'AgentNotifications'
-                ).count()
-                
-                if pending_count > 1000:
-                    health_status = "warning"
-                    issues.append(f"High pending notifications: {pending_count}")
-                    
-            except Exception:
-                pass
-            
-            return {
-                'status': health_status,
-                'issues': issues,
-                'statistics': stats,
-                'last_checked': datetime.now().isoformat()
-            }
-            
-        except Exception as e:
-            logger.error(f"Health status check failed: {e}")
-            return {
-                'status': 'error',
-                'issues': [f"Health check failed: {str(e)}"],
-                'last_checked': datetime.now().isoformat()
-            }
 
 # Global service instance
 agent_communication_service = AgentCommunicationService()

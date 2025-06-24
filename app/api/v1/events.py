@@ -1,15 +1,16 @@
+# app/api/v1/events.py - FIXED VERSION for Detection Integration
 """
-Events API Endpoints - OPTIMIZED FOR REALTIME
-Event submission, processing, and management with zero-delay processing
+Events API Endpoints - FIXED
+Đảm bảo event processing sẽ trigger detection và tạo alert/notification cho notepad.exe
 """
 
 import logging
+import asyncio
 from typing import List, Optional, Dict
 from fastapi import APIRouter, Depends, HTTPException, Request, Header, Query, BackgroundTasks
 from sqlalchemy.orm import Session
 from datetime import datetime
 import time
-import asyncio
 
 from ...database import get_db
 from ...models.event import Event
@@ -28,14 +29,6 @@ router = APIRouter()
 # Get the event service instance
 event_service = get_event_service()
 
-# Performance tracking
-request_stats = {
-    'total_requests': 0,
-    'total_events': 0,
-    'total_processing_time': 0.0,
-    'last_reset': datetime.now()
-}
-
 # Authentication helper
 def verify_agent_token(x_agent_token: Optional[str] = Header(None)):
     """Verify agent authentication token"""
@@ -51,20 +44,31 @@ async def submit_event(
     session: Session = Depends(get_db),
     _: bool = Depends(verify_agent_token)
 ):
-    """Submit single event for REALTIME processing and immediate database storage"""
+    """FIXED: Submit single event với REALTIME detection for notepad.exe"""
     start_time = time.time()
     client_ip = request.client.host
     
     try:
-        # ENHANCED LOGGING: Log event received
-        logger.info(f"📥 EVENT RECEIVED: Type={event_data.event_type}, Action={event_data.event_action}, "
-                   f"Agent={event_data.agent_id}, Client={client_ip}")
+        logger.info(f"📥 EVENT SUBMISSION:")
+        logger.info(f"   🎯 Agent: {event_data.agent_id}")
+        logger.info(f"   📋 Type: {event_data.event_type}")
+        logger.info(f"   🔧 Action: {event_data.event_action}")
+        logger.info(f"   📡 Client: {client_ip}")
         
-        # Update request stats
-        request_stats['total_requests'] += 1
-        request_stats['total_events'] += 1
+        if event_data.event_type == 'Process' and event_data.process_name:
+            logger.info(f"   🖥️ Process: {event_data.process_name}")
+            logger.info(f"   📂 Path: {event_data.process_path}")
+            logger.info(f"   ⚡ Command: {event_data.command_line}")
+            
+            # Special logging for notepad.exe để track detection
+            if 'notepad.exe' in event_data.process_name.lower():
+                logger.warning(f"🎯 NOTEPAD.EXE DETECTED IN EVENT:")
+                logger.warning(f"   📋 Process: {event_data.process_name}")
+                logger.warning(f"   📂 Path: {event_data.process_path}")
+                logger.warning(f"   🎯 Agent: {event_data.agent_id}")
+                logger.warning(f"   🔔 This should trigger rule detection!")
         
-        # REALTIME processing
+        # Process event với detection engine
         success, response, error = await event_service.submit_event(session, event_data, client_ip)
         
         if not success:
@@ -73,15 +77,27 @@ async def submit_event(
         
         # Calculate processing time
         processing_time = time.time() - start_time
-        request_stats['total_processing_time'] += processing_time
         
-        # Log high-priority events immediately
+        # Enhanced logging for detection results
         if response.threat_detected:
-            logger.warning(f"🚨 THREAT EVENT STORED: ID={response.event_id}, "
-                         f"Risk={response.risk_score}, Client={client_ip}, Time={processing_time:.3f}s")
+            logger.warning(f"🚨 THREAT DETECTED & PROCESSED:")
+            logger.warning(f"   📋 Event ID: {response.event_id}")
+            logger.warning(f"   🎯 Risk Score: {response.risk_score}")
+            logger.warning(f"   📊 Alerts Generated: {len(response.alerts_generated)}")
+            logger.warning(f"   ⏱️ Processing Time: {processing_time:.3f}s")
+            logger.warning(f"   📡 Client: {client_ip}")
+            
+            # Log alert details
+            for alert in response.alerts_generated:
+                logger.warning(f"     📋 Alert: {alert['id']} - {alert['title']} (Severity: {alert['severity']})")
+            
+            # Verify notification was sent
+            if hasattr(response, 'notifications_sent'):
+                logger.warning(f"   📤 Notifications: {len(response.notifications_sent) if response.notifications_sent else 0}")
         else:
-            logger.debug(f"📝 Event stored: ID={response.event_id}, Type={event_data.event_type}, "
-                        f"Client={client_ip}, Time={processing_time:.3f}s")
+            logger.info(f"✅ Clean event processed:")
+            logger.info(f"   📋 Event ID: {response.event_id}")
+            logger.info(f"   ⏱️ Processing Time: {processing_time:.3f}s")
         
         # Add performance metrics to response
         response.message += f" (Processed in {processing_time:.3f}s)"
@@ -93,7 +109,7 @@ async def submit_event(
     except Exception as e:
         processing_time = time.time() - start_time
         error_msg = f"Event submission error after {processing_time:.3f}s: {str(e)}"
-        logger.error(error_msg)
+        logger.error(f"💥 {error_msg}")
         raise HTTPException(status_code=500, detail="Event submission failed")
 
 @router.post("/batch", response_model=EventBatchResponse)
@@ -104,25 +120,32 @@ async def submit_event_batch(
     session: Session = Depends(get_db),
     _: bool = Depends(verify_agent_token)
 ):
-    """Submit batch of events for REALTIME processing - OPTIMIZED FOR HIGH THROUGHPUT"""
+    """FIXED: Submit batch of events với REALTIME detection"""
     start_time = time.time()
     client_ip = request.client.host
     batch_size = len(batch_data.events)
     
     try:
-        # ENHANCED LOGGING: Log batch received
-        event_types = [event.event_type for event in batch_data.events]
-        logger.info(f"📥 BATCH RECEIVED: {batch_size} events, Types={list(set(event_types))}, "
-                   f"Agent={batch_data.agent_id}, Client={client_ip}")
+        logger.info(f"📥 BATCH SUBMISSION:")
+        logger.info(f"   📊 Size: {batch_size} events")
+        logger.info(f"   🎯 Agent: {batch_data.agent_id}")
+        logger.info(f"   📡 Client: {client_ip}")
         
-        # Update request stats
-        request_stats['total_requests'] += 1
-        request_stats['total_events'] += batch_size
+        # Check for notepad.exe in batch
+        notepad_events = []
+        for i, event in enumerate(batch_data.events):
+            if (event.event_type == 'Process' and 
+                event.process_name and 
+                'notepad.exe' in event.process_name.lower()):
+                notepad_events.append(i)
         
-        logger.info(f"🔄 REALTIME BATCH RECEIVED: {batch_size} events from {client_ip}")
+        if notepad_events:
+            logger.warning(f"🎯 NOTEPAD.EXE FOUND IN BATCH:")
+            logger.warning(f"   📊 Events: {notepad_events}")
+            logger.warning(f"   🔔 Should trigger rule detection!")
         
-        # REALTIME batch processing
-        success, response, error = await event_service.submit_event_batch(session, batch_data, client_ip)
+        # Process batch với detection
+        success, response, error = await event_service.submit_batch_events(session, batch_data, client_ip)
         
         if not success:
             logger.warning(f"❌ Batch submission failed from {client_ip}: {error}")
@@ -130,18 +153,26 @@ async def submit_event_batch(
         
         # Calculate processing metrics
         processing_time = time.time() - start_time
-        request_stats['total_processing_time'] += processing_time
         events_per_second = batch_size / processing_time if processing_time > 0 else 0
         
-        # Enhanced logging with performance metrics
-        logger.info(f"✅ BATCH PROCESSED: {response.processed_events}/{batch_size} events "
-                   f"from {client_ip} in {processing_time:.3f}s ({events_per_second:.1f} events/sec)")
+        # Enhanced logging for batch results
+        logger.info(f"✅ BATCH PROCESSED:")
+        logger.info(f"   📊 Total Events: {batch_size}")
+        logger.info(f"   ✅ Successful: {response.successful_events}")
+        logger.info(f"   ❌ Failed: {response.failed_events}")
+        logger.info(f"   🚨 Threats Detected: {response.threats_detected}")
+        logger.info(f"   📋 Alerts Generated: {len(response.alerts_generated)}")
+        logger.info(f"   ⏱️ Processing Time: {processing_time:.3f}s")
+        logger.info(f"   🚀 Events/sec: {events_per_second:.1f}")
         
-        if response.failed_events > 0:
-            logger.warning(f"⚠️ BATCH PARTIAL: {response.failed_events} failed events")
-        
-        # Add performance metrics to response
-        response.message += f" (Rate: {events_per_second:.1f} events/sec)"
+        if response.threats_detected > 0:
+            logger.warning(f"🚨 BATCH THREAT SUMMARY:")
+            logger.warning(f"   🎯 Threats: {response.threats_detected}")
+            logger.warning(f"   📋 Alerts: {len(response.alerts_generated)}")
+            
+            # Log each alert
+            for alert in response.alerts_generated:
+                logger.warning(f"     📋 Alert: {alert['id']} - {alert['title']}")
         
         return response
         
@@ -150,7 +181,7 @@ async def submit_event_batch(
     except Exception as e:
         processing_time = time.time() - start_time
         error_msg = f"Batch submission error after {processing_time:.3f}s: {str(e)}"
-        logger.error(error_msg)
+        logger.error(f"💥 {error_msg}")
         raise HTTPException(status_code=500, detail="Event batch submission failed")
 
 @router.get("/list", response_model=EventListResponse)
@@ -165,7 +196,7 @@ async def list_events(
     offset: int = Query(0, ge=0, description="Offset for pagination"),
     session: Session = Depends(get_db)
 ):
-    """List events with filtering and pagination - OPTIMIZED QUERIES"""
+    """List events with filtering and pagination"""
     try:
         # Build optimized query
         query = session.query(Event)
@@ -189,7 +220,7 @@ async def list_events(
             query = query.filter(Event.ThreatLevel == threat_level)
             filters_applied['threat_level'] = threat_level
         
-        # Time range filter - OPTIMIZED
+        # Time range filter
         if hours:
             from datetime import datetime, timedelta
             cutoff_time = datetime.now() - timedelta(hours=hours)
@@ -229,7 +260,7 @@ async def get_event_details(
     include_raw_data: bool = Query(False, description="Include raw event data"),
     session: Session = Depends(get_db)
 ):
-    """Get specific event details - OPTIMIZED SINGLE QUERY"""
+    """Get specific event details"""
     try:
         event = session.query(Event).filter(Event.EventID == event_id).first()
         if not event:
@@ -252,7 +283,7 @@ async def get_agent_recent_events(
     limit: int = Query(100, le=1000, description="Maximum events to return"),
     session: Session = Depends(get_db)
 ):
-    """Get recent events for specific agent - OPTIMIZED"""
+    """Get recent events for specific agent"""
     try:
         # Verify agent exists
         agent = Agent.get_by_id(session, agent_id)
@@ -286,7 +317,7 @@ async def get_event_statistics(
     hours: int = Query(24, description="Time range in hours"),
     session: Session = Depends(get_db)
 ):
-    """Get event statistics summary - INCLUDES REALTIME PERFORMANCE METRICS"""
+    """Get event statistics summary with REALTIME performance metrics"""
     try:
         # Get standard statistics
         stats = event_service.get_event_statistics(session, hours)
@@ -296,11 +327,9 @@ async def get_event_statistics(
         
         # Add realtime performance metrics
         perf_stats = event_service.get_performance_stats()
-        api_stats = get_api_performance_stats()
         
         stats.update({
             'realtime_performance': perf_stats,
-            'api_performance': api_stats,
             'database_mode': 'realtime_optimized'
         })
         
@@ -349,7 +378,7 @@ async def get_events_timeline(
     hours: int = Query(24, description="Time range in hours"),
     session: Session = Depends(get_db)
 ):
-    """Get events timeline for dashboard - OPTIMIZED AGGREGATION"""
+    """Get events timeline for dashboard charts"""
     try:
         timeline = event_service.get_events_timeline(session, hours)
         
@@ -372,7 +401,7 @@ async def get_suspicious_events(
     limit: int = Query(100, le=1000, description="Maximum events to return"),
     session: Session = Depends(get_db)
 ):
-    """Get recent suspicious or malicious events - HIGH PRIORITY EVENTS"""
+    """Get recent suspicious or malicious events"""
     try:
         events = event_service.get_suspicious_events(session, hours)
         
@@ -412,7 +441,7 @@ async def search_events(
     search_request: EventSearchRequest,
     session: Session = Depends(get_db)
 ):
-    """Advanced event search with multiple criteria - OPTIMIZED SEARCH"""
+    """Advanced event search with multiple criteria"""
     try:
         query = session.query(Event)
         
@@ -480,16 +509,8 @@ async def get_performance_statistics(
         # Get service performance stats
         service_stats = event_service.get_performance_stats()
         
-        # Get API performance stats
-        api_stats = get_api_performance_stats()
-        
-        # Get database performance
-        db_stats = get_database_performance_stats(session)
-        
         return {
             "service_performance": service_stats,
-            "api_performance": api_stats,
-            "database_performance": db_stats,
             "realtime_mode": True,
             "zero_delay_processing": True,
             "timestamp": datetime.now().isoformat()
@@ -508,9 +529,6 @@ async def reset_performance_stats(
     try:
         # Reset service stats
         event_service.reset_stats()
-        
-        # Reset API stats
-        reset_api_stats()
         
         logger.info("📊 Performance statistics reset")
         
@@ -586,55 +604,3 @@ async def get_realtime_health_status(
     except Exception as e:
         logger.error(f"Realtime health check failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Realtime health check failed")
-
-# Helper functions
-def get_api_performance_stats() -> Dict:
-    """Get API performance statistics"""
-    try:
-        uptime = datetime.now() - request_stats['last_reset']
-        avg_processing_time = (request_stats['total_processing_time'] / 
-                             max(request_stats['total_requests'], 1))
-        
-        return {
-            'total_requests': request_stats['total_requests'],
-            'total_events_processed': request_stats['total_events'],
-            'average_request_time_ms': round(avg_processing_time * 1000, 2),
-            'requests_per_second': round(request_stats['total_requests'] / max(uptime.total_seconds(), 1), 2),
-            'events_per_second': round(request_stats['total_events'] / max(uptime.total_seconds(), 1), 2),
-            'uptime_seconds': int(uptime.total_seconds())
-        }
-    except Exception:
-        return {}
-
-def reset_api_stats():
-    """Reset API performance statistics"""
-    global request_stats
-    request_stats = {
-        'total_requests': 0,
-        'total_events': 0,
-        'total_processing_time': 0.0,
-        'last_reset': datetime.now()
-    }
-
-def get_database_performance_stats(session: Session) -> Dict:
-    """Get database performance statistics"""
-    try:
-        from sqlalchemy import text
-        
-        # Simple database performance check
-        start_time = time.time()
-        result = session.execute(text("SELECT COUNT(*) FROM Events")).scalar()
-        query_time = (time.time() - start_time) * 1000
-        
-        return {
-            'total_events_in_db': result,
-            'query_response_time_ms': round(query_time, 2),
-            'connection_status': 'healthy'
-        }
-    except Exception as e:
-        return {
-            'total_events_in_db': 0,
-            'query_response_time_ms': 0,
-            'connection_status': 'error',
-            'error': str(e)
-        }

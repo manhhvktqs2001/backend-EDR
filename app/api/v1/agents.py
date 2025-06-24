@@ -1,7 +1,7 @@
-# app/api/v1/agents.py - FIXED VERSION (Add missing endpoints)
+# app/api/v1/agents.py - FIXED VERSION for Notification Retrieval
 """
 Agents API Endpoints - FIXED
-Added missing endpoints that agents are trying to access
+Đảm bảo agent có thể retrieve notifications khi có rule violation (notepad.exe)
 """
 
 import logging
@@ -83,7 +83,68 @@ async def heartbeat(
         logger.error(f"Heartbeat processing error: {str(e)}")
         raise HTTPException(status_code=500, detail="Heartbeat processing failed")
 
-# FIXED: Add missing pending-alerts endpoint
+# ========================================================================================
+# CRITICAL NOTIFICATION ENDPOINTS - FIXED FOR NOTEPAD.EXE DETECTION
+# ========================================================================================
+
+@router.get("/{agent_id}/notifications")
+async def get_detection_notifications(
+    request: Request,
+    agent_id: str,
+    session: Session = Depends(get_db),
+    _: bool = Depends(verify_agent_token)
+):
+    """FIXED: Get pending detection notifications for agent"""
+    try:
+        # Validate agent exists
+        agent = Agent.get_by_id(session, agent_id)
+        if not agent:
+            logger.error(f"❌ Agent not found: {agent_id}")
+            raise HTTPException(status_code=404, detail="Agent not found")
+        
+        logger.info(f"📥 NOTIFICATION REQUEST:")
+        logger.info(f"   🎯 Agent: {agent.HostName} ({agent_id})")
+        logger.info(f"   📡 Client IP: {request.client.host}")
+        
+        # Get notifications using the FIXED communication service
+        from ...services.agent_communication_service import agent_communication_service
+        
+        notifications = agent_communication_service.get_pending_notifications(session, agent_id)
+        
+        if notifications:
+            logger.warning(f"📤 NOTIFICATIONS DELIVERED:")
+            logger.warning(f"   🎯 Agent: {agent.HostName}")
+            logger.warning(f"   📊 Count: {len(notifications)}")
+            
+            # Log each notification for debugging
+            for i, notif in enumerate(notifications):
+                notif_type = notif.get('type', 'unknown')
+                notif_title = notif.get('title', 'No title')
+                notif_severity = notif.get('severity', 'Unknown')
+                alert_id = notif.get('alert_id', 'N/A')
+                logger.warning(f"   📋 {i+1}. {notif_type}: {notif_title} (Severity: {notif_severity}, Alert: {alert_id})")
+        else:
+            logger.info(f"📭 No pending notifications for {agent.HostName}")
+        
+        response = {
+            "success": True,
+            "agent_id": agent_id,
+            "hostname": agent.HostName,
+            "notifications": notifications,
+            "count": len(notifications),
+            "retrieved_at": datetime.now().isoformat(),
+            "client_ip": request.client.host
+        }
+        
+        return response
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"💥 Get notifications failed: {str(e)}")
+        logger.error(f"   🎯 Agent: {agent_id}")
+        raise HTTPException(status_code=500, detail="Failed to get notifications")
+
 @router.get("/{agent_id}/pending-alerts")
 async def get_pending_alerts(
     request: Request,
@@ -91,37 +152,58 @@ async def get_pending_alerts(
     session: Session = Depends(get_db),
     _: bool = Depends(verify_agent_token)
 ):
-    """Get pending alerts for agent - MISSING ENDPOINT FIXED"""
+    """FIXED: Get pending alerts for agent"""
     try:
         # Validate agent exists
         agent = Agent.get_by_id(session, agent_id)
         if not agent:
+            logger.error(f"❌ Agent not found: {agent_id}")
             raise HTTPException(status_code=404, detail="Agent not found")
+        
+        logger.info(f"📋 PENDING ALERTS REQUEST:")
+        logger.info(f"   🎯 Agent: {agent.HostName} ({agent_id})")
         
         # Get pending alerts for the agent
         pending_alerts = session.query(Alert).filter(
             Alert.AgentID == agent_id,
             Alert.Status.in_(['Open', 'Investigating'])
-        ).order_by(Alert.FirstDetected.desc()).limit(20).all()
+        ).order_by(Alert.FirstDetected.desc()).limit(50).all()
         
         alerts_data = []
         for alert in pending_alerts:
-            alerts_data.append({
-                'alert_id': alert.AlertID,
-                'title': alert.Title,
-                'description': alert.Description,
-                'severity': alert.Severity,
-                'priority': alert.Priority,
-                'risk_score': alert.RiskScore,
-                'detection_method': alert.DetectionMethod,
-                'first_detected': alert.FirstDetected.isoformat() if alert.FirstDetected else None,
-                'mitre_tactic': alert.MitreTactic,
-                'mitre_technique': alert.MitreTechnique,
-                'event_count': alert.EventCount,
-                'age_minutes': alert.get_age_minutes()
-            })
+            try:
+                alert_data = {
+                    'alert_id': alert.AlertID,
+                    'title': alert.Title,
+                    'description': alert.Description,
+                    'severity': alert.Severity,
+                    'priority': alert.Priority,
+                    'risk_score': alert.RiskScore or 0,
+                    'detection_method': alert.DetectionMethod,
+                    'first_detected': alert.FirstDetected.isoformat() if alert.FirstDetected else None,
+                    'mitre_tactic': alert.MitreTactic,
+                    'mitre_technique': alert.MitreTechnique,
+                    'event_count': alert.EventCount or 1,
+                    'status': alert.Status,
+                    'event_id': alert.EventID,
+                    'rule_id': alert.RuleID,
+                    'threat_id': alert.ThreatID,
+                    'age_minutes': alert.get_age_minutes() if hasattr(alert, 'get_age_minutes') else 0
+                }
+                alerts_data.append(alert_data)
+                
+            except Exception as e:
+                logger.error(f"   💥 Failed to process alert {alert.AlertID}: {e}")
+                continue
         
-        logger.info(f"📋 Retrieved {len(alerts_data)} pending alerts for agent {agent.HostName}")
+        logger.info(f"📋 PENDING ALERTS RESPONSE:")
+        logger.info(f"   🎯 Agent: {agent.HostName}")
+        logger.info(f"   📊 Alert Count: {len(alerts_data)}")
+        
+        if alerts_data:
+            # Log alert details
+            for alert in alerts_data:
+                logger.info(f"   📋 Alert {alert['alert_id']}: {alert['title']} (Severity: {alert['severity']})")
         
         return {
             "success": True,
@@ -135,10 +217,200 @@ async def get_pending_alerts(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error(f"Get pending alerts failed: {str(e)}")
+        logger.error(f"💥 Get pending alerts failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to get pending alerts")
 
-# NEW: Agent status check endpoint (often requested)
+@router.get("/{agent_id}/pending-actions")
+async def get_pending_actions(
+    request: Request,
+    agent_id: str,
+    session: Session = Depends(get_db),
+    _: bool = Depends(verify_agent_token)
+):
+    """FIXED: Get pending response actions for agent"""
+    try:
+        # Validate agent exists
+        agent = Agent.get_by_id(session, agent_id)
+        if not agent:
+            logger.error(f"❌ Agent not found: {agent_id}")
+            raise HTTPException(status_code=404, detail="Agent not found")
+        
+        logger.info(f"🔧 PENDING ACTIONS REQUEST:")
+        logger.info(f"   🎯 Agent: {agent.HostName} ({agent_id})")
+        
+        # Get pending actions using communication service
+        from ...services.agent_communication_service import agent_communication_service
+        
+        pending_actions = agent_communication_service.get_pending_actions(session, agent_id)
+        
+        logger.info(f"🔧 PENDING ACTIONS RESPONSE:")
+        logger.info(f"   🎯 Agent: {agent.HostName}")
+        logger.info(f"   📊 Action Count: {len(pending_actions)}")
+        
+        if pending_actions:
+            # Log action details
+            for action in pending_actions:
+                logger.info(f"   🔧 Action: {action['action_type']} for Alert {action['alert_id']}")
+        
+        return {
+            "success": True,
+            "agent_id": agent_id,
+            "hostname": agent.HostName,
+            "pending_actions": pending_actions,
+            "count": len(pending_actions),
+            "timestamp": datetime.now().isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"💥 Get pending actions failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get pending actions")
+
+@router.post("/{agent_id}/action-response")
+async def submit_action_response(
+    request: Request,
+    agent_id: str,
+    action_data: dict,
+    session: Session = Depends(get_db),
+    _: bool = Depends(verify_agent_token)
+):
+    """FIXED: Submit action response from agent"""
+    try:
+        # Validate agent exists
+        agent = Agent.get_by_id(session, agent_id)
+        if not agent:
+            logger.error(f"❌ Agent not found: {agent_id}")
+            raise HTTPException(status_code=404, detail="Agent not found")
+        
+        # Extract action data
+        alert_id = action_data.get('alert_id')
+        action_type = action_data.get('action_type')
+        success = action_data.get('success', False)
+        details = action_data.get('details', '')
+        
+        if not alert_id or not action_type:
+            raise HTTPException(status_code=400, detail="Missing alert_id or action_type")
+        
+        logger.info(f"📝 ACTION RESPONSE RECEIVED:")
+        logger.info(f"   🎯 Agent: {agent.HostName}")
+        logger.info(f"   📋 Alert: {alert_id}")
+        logger.info(f"   🔧 Action: {action_type}")
+        logger.info(f"   ✅ Success: {success}")
+        
+        # Record action response using communication service
+        from ...services.agent_communication_service import agent_communication_service
+        
+        result = agent_communication_service.record_action_response(
+            session, agent_id, alert_id, action_type, success, details
+        )
+        
+        if result:
+            logger.info(f"✅ ACTION RESPONSE RECORDED:")
+            logger.info(f"   🎯 Agent: {agent.HostName}")
+            logger.info(f"   📋 Alert: {alert_id}")
+            logger.info(f"   🔧 Action: {action_type}")
+            
+            return {
+                "success": True,
+                "message": "Action response recorded",
+                "agent_id": agent_id,
+                "alert_id": alert_id,
+                "action_type": action_type,
+                "recorded_at": datetime.now().isoformat()
+            }
+        else:
+            raise HTTPException(status_code=400, detail="Failed to record action response")
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"💥 Submit action response failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to submit action response")
+
+@router.post("/{agent_id}/acknowledge-notification")
+async def acknowledge_notification(
+    request: Request,
+    agent_id: str,
+    ack_data: dict,
+    session: Session = Depends(get_db),
+    _: bool = Depends(verify_agent_token)
+):
+    """FIXED: Acknowledge notification from agent"""
+    try:
+        # Validate agent exists
+        agent = Agent.get_by_id(session, agent_id)
+        if not agent:
+            logger.error(f"❌ Agent not found: {agent_id}")
+            raise HTTPException(status_code=404, detail="Agent not found")
+        
+        notification_id = ack_data.get('notification_id')
+        acknowledgment_type = ack_data.get('type', 'acknowledged')
+        details = ack_data.get('details', {})
+        
+        if not notification_id:
+            raise HTTPException(status_code=400, detail="Missing notification_id")
+        
+        logger.info(f"✅ NOTIFICATION ACKNOWLEDGMENT:")
+        logger.info(f"   🎯 Agent: {agent.HostName}")
+        logger.info(f"   📋 Notification: {notification_id}")
+        logger.info(f"   🔔 Type: {acknowledgment_type}")
+        
+        # Find and update notification status
+        try:
+            config = session.query(SystemConfig).filter(
+                SystemConfig.ConfigKey.like(f'agent_notification_{agent_id}_%'),
+                SystemConfig.ConfigKey.contains(notification_id.split('_')[-1]),
+                SystemConfig.Category == 'AgentNotifications'
+            ).first()
+            
+            if config:
+                record = json.loads(config.ConfigValue)
+                record['status'] = 'acknowledged'
+                record['acknowledged_at'] = datetime.now().isoformat()
+                record['acknowledgment_type'] = acknowledgment_type
+                record['acknowledgment_details'] = details
+                
+                config.ConfigValue = json.dumps(record)
+                session.commit()
+                
+                logger.info(f"✅ NOTIFICATION ACKNOWLEDGED:")
+                logger.info(f"   📋 ID: {notification_id}")
+                logger.info(f"   🎯 Agent: {agent.HostName}")
+                
+                return {
+                    "success": True,
+                    "message": "Notification acknowledged",
+                    "notification_id": notification_id,
+                    "agent_id": agent_id,
+                    "acknowledged_at": datetime.now().isoformat()
+                }
+            else:
+                logger.warning(f"⚠️ Notification not found: {notification_id}")
+                return {
+                    "success": False,
+                    "message": "Notification not found",
+                    "notification_id": notification_id
+                }
+                
+        except Exception as e:
+            logger.error(f"💥 Failed to update notification status: {e}")
+            return {
+                "success": False,
+                "message": "Failed to acknowledge notification",
+                "error": str(e)
+            }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"💥 Acknowledge notification failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to acknowledge notification")
+
+# ========================================================================================
+# EXISTING ENDPOINTS (unchanged)
+# ========================================================================================
+
 @router.get("/{agent_id}/status")
 async def get_agent_status(
     request: Request,
@@ -146,7 +418,7 @@ async def get_agent_status(
     session: Session = Depends(get_db),
     _: bool = Depends(verify_agent_token)
 ):
-    """Get agent status - NEW ENDPOINT"""
+    """Get agent status"""
     try:
         agent = Agent.get_by_id(session, agent_id)
         if not agent:
@@ -178,254 +450,6 @@ async def get_agent_status(
         logger.error(f"Get agent status failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to get agent status")
 
-# EXISTING: Detection notifications endpoint
-@router.get("/{agent_id}/notifications")
-async def get_detection_notifications(
-    request: Request,
-    agent_id: str,
-    session: Session = Depends(get_db),
-    _: bool = Depends(verify_agent_token)
-):
-    """Get pending detection notifications for agent"""
-    try:
-        # Validate agent exists
-        agent = Agent.get_by_id(session, agent_id)
-        if not agent:
-            raise HTTPException(status_code=404, detail="Agent not found")
-        
-        # Get pending notifications from system config
-        notifications = session.query(SystemConfig).filter(
-            SystemConfig.ConfigKey.like(f'agent_notification_{agent_id}_%'),
-            SystemConfig.Category == 'AgentNotifications'
-        ).all()
-        
-        notification_list = []
-        for config in notifications:
-            try:
-                notification_data = json.loads(config.ConfigValue)
-                if notification_data.get('status') == 'pending':
-                    notification_list.append(notification_data['notification_data'])
-                    
-                    # Mark as retrieved
-                    config.ConfigValue = json.dumps({
-                        **notification_data,
-                        'status': 'retrieved',
-                        'retrieved_at': datetime.now().isoformat()
-                    })
-                    
-            except Exception as e:
-                logger.error(f"Failed to parse notification: {e}")
-                continue
-        
-        session.commit()
-        
-        logger.info(f"📤 Sent {len(notification_list)} notifications to agent {agent.HostName}")
-        
-        return {
-            "success": True,
-            "agent_id": agent_id,
-            "notifications": notification_list,
-            "count": len(notification_list),
-            "retrieved_at": datetime.now().isoformat()
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Get notifications failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get notifications")
-
-# EXISTING: Pending actions endpoint
-@router.get("/{agent_id}/pending-actions")
-async def get_pending_actions(
-    request: Request,
-    agent_id: str,
-    session: Session = Depends(get_db),
-    _: bool = Depends(verify_agent_token)
-):
-    """Get pending response actions for agent"""
-    try:
-        from ...services.agent_communication_service import agent_communication_service
-        
-        # Validate agent exists
-        agent = Agent.get_by_id(session, agent_id)
-        if not agent:
-            raise HTTPException(status_code=404, detail="Agent not found")
-        
-        # Get pending actions
-        pending_actions = agent_communication_service.get_pending_actions(session, agent_id)
-        
-        return {
-            "success": True,
-            "agent_id": agent_id,
-            "hostname": agent.HostName,
-            "pending_actions": pending_actions,
-            "count": len(pending_actions),
-            "timestamp": datetime.now().isoformat()
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Get pending actions failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get pending actions")
-
-# NEW: Agent settings/config endpoint
-@router.get("/{agent_id}/settings")
-async def get_agent_settings(
-    request: Request,
-    agent_id: str,
-    session: Session = Depends(get_db),
-    _: bool = Depends(verify_agent_token)
-):
-    """Get agent settings/configuration - NEW ENDPOINT"""
-    try:
-        agent = Agent.get_by_id(session, agent_id)
-        if not agent:
-            raise HTTPException(status_code=404, detail="Agent not found")
-        
-        # Get agent config
-        config_response = agent_service.get_agent_config(session, agent_id)
-        if not config_response:
-            raise HTTPException(status_code=404, detail="Agent configuration not found")
-        
-        return {
-            "success": True,
-            "agent_id": agent_id,
-            "hostname": agent.HostName,
-            "settings": config_response.dict(),
-            "last_updated": datetime.now().isoformat()
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Get agent settings failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get agent settings")
-
-# NEW: Agent metrics endpoint
-@router.get("/{agent_id}/metrics")
-async def get_agent_metrics(
-    request: Request,
-    agent_id: str,
-    hours: int = Query(24, description="Time range in hours"),
-    session: Session = Depends(get_db),
-    _: bool = Depends(verify_agent_token)
-):
-    """Get agent metrics and statistics - NEW ENDPOINT"""
-    try:
-        agent = Agent.get_by_id(session, agent_id)
-        if not agent:
-            raise HTTPException(status_code=404, detail="Agent not found")
-        
-        # Get time range
-        cutoff_time = datetime.now() - timedelta(hours=hours)
-        
-        # Get event metrics
-        from ...models.event import Event
-        total_events = session.query(Event).filter(
-            Event.AgentID == agent_id,
-            Event.EventTimestamp >= cutoff_time
-        ).count()
-        
-        # Get alert metrics
-        total_alerts = session.query(Alert).filter(
-            Alert.AgentID == agent_id,
-            Alert.FirstDetected >= cutoff_time
-        ).count()
-        
-        open_alerts = session.query(Alert).filter(
-            Alert.AgentID == agent_id,
-            Alert.Status.in_(['Open', 'Investigating'])
-        ).count()
-        
-        # Event type breakdown
-        event_types = session.query(
-            Event.EventType,
-            func.count(Event.EventID).label('count')
-        ).filter(
-            Event.AgentID == agent_id,
-            Event.EventTimestamp >= cutoff_time
-        ).group_by(Event.EventType).all()
-        
-        return {
-            "success": True,
-            "agent_id": agent_id,
-            "hostname": agent.HostName,
-            "time_range_hours": hours,
-            "metrics": {
-                "total_events": total_events,
-                "total_alerts": total_alerts,
-                "open_alerts": open_alerts,
-                "events_per_hour": total_events // hours if hours > 0 else 0,
-                "event_types": {event_type: count for event_type, count in event_types}
-            },
-            "performance": {
-                "cpu_usage": float(agent.CPUUsage) if agent.CPUUsage else 0.0,
-                "memory_usage": float(agent.MemoryUsage) if agent.MemoryUsage else 0.0,
-                "disk_usage": float(agent.DiskUsage) if agent.DiskUsage else 0.0,
-                "network_latency": agent.NetworkLatency or 0
-            },
-            "generated_at": datetime.now().isoformat()
-        }
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Get agent metrics failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get agent metrics")
-
-# EXISTING: Action response endpoint
-@router.post("/{agent_id}/action-response")
-async def submit_action_response(
-    request: Request,
-    agent_id: str,
-    action_data: dict,
-    session: Session = Depends(get_db),
-    _: bool = Depends(verify_agent_token)
-):
-    """Submit action response from agent"""
-    try:
-        from ...services.agent_communication_service import agent_communication_service
-        
-        # Validate agent exists
-        agent = Agent.get_by_id(session, agent_id)
-        if not agent:
-            raise HTTPException(status_code=404, detail="Agent not found")
-        
-        # Extract action data
-        alert_id = action_data.get('alert_id')
-        action_type = action_data.get('action_type')
-        success = action_data.get('success', False)
-        details = action_data.get('details', '')
-        
-        if not alert_id or not action_type:
-            raise HTTPException(status_code=400, detail="Missing alert_id or action_type")
-        
-        # Record action response
-        result = agent_communication_service.record_action_response(
-            session, agent_id, alert_id, action_type, success, details
-        )
-        
-        if result:
-            logger.info(f"📝 Action response recorded: Agent {agent.HostName}, Alert {alert_id}, Action {action_type}")
-            return {
-                "success": True,
-                "message": "Action response recorded",
-                "agent_id": agent_id,
-                "alert_id": alert_id,
-                "action_type": action_type
-            }
-        else:
-            raise HTTPException(status_code=400, detail="Failed to record action response")
-        
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Submit action response failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to submit action response")
-
-# Keep all existing endpoints unchanged...
 @router.get("/config/{agent_id}", response_model=AgentConfigResponse)
 async def get_agent_config(
     request: Request,
