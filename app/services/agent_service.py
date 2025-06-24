@@ -78,7 +78,7 @@ class AgentService:
                 operating_system=registration_data.operating_system,
                 OSVersion=registration_data.os_version,
                 Architecture=registration_data.architecture,
-                AgentVersion=registration_data.agent_version,
+                AgentVersion='2.1.0',
                 MACAddress=registration_data.mac_address,
                 Domain=registration_data.domain,
                 InstallPath=registration_data.install_path,
@@ -136,7 +136,7 @@ class AgentService:
             existing_agent.OperatingSystem = registration_data.operating_system
             existing_agent.OSVersion = registration_data.os_version
             existing_agent.Architecture = registration_data.architecture
-            existing_agent.AgentVersion = registration_data.agent_version
+            existing_agent.AgentVersion = '2.1.0'
             existing_agent.MACAddress = registration_data.mac_address
             existing_agent.Domain = registration_data.domain
             existing_agent.InstallPath = registration_data.install_path

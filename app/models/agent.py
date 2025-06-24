@@ -45,7 +45,7 @@ class Agent(Base):
     Domain = Column(String(100))
     
     # Agent Information - matches DB defaults EXACTLY
-    AgentVersion = Column(String(32), nullable=False, default='1.0.0')
+    AgentVersion = Column(String(50), nullable=False, default='1.0.0')
     InstallPath = Column(String(500))
     
     # Status & Health - FIXED: matches DEFAULT values exactly

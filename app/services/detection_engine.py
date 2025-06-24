@@ -948,27 +948,6 @@ class DetectionEngine:
                 
                 logger.info(f"✅ Threat alert created: {alert.AlertID}")
             
-            # If no specific rule/threat alerts, create a general behavioral alert
-            # ĐÃ FIX: KHÔNG tạo alert behavioral nếu không có rule/threat match
-            # if not alerts_created and detection_results.get('behavioral_indicators'):
-            #     alert = Alert(
-            #         AgentID=agent.AgentID,
-            #         EventID=event.EventID,
-            #         AlertType='Behavioral',
-            #         AlertTitle='Suspicious Behavior Detected',
-            #         AlertMessage=self._generate_behavioral_alert_message(event, detection_results),
-            #         Severity=detection_results['threat_level'],
-            #         RiskScore=detection_results['risk_score'],
-            #         Status='Open',
-            #         Source='Behavioral Analysis',
-            #         CreatedAt=datetime.now(),
-            #         UpdatedAt=datetime.now()
-            #     )
-            #     session.add(alert)
-            #     session.flush()
-            #     alerts_created.append(str(alert.AlertID))
-            #     logger.info(f"✅ Behavioral alert created: {alert.AlertID}")
-            
             # Commit all alerts
             session.commit()
             
@@ -1121,24 +1100,6 @@ class DetectionEngine:
             f"Value: {threat_detail.get('field_value', 'Unknown')}",
             f"Source: {threat_detail.get('source', 'Unknown')}"
         ]
-        
-        return " | ".join(message_parts)
-    
-    def _generate_behavioral_alert_message(self, event: Event, detection_results: Dict) -> str:
-        """Generate alert message for behavioral detection"""
-        indicators = detection_results.get('behavioral_indicators', [])
-        
-        message_parts = [
-            f"Suspicious behavior detected with {len(indicators)} indicators.",
-            f"Event: {event.EventType} - {event.EventAction}",
-        ]
-        
-        if indicators:
-            message_parts.append(f"Indicators: {', '.join(indicators[:3])}")
-            if len(indicators) > 3:
-                message_parts.append(f"(+{len(indicators) - 3} more)")
-        
-        message_parts.append(f"Risk Score: {detection_results['risk_score']}")
         
         return " | ".join(message_parts)
     
