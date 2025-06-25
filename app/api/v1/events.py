@@ -89,7 +89,7 @@ async def submit_event(
             
             # Log alert details
             for alert in response.alerts_generated:
-                logger.warning(f"     📋 Alert: {alert['id']} - {alert['title']} (Severity: {alert['severity']})")
+                logger.warning(f"     📋 Alert: {alert.id} - {alert.title} (Severity: {alert.severity})")
             
             # Verify notification was sent
             if hasattr(response, 'notifications_sent'):
