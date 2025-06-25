@@ -769,8 +769,9 @@ class DetectionEngine:
         }
         logger.info("📊 Detection engine statistics reset")
 
+
 # =============================================================================
-# SINGLETON INSTANCE
+# SINGLETON INSTANCE & FUNCTIONS - FIXED
 # =============================================================================
 
 # Global instance
@@ -784,5 +785,10 @@ def get_detection_service() -> DetectionEngine:
         logger.info("🔍 Detection Engine singleton created")
     return _detection_engine_instance
 
-# Also create the detection_engine instance for backward compatibility
-detection_engine = get_detection_service()
+# Create the main instance
+detection_engine = DetectionEngine()
+
+# Backward compatibility functions
+def get_detection_engine() -> DetectionEngine:
+    """Backward compatibility function"""
+    return get_detection_service()

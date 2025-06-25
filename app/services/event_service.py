@@ -22,8 +22,6 @@ from ..schemas.event import (
     EventBatchRequest, EventBatchResponse
 )
 from ..config import config
-from ..services.detection_engine import get_detection_service
-from ..services.alert_service import get_alert_service
 
 logger = logging.getLogger(__name__)
 
@@ -82,6 +80,9 @@ class EventService:
             
             # Run detection engine with proper error handling
             try:
+                # Import detection service locally to avoid circular imports
+                from .detection_engine import get_detection_service
+                
                 detection_service = get_detection_service()
                 detection_result = await detection_service.analyze_event_and_create_alerts(
                     session=session,
@@ -104,6 +105,9 @@ class EventService:
                     # Generate alerts if threats detected
                     alerts_generated = []
                     if detection_result.get('threat_detected', False):
+                        # Import alert service locally to avoid circular imports
+                        from .alert_service import get_alert_service
+                        
                         alert_service = get_alert_service()
                         alert = await alert_service.create_alert_from_detection(
                             session=session,
