@@ -674,6 +674,72 @@ class AgentCommunicationService:
         except Exception as e:
             logger.error(f"💥 Failed to cleanup notifications: {e}")
             return 0
+    
+    async def send_realtime_alert_to_agent(self, session: Session, agent: Agent, 
+                                          detection_results: Dict, alerts_generated: List[Dict]) -> bool:
+        """REALTIME: Send immediate alert notification to agent"""
+        try:
+            if not agent or not agent.MonitoringEnabled:
+                logger.debug(f"Agent {agent.AgentID if agent else 'None'} not available for realtime alert")
+                return False
+            
+            # Create real-time notification payload
+            notification_data = {
+                'type': 'realtime_alert',
+                'timestamp': datetime.now().isoformat(),
+                'agent_id': str(agent.AgentID),
+                'hostname': agent.HostName,
+                'threat_detected': detection_results.get('threat_detected', False),
+                'risk_score': detection_results.get('risk_score', 0),
+                'threat_level': 'None',  # Use 'None' to avoid constraint issues
+                'detection_methods': detection_results.get('detection_methods', []),
+                'alerts': alerts_generated,
+                'matched_rules': detection_results.get('matched_rules', []),
+                'event_details': {
+                    'event_id': detection_results.get('event_id'),
+                    'event_type': detection_results.get('event_type'),
+                    'process_name': detection_results.get('process_name'),
+                    'process_path': detection_results.get('process_path')
+                },
+                'source': 'detection_engine',
+                'priority': 'high',
+                'requires_immediate_action': True
+            }
+            
+            # Store alert in database for agent to retrieve
+            from ..models.alert import Alert
+            
+            alert = Alert.create_alert(
+                agent_id=str(agent.AgentID),
+                title=f"🚨 THREAT DETECTED - Risk Score: {detection_results.get('risk_score', 0)}",
+                description=f"Real-time threat detection triggered. {len(alerts_generated)} alerts generated.",
+                severity='High',
+                alert_type='RealtimeDetection',
+                detection_method='Rule Engine',
+                threat_level='None',  # Use 'None' to avoid constraint issues
+                risk_score=detection_results.get('risk_score', 0),
+                additional_data=notification_data
+            )
+            
+            session.add(alert)
+            session.commit()
+            
+            logger.warning(f"📤 REALTIME ALERT STORED for agent {agent.HostName}:")
+            logger.warning(f"   Alert ID: {alert.AlertID}")
+            logger.warning(f"   Threat Level: {detection_results.get('threat_level', 'None')}")
+            logger.warning(f"   Risk Score: {detection_results.get('risk_score', 0)}")
+            logger.warning(f"   Alerts: {len(alerts_generated)}")
+            
+            # Log alert details
+            for alert_info in alerts_generated:
+                logger.warning(f"     📋 Alert: {alert_info.get('title', 'Unknown')} (Severity: {alert_info.get('severity', 'Unknown')})")
+            
+            return True
+            
+        except Exception as e:
+            session.rollback()
+            logger.error(f"❌ Failed to send realtime alert to agent {agent.AgentID if agent else 'None'}: {e}")
+            return False
 
 # Global service instance
 agent_communication_service = AgentCommunicationService()

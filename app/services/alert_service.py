@@ -391,16 +391,20 @@ class AlertService:
             return 0
     
     def cleanup_old_alerts(self, session: Session, retention_days: int = None) -> int:
-        """Clean up old resolved alerts"""
+        """Clean up old alerts based on retention policy"""
         try:
-            retention = retention_days or self.alert_config.get('alert_retention_days', 90)
-            cutoff_date = datetime.now() - timedelta(days=retention)
+            retention_days = retention_days or self.alert_config.get('retention_days', 90)
+            cutoff_date = datetime.now() - timedelta(days=retention_days)
             
-            # Delete old resolved alerts
-            deleted_count = session.query(Alert).filter(
-                Alert.Status.in_(['Resolved', 'False Positive']),
-                Alert.ResolvedAt < cutoff_date
-            ).delete()
+            # Find old alerts to delete
+            old_alerts = session.query(Alert).filter(
+                Alert.FirstDetected < cutoff_date
+            ).all()
+            
+            deleted_count = 0
+            for alert in old_alerts:
+                session.delete(alert)
+                deleted_count += 1
             
             session.commit()
             
@@ -413,6 +417,81 @@ class AlertService:
             session.rollback()
             logger.error(f"Alert cleanup failed: {str(e)}")
             return 0
+    
+    async def create_alert_from_detection(self, session: Session, event_id: int, 
+                                        detection_result: Dict, agent_id: str) -> Optional[Alert]:
+        """Create alert from detection engine results"""
+        try:
+            # Extract detection information
+            threat_detected = detection_result.get('threat_detected', False)
+            risk_score = detection_result.get('risk_score', 0)
+            detection_methods = detection_result.get('detection_methods', [])
+            matched_rules = detection_result.get('matched_rules', [])
+            
+            if not threat_detected:
+                return None
+            
+            # Determine alert type and severity
+            alert_type = "Threat Detection"
+            severity = self._determine_severity(risk_score)
+            
+            # Create alert title
+            if matched_rules:
+                rule_names = [rule.get('name', 'Unknown Rule') for rule in matched_rules]
+                title = f"Rule Violation: {', '.join(rule_names)}"
+            else:
+                title = f"Threat Detected (Risk Score: {risk_score})"
+            
+            # Create alert description
+            description = f"Threat detected with risk score {risk_score}. "
+            if detection_methods:
+                description += f"Detection methods: {', '.join(detection_methods)}"
+            
+            # Create the alert
+            alert = self.create_alert(
+                session=session,
+                agent_id=agent_id,
+                alert_type=alert_type,
+                title=title,
+                severity=severity,
+                detection_method="Detection Engine",
+                description=description,
+                risk_score=risk_score,
+                event_id=event_id,
+                raw_detection_data=detection_result
+            )
+            
+            if alert:
+                logger.warning(f"🚨 ALERT CREATED from detection: ID={alert.AlertID}, Title={title}")
+            
+            return alert
+            
+        except Exception as e:
+            logger.error(f"Failed to create alert from detection: {e}")
+            return None
+    
+    def _determine_severity(self, risk_score: int) -> str:
+        """Determine alert severity from risk score"""
+        if risk_score >= 80:
+            return "Critical"
+        elif risk_score >= 60:
+            return "High"
+        elif risk_score >= 40:
+            return "Medium"
+        else:
+            return "Low"
 
-# Global service instance
-alert_service = AlertService()
+# =============================================================================
+# SINGLETON INSTANCE
+# =============================================================================
+
+# Global instance
+_alert_service_instance = None
+
+def get_alert_service() -> AlertService:
+    """Get singleton alert service instance"""
+    global _alert_service_instance
+    if _alert_service_instance is None:
+        _alert_service_instance = AlertService()
+        logger.info("🚨 Alert Service singleton created")
+    return _alert_service_instance

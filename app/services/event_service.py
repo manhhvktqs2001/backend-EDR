@@ -1,7 +1,7 @@
-# app/services/event_service.py - FIXED FOR RULE DETECTION
+# app/services/event_service.py - FIXED VERSION
 """
-Event Processing Service - FIXED FOR RULE DETECTION
-Ensures proper rule checking and alert creation for events like notepad.exe
+Event Service - Handles event submission and processing
+Fixed for proper error handling and database constraints
 """
 
 import logging
@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from typing import Optional, Dict, List, Tuple, Any
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from sqlalchemy.exc import IntegrityError, DataError
+from sqlalchemy.exc import IntegrityError, DataError, SQLAlchemyError
 import time
 import json
 import uuid
@@ -22,8 +22,10 @@ from ..schemas.event import (
     EventBatchRequest, EventBatchResponse
 )
 from ..config import config
+from ..services.detection_engine import get_detection_service
+from ..services.alert_service import get_alert_service
 
-logger = logging.getLogger('event_processing')
+logger = logging.getLogger(__name__)
 
 class EventService:
     """FIXED Event processing service with proper rule detection"""
@@ -52,109 +54,101 @@ class EventService:
     
     async def submit_event(self, session: Session, event_data: EventSubmissionRequest,
                           client_ip: str) -> Tuple[bool, EventSubmissionResponse, Optional[str]]:
-        """FIXED: Event submission with proper rule detection"""
+        """FIXED: Submit single event with proper error handling"""
         start_time = time.time()
         
         try:
-            # 1. Fast validation
+            # Fast validation
             if not self._validate_event_fast(event_data):
-                return False, None, "Validation failed"
+                return False, None, "Invalid event data"
             
-            # 2. Get agent with caching
+            # Get agent with proper session handling
             agent = self._get_agent_fast(session, event_data.agent_id)
-            if not agent or not agent.MonitoringEnabled:
-                return False, None, "Agent not found or monitoring disabled"
+            if not agent:
+                return False, None, f"Agent {event_data.agent_id} not found"
             
-            # 3. Create event immediately
+            # Create event with proper ThreatLevel handling
             event = self._create_event_fast(event_data, agent)
             if not event:
                 return False, None, "Event creation failed"
             
-            # 4. Store in database immediately
-            try:
-                session.add(event)
-                session.flush()  # Get ID immediately
-                event_id = event.EventID
-                
-                logger.info(f"💾 EVENT STORED: ID={event_id}, Type={event.EventType}, Process={event.ProcessName}")
-                
-            except Exception as e:
-                session.rollback()
-                return False, None, f"Database error: {str(e)}"
+            # FIXED: Ensure ThreatLevel is never NULL
+            if not event.ThreatLevel:
+                event.ThreatLevel = 'None'
             
-            # 5. FIXED: Always run detection engine
-            threat_detected = False
-            risk_score = 0
-            alerts_generated = []
+            # Add to session and commit
+            session.add(event)
+            session.flush()  # Get the event ID
             
+            # Run detection engine with proper error handling
             try:
-                logger.info(f"🔍 RUNNING DETECTION ENGINE for Event {event_id}...")
-                
-                # Import detection engine
-                from ..services.detection_engine import detection_engine
-                
-                # Run detection analysis
-                detection_result = await detection_engine.analyze_event_and_create_alerts(
-                    session, event, agent
+                detection_service = get_detection_service()
+                detection_result = await detection_service.analyze_event_and_create_alerts(
+                    session=session,
+                    event=event
                 )
                 
-                threat_detected = detection_result.get('threat_detected', False)
-                risk_score = detection_result.get('risk_score', 0)
-                
-                # Extract alerts created
-                for alert_info in detection_result.get('alerts_created', []):
-                    alerts_generated.append({
-                        'id': alert_info.get('alert_id'),
-                        'title': alert_info.get('title'),
-                        'severity': alert_info.get('severity'),
-                        'detection_method': alert_info.get('detection_method'),
-                        'timestamp': datetime.now().isoformat(),
-                        'risk_score': risk_score
-                    })
-                
-                # Update stats
-                if detection_result.get('matched_rules'):
-                    self.stats['rules_matched'] += len(detection_result['matched_rules'])
-                
-                if alerts_generated:
-                    self.stats['alerts_created'] += len(alerts_generated)
-                    self.stats['notifications_sent'] += len(detection_result.get('notifications_sent', []))
+                # FIXED: Update event with detection results, ensuring ThreatLevel is never NULL
+                if detection_result:
+                    event.Analyzed = True
+                    event.AnalyzedAt = datetime.now()
+                    event.RiskScore = detection_result.get('risk_score', 0)
                     
-                    logger.warning(f"🚨 DETECTION RESULTS for Event {event_id}:")
-                    logger.warning(f"   Rules Matched: {len(detection_result.get('matched_rules', []))}")
-                    logger.warning(f"   Alerts Created: {len(alerts_generated)}")
-                    logger.warning(f"   Notifications Sent: {len(detection_result.get('notifications_sent', []))}")
-                    logger.warning(f"   Risk Score: {risk_score}")
+                    # FIXED: Ensure ThreatLevel is never NULL
+                    threat_level = detection_result.get('threat_level', 'None')
+                    if threat_level and threat_level != 'NULL':
+                        event.ThreatLevel = threat_level
+                    else:
+                        event.ThreatLevel = 'None'
+                    
+                    # Generate alerts if threats detected
+                    alerts_generated = []
+                    if detection_result.get('threat_detected', False):
+                        alert_service = get_alert_service()
+                        alert = await alert_service.create_alert_from_detection(
+                            session=session,
+                            event_id=event.EventID,
+                            detection_result=detection_result,
+                            agent_id=event_data.agent_id
+                        )
+                        if alert:
+                            alerts_generated.append(alert)
                 
-            except Exception as e:
-                logger.error(f"Detection engine error: {e}")
-                # Continue processing even if detection fails
-                event.Analyzed = False
-            
-            # 6. Commit everything
-            try:
                 session.commit()
-                logger.info(f"✅ EVENT COMMITTED: ID={event_id}")
-            except Exception as e:
-                session.rollback()
-                return False, None, f"Commit failed: {str(e)}"
+                
+            except Exception as detection_error:
+                # FIXED: Handle detection errors gracefully
+                logger.warning(f"Detection engine error for event {event.EventID}: {detection_error}")
+                
+                # Still commit the event even if detection fails
+                event.Analyzed = False
+                event.ThreatLevel = 'None'  # Ensure it's never NULL
+                event.RiskScore = 0
+                session.commit()
+                
+                # Return success but with no alerts
+                processing_time = time.time() - start_time
+                response = EventSubmissionResponse(
+                    success=True,
+                    event_id=event.EventID,
+                    message=f"Event stored successfully (detection failed)",
+                    threat_detected=False,
+                    risk_score=0,
+                    alerts_generated=[]
+                )
+                
+                logger.info(f"✅ EVENT STORED: ID={event.EventID}, Type={event.EventType}, Process={event.ProcessName}")
+                return True, response, None
             
-            # Update performance stats
+            # Success case
             processing_time = time.time() - start_time
-            self.stats['events_processed'] += 1
-            self.stats['events_stored'] += 1
-            self.stats['processing_time_total'] += processing_time
+            risk_score = event.RiskScore or 0
+            threat_detected = event.ThreatLevel in ['Suspicious', 'Malicious'] or risk_score >= 70
             
-            if threat_detected:
-                logger.warning(f"🚨 THREAT EVENT: ID={event_id}, Risk={risk_score}, Alerts={len(alerts_generated)}")
-            else:
-                logger.info(f"📝 Clean event: ID={event_id}, Type={event.EventType}, Time={processing_time:.3f}s")
-            
-            # Create response
             response = EventSubmissionResponse(
                 success=True,
-                message=f"Event processed in {processing_time:.3f}s",
-                event_id=event_id,
+                event_id=event.EventID,
+                message=f"Event processed successfully",
                 threat_detected=threat_detected,
                 risk_score=risk_score,
                 alerts_generated=alerts_generated

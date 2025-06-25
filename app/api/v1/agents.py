@@ -5,8 +5,9 @@ Agents API Endpoints - FIXED
 """
 
 import logging
+import asyncio
 from typing import List, Optional, Dict
-from fastapi import APIRouter, Depends, HTTPException, Request, Header, Query
+from fastapi import APIRouter, Depends, HTTPException, Request, Header, Query, BackgroundTasks
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import datetime, timedelta
@@ -188,7 +189,9 @@ async def get_pending_alerts(
                     'event_id': alert.EventID,
                     'rule_id': alert.RuleID,
                     'threat_id': alert.ThreatID,
-                    'age_minutes': alert.get_age_minutes() if hasattr(alert, 'get_age_minutes') else 0
+                    'age_minutes': alert.get_age_minutes() if hasattr(alert, 'get_age_minutes') else 0,
+                    'server_generated': True,
+                    'rule_violation': True
                 }
                 alerts_data.append(alert_data)
                 
@@ -597,3 +600,57 @@ async def get_agent_statistics(
     except Exception as e:
         logger.error(f"Get agent statistics error: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to get agent statistics")
+
+@router.get("/{agent_id}/realtime-alerts")
+async def get_agent_realtime_alerts(
+    request: Request,
+    agent_id: str,
+    limit: int = Query(10, le=50, description="Maximum alerts to return"),
+    session: Session = Depends(get_db),
+    _: bool = Depends(verify_agent_token)
+):
+    """REALTIME: Get real-time alerts for agent (for immediate threat notifications)"""
+    try:
+        # Verify agent exists
+        agent = Agent.get_by_id(session, agent_id)
+        if not agent:
+            raise HTTPException(status_code=404, detail="Agent not found")
+        
+        # Get real-time alerts (high priority, recent)
+        from ..models.alert import Alert
+        
+        realtime_alerts = session.query(Alert).filter(
+            Alert.AgentID == agent_id,
+            Alert.AlertType == 'RealtimeDetection',
+            Alert.Severity == 'High'
+        ).order_by(Alert.CreatedAt.desc()).limit(limit).all()
+        
+        alerts_data = []
+        for alert in realtime_alerts:
+            alerts_data.append({
+                'alert_id': alert.AlertID,
+                'title': alert.Title,
+                'description': alert.Description,
+                'severity': alert.Severity,
+                'timestamp': alert.CreatedAt.isoformat(),
+                'threat_level': alert.ThreatLevel,
+                'risk_score': alert.RiskScore,
+                'additional_data': alert.get_additional_data()
+            })
+        
+        logger.info(f"📤 REALTIME ALERTS for agent {agent.HostName}: {len(alerts_data)} alerts")
+        
+        return {
+            'success': True,
+            'agent_id': agent_id,
+            'hostname': agent.HostName,
+            'alerts_count': len(alerts_data),
+            'alerts': alerts_data,
+            'timestamp': datetime.now().isoformat()
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"❌ Failed to get realtime alerts for agent {agent_id}: {e}")
+        raise HTTPException(status_code=500, detail="Failed to retrieve real-time alerts")
