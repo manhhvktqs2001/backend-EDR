@@ -127,7 +127,7 @@ class DetectionEngine:
         """Process all active detection rules against raw data"""
         
         # Get platform from agent OS (simplified)
-        platform = self._determine_platform(event_data.get('agent_hostname', ''))
+        platform = self._determine_platform(event_data)
         
         # Get active rules
         rules = DetectionRule.get_active_rules(session, platform)
@@ -300,10 +300,19 @@ class DetectionEngine:
             'risk_score': risk_score
         }
     
-    def _determine_platform(self, hostname: str) -> str:
-        """Determine platform from hostname or other indicators"""
-        # Simple heuristic - can be enhanced
-        return 'Windows'  # Default for now
+    def _determine_platform(self, agent_data: Dict) -> str:
+        """FIXED: Determine platform from agent OS instead of hostname"""
+        operating_system = agent_data.get('agent_os', '')
+        if not operating_system:
+            operating_system = agent_data.get('operating_system', '')
+        os_lower = operating_system.lower()
+        if any(keyword in os_lower for keyword in ['linux', 'ubuntu', 'centos', 'rhel', 'debian']):
+            return 'Linux'
+        elif 'windows' in os_lower:
+            return 'Windows'
+        elif any(keyword in os_lower for keyword in ['mac', 'darwin', 'osx']):
+            return 'macOS'
+        return 'All'
     
     def _finalize_results(self, results: Dict) -> None:
         """Calculate final scores and threat level"""

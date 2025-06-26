@@ -124,3 +124,20 @@ def validate_registry_key(registry_key: str) -> bool:
     
     # Check if starts with valid root
     return any(registry_key.upper().startswith(root) for root in valid_roots)
+
+def validate_linux_file_path(file_path: str) -> bool:
+    """Validate Linux file path format"""
+    if not file_path:
+        return False
+    # Linux paths must start with / and not contain null bytes
+    return file_path.startswith('/') and '\x00' not in file_path and len(file_path) < 4096
+
+def validate_process_path_by_platform(process_path: str, platform: str) -> bool:
+    """Validate process path by platform"""
+    if not process_path:
+        return True
+    if platform.lower() == 'linux':
+        return validate_linux_file_path(process_path)
+    elif platform.lower() == 'windows':
+        return validate_file_path(process_path)  # existing function
+    return True

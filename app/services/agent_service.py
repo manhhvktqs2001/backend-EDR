@@ -66,11 +66,8 @@ class AgentService:
                            client_ip: str) -> Tuple[bool, AgentRegisterResponse, Optional[str]]:
         """Register completely new agent"""
         try:
-            # Check for IP conflicts
-            existing_ip_agent = Agent.get_by_ip(session, registration_data.ip_address)
-            if existing_ip_agent and existing_ip_agent.HostName != registration_data.hostname:
-                logger.warning(f"IP conflict: {registration_data.ip_address} already used by {existing_ip_agent.HostName}")
-            
+            # Create agent config based on OS
+            platform = self._detect_platform_from_os(registration_data.operating_system)
             # Create new agent
             new_agent = Agent.create_agent(
                 hostname=registration_data.hostname,
@@ -85,14 +82,12 @@ class AgentService:
                 Status='Active',
                 MonitoringEnabled=True
             )
-            
             session.add(new_agent)
             session.commit()
             session.refresh(new_agent)
-            
             # Tạo AgentConfig mặc định nếu chưa có
             if not AgentConfig.get_active_config(session, str(new_agent.AgentID)):
-                default_config = AgentConfig.get_default_config(platform='Windows')
+                default_config = AgentConfig.get_default_config(platform=platform)
                 AgentConfig.create_config(
                     session,
                     agent_id=str(new_agent.AgentID),
@@ -102,9 +97,7 @@ class AgentService:
                 )
                 session.commit()
                 logger.info(f"Default AgentConfig created for agent: {registration_data.hostname}")
-            
             logger.info(f"New agent registered: {registration_data.hostname} ({registration_data.ip_address})")
-            
             response = AgentRegisterResponse(
                 success=True,
                 agent_id=str(new_agent.AgentID),
@@ -113,7 +106,6 @@ class AgentService:
                 heartbeat_interval=self.agent_config['heartbeat_interval'],
                 monitoring_enabled=True
             )
-            
             return True, response, None
             
         except IntegrityError as e:
@@ -126,6 +118,17 @@ class AgentService:
             error_msg = f"Agent registration failed: {str(e)}"
             logger.error(error_msg)
             return False, None, error_msg
+    
+    def _detect_platform_from_os(self, operating_system: str) -> str:
+        """Detect platform from OS string"""
+        os_lower = operating_system.lower()
+        if any(keyword in os_lower for keyword in ['linux', 'ubuntu', 'centos', 'rhel', 'debian']):
+            return 'Linux'
+        elif 'windows' in os_lower:
+            return 'Windows'
+        elif any(keyword in os_lower for keyword in ['mac', 'darwin', 'osx']):
+            return 'macOS'
+        return 'Windows'  # default fallback
     
     def _update_existing_agent(self, session: Session, existing_agent: Agent,
                               registration_data: AgentRegisterRequest, client_ip: str) -> Tuple[bool, AgentRegisterResponse, Optional[str]]:

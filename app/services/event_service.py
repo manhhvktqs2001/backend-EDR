@@ -156,6 +156,8 @@ class EventService:
             detection_data = {
                 'agent_id': str(agent.AgentID),
                 'agent_hostname': agent.HostName,
+                'agent_os': agent.OperatingSystem,
+                'operating_system': agent.OperatingSystem,
                 'event_type': event_data.event_type.value if hasattr(event_data.event_type, 'value') else str(event_data.event_type),
                 'event_action': event_data.event_action,
                 'event_timestamp': event_data.event_timestamp,
