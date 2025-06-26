@@ -247,28 +247,25 @@ class DetectionEngine:
         return final_result
     
     def _evaluate_simple_condition_raw_data(self, event_data: Dict, condition: Dict) -> bool:
-        """Evaluate a simple condition against raw data"""
+        """Evaluate a simple condition against raw data (FIXED: require ALL fields to match for AND logic)"""
         logger.debug(f"   🔍 Evaluating simple condition: {condition}")
         
-        # Handle direct field matching (e.g., {"process_name": "notepad.exe"})
+        # Require all fields (except 'logic') to match
         for field, expected_value in condition.items():
             if field == 'logic':
                 continue
-            
             event_value = event_data.get(field)
-            
             # Default to case-insensitive equals
             if isinstance(expected_value, str) and isinstance(event_value, str):
-                result = expected_value.lower() == event_value.lower()
+                if expected_value.lower() != event_value.lower():
+                    logger.debug(f"     ❌ Field: {field}, Event: {event_value}, Expected: {expected_value}, Result: False")
+                    return False
             else:
-                result = str(expected_value) == str(event_value)
-            
-            logger.debug(f"     🔍 Field: {field}, Event: {event_value}, Expected: {expected_value}, Result: {result}")
-            
-            if result:
-                return True
-        
-        return False
+                if str(expected_value) != str(event_value):
+                    logger.debug(f"     ❌ Field: {field}, Event: {event_value}, Expected: {expected_value}, Result: False")
+                    return False
+        logger.debug(f"     ✅ All fields matched for AND logic")
+        return True
     
     async def _check_threats_on_raw_data(self, session: Session, event_data: Dict) -> Dict:
         """Check raw event data against threat intelligence"""
