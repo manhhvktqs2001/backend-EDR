@@ -14799,3 +14799,302 @@ Access is denied.
 2025-06-27 20:42:52,782 [INFO] alert_management: 🚨 Alert Service singleton created
 2025-06-27 20:42:52,783 [INFO] agent_communication: 📡 FIXED Agent Communication Service - NOTIFICATION SYSTEM READY
 2025-06-27 20:42:52,944 [INFO] agent_communication: 📡 FIXED Agent Communication Service - NOTIFICATION SYSTEM READY
+2025-06-27 20:43:25,642 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-27 20:43:25,645 [INFO] __main__: 🛡️ EDR Server - Speed Optimized Mode
+2025-06-27 20:43:25,645 [INFO] __main__: ⚡ Fast environment checks...
+2025-06-27 20:43:25,651 [INFO] __main__: ✅ ODBC drivers ready: 3 found
+2025-06-27 20:43:25,651 [INFO] __main__: 🔍 Fast connection test...
+2025-06-27 20:43:25,652 [INFO] __main__: 🔍 Fast service check...
+2025-06-27 20:43:25,675 [INFO] __main__: ✅ SQL Server (Default Instance) running
+2025-06-27 20:43:25,711 [WARNING] __main__: ⚠️ SQL Browser Service start failed
+2025-06-27 20:43:25,712 [INFO] __main__: ✅ 1 SQL Server services ready
+2025-06-27 20:43:25,835 [INFO] __main__: ✅ Connected to: (local)
+2025-06-27 20:43:25,835 [INFO] __main__:    Server: Manh
+2025-06-27 20:43:25,835 [INFO] __main__:    Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8 2022 05:58:25 
+	Cop...
+2025-06-27 20:43:25,836 [INFO] __main__: ✅ EDR_System database found
+2025-06-27 20:43:25,836 [INFO] __main__: 🎯 Using server: (local)
+2025-06-27 20:43:41,820 [INFO] app.database: 🚀 REALTIME Database Manager initialization (FIXED ANSI_WARNINGS)...
+2025-06-27 20:43:41,828 [INFO] app.database: ✅ Ultra-fast connection with ANSI fix to localhost: 7.2ms
+2025-06-27 20:43:41,848 [INFO] app.database: ✅ REALTIME Database Engine initialized with ANSI_WARNINGS fix
+2025-06-27 20:43:41,850 [INFO] __main__: ⚡ Fast database initialization...
+2025-06-27 20:43:41,850 [INFO] app.database: 🔗 Initializing database connection with ANSI_WARNINGS fix...
+2025-06-27 20:43:41,962 [INFO] app.database: ✅ REALTIME DB connected: Manh / EDR_System (112.0ms) ANSI_WARNINGS: ON
+2025-06-27 20:43:41,977 [INFO] app.database: ✅ Database initialized with ANSI fix: 7 tables found
+2025-06-27 20:43:41,978 [INFO] __main__: ✅ Environment ready
+2025-06-27 20:43:41,978 [INFO] __main__: 📊 Database status check...
+2025-06-27 20:43:42,020 [INFO] __main__: ✅ Server: Manh / EDR_System
+2025-06-27 20:43:42,020 [INFO] __main__: 👤 User: Manh\manhh
+2025-06-27 20:43:42,020 [INFO] __main__: ⚡ Response: 40.84ms
+2025-06-27 20:43:42,021 [INFO] __main__: 📊 Tables: 7, Records: 2,287
+2025-06-27 20:43:42,021 [INFO] __main__: 📋 Key tables: Agents:1, Events:2244, Threats:12, DetectionRules:7, Alerts:0
+2025-06-27 20:43:42,049 [INFO] app.models: ✅ All 7 models imported successfully
+2025-06-27 20:43:42,049 [INFO] __main__: 🧪 Quick schema validation...
+2025-06-27 20:43:42,049 [WARNING] __main__: ⚠️ Schema test failed: 'RealtimeDatabaseManager' object has no attribute 'get_db_session' (continuing anyway)
+2025-06-27 20:43:42,050 [INFO] __main__: 🎯 Starting server...
+2025-06-27 20:43:42,050 [INFO] __main__: 🌐 Binding: 192.168.20.85:5000
+2025-06-27 20:43:42,050 [INFO] __main__: 🔧 SPEED OPTIMIZED MODE READY:
+2025-06-27 20:43:42,050 [INFO] __main__:    ✅ Parallel service detection
+2025-06-27 20:43:42,051 [INFO] __main__:    ✅ Cached database operations
+2025-06-27 20:43:42,051 [INFO] __main__:    ✅ Fast connection pooling
+2025-06-27 20:43:42,051 [INFO] __main__:    ✅ Optimized health checks
+2025-06-27 20:43:42,051 [INFO] __main__: 🚀 Launching EDR Server...
+2025-06-27 20:43:42,463 [INFO] app.services.event_service: 📥 FIXED Event Service - Detection BEFORE Insert
+2025-06-27 20:43:42,466 [INFO] app.services.detection_engine: 🔍 Detection Engine - Raw Data Analysis Mode
+2025-06-27 20:43:42,466 [INFO] app.services.detection_engine: 🔍 Detection Engine singleton created - Raw Data Analysis Mode
+2025-06-27 20:43:42,467 [INFO] alert_management: 🚨 Alert Service singleton created
+2025-06-27 20:43:42,469 [INFO] agent_communication: 📡 FIXED Agent Communication Service - NOTIFICATION SYSTEM READY
+2025-06-27 20:43:42,627 [INFO] agent_communication: 📡 FIXED Agent Communication Service - NOTIFICATION SYSTEM READY
+2025-06-27 20:47:02,851 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-27 20:47:02,855 [INFO] __main__: 🛡️ EDR Server - Speed Optimized Mode
+2025-06-27 20:47:02,855 [INFO] __main__: ⚡ Fast environment checks...
+2025-06-27 20:47:02,860 [INFO] __main__: ✅ ODBC drivers ready: 3 found
+2025-06-27 20:47:02,861 [INFO] __main__: 🔍 Fast connection test...
+2025-06-27 20:47:02,861 [INFO] __main__: 🔍 Fast service check...
+2025-06-27 20:47:02,881 [INFO] __main__: ✅ SQL Server (Default Instance) running
+2025-06-27 20:47:02,919 [WARNING] __main__: ⚠️ SQL Browser Service start failed
+2025-06-27 20:47:02,919 [INFO] __main__: ✅ 1 SQL Server services ready
+2025-06-27 20:47:03,047 [INFO] __main__: ✅ Connected to: localhost
+2025-06-27 20:47:03,047 [INFO] __main__:    Server: Manh
+2025-06-27 20:47:03,047 [INFO] __main__:    Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8 2022 05:58:25 
+	Cop...
+2025-06-27 20:47:03,048 [INFO] __main__: ✅ EDR_System database found
+2025-06-27 20:47:03,048 [INFO] __main__: 🎯 Using server: localhost
+2025-06-27 20:47:19,136 [INFO] app.database: 🚀 REALTIME Database Manager initialization (FIXED ANSI_WARNINGS)...
+2025-06-27 20:47:19,168 [INFO] app.database: ✅ Ultra-fast connection with ANSI fix to localhost: 31.2ms
+2025-06-27 20:47:19,198 [INFO] app.database: ✅ REALTIME Database Engine initialized with ANSI_WARNINGS fix
+2025-06-27 20:47:19,200 [INFO] __main__: ⚡ Fast database initialization...
+2025-06-27 20:47:19,200 [INFO] app.database: 🔗 Initializing database connection with ANSI_WARNINGS fix...
+2025-06-27 20:47:19,335 [INFO] app.database: ✅ REALTIME DB connected: Manh / EDR_System (134.2ms) ANSI_WARNINGS: ON
+2025-06-27 20:47:19,359 [INFO] app.database: ✅ Database initialized with ANSI fix: 7 tables found
+2025-06-27 20:47:19,360 [INFO] __main__: ✅ Environment ready
+2025-06-27 20:47:19,361 [INFO] __main__: 📊 Database status check...
+2025-06-27 20:47:19,416 [INFO] __main__: ✅ Server: Manh / EDR_System
+2025-06-27 20:47:19,416 [INFO] __main__: 👤 User: Manh\manhh
+2025-06-27 20:47:19,417 [INFO] __main__: ⚡ Response: 54.4ms
+2025-06-27 20:47:19,417 [INFO] __main__: 📊 Tables: 7, Records: 2,287
+2025-06-27 20:47:19,417 [INFO] __main__: 📋 Key tables: Agents:1, Events:2244, Threats:12, DetectionRules:7, Alerts:0
+2025-06-27 20:47:19,456 [INFO] app.models: ✅ All 7 models imported successfully
+2025-06-27 20:47:19,457 [INFO] __main__: 🧪 Quick schema validation...
+2025-06-27 20:47:19,458 [WARNING] __main__: ⚠️ Schema test failed: 'RealtimeDatabaseManager' object has no attribute 'get_db_session' (continuing anyway)
+2025-06-27 20:47:19,458 [INFO] __main__: 🎯 Starting server...
+2025-06-27 20:47:19,458 [INFO] __main__: 🌐 Binding: 192.168.20.85:5000
+2025-06-27 20:47:19,458 [INFO] __main__: 🔧 SPEED OPTIMIZED MODE READY:
+2025-06-27 20:47:19,459 [INFO] __main__:    ✅ Parallel service detection
+2025-06-27 20:47:19,459 [INFO] __main__:    ✅ Cached database operations
+2025-06-27 20:47:19,459 [INFO] __main__:    ✅ Fast connection pooling
+2025-06-27 20:47:19,459 [INFO] __main__:    ✅ Optimized health checks
+2025-06-27 20:47:19,460 [INFO] __main__: 🚀 Launching EDR Server...
+2025-06-27 20:47:20,284 [INFO] app.services.event_service: 📥 FIXED Event Service - Detection BEFORE Insert
+2025-06-27 20:47:20,287 [INFO] app.services.detection_engine: 🔍 Detection Engine - Raw Data Analysis Mode
+2025-06-27 20:47:20,287 [INFO] app.services.detection_engine: 🔍 Detection Engine singleton created - Raw Data Analysis Mode
+2025-06-27 20:47:20,289 [INFO] alert_management: 🚨 Alert Service singleton created
+2025-06-27 20:47:20,292 [INFO] agent_communication: 📡 FIXED Agent Communication Service - NOTIFICATION SYSTEM READY
+2025-06-27 20:47:20,596 [INFO] agent_communication: 📡 FIXED Agent Communication Service - NOTIFICATION SYSTEM READY
+2025-06-27 20:47:43,624 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-27 20:47:43,628 [WARNING] __main__: 🚫 Port 5000 is already in use!
+2025-06-27 20:47:43,893 [WARNING] __main__:    Process: python3.13.exe (PID: 22004)
+2025-06-27 20:47:46,261 [INFO] __main__: 🔄 Non-interactive mode, finding available port...
+2025-06-27 20:47:46,263 [WARNING] __main__: ⚠️ Port 5000 is already in use
+2025-06-27 20:47:46,330 [INFO] __main__: 🔍 Searching for available port...
+2025-06-27 20:47:48,378 [INFO] __main__: 👋 Server shutdown requested
+2025-06-27 20:47:55,874 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-27 20:47:55,877 [WARNING] __main__: 🚫 Port 5000 is already in use!
+2025-06-27 20:47:56,082 [WARNING] __main__:    Process: python3.13.exe (PID: 22004)
+2025-06-27 20:47:56,646 [WARNING] __main__: ⚠️ Port 5000 is already in use
+2025-06-27 20:47:56,646 [INFO] __main__: 🔍 Searching for available port...
+2025-06-27 20:47:58,671 [INFO] __main__: ✅ Found available port: 5001
+2025-06-27 20:47:58,671 [INFO] __main__: 🔄 Switching to port 5001
+2025-06-27 20:47:58,672 [INFO] __main__: 🛡️ EDR Server - Speed Optimized Mode
+2025-06-27 20:47:58,672 [INFO] __main__: ⚡ Fast environment checks...
+2025-06-27 20:47:58,677 [INFO] __main__: ✅ ODBC drivers ready: 3 found
+2025-06-27 20:47:58,677 [INFO] __main__: 🔍 Fast connection test...
+2025-06-27 20:47:58,678 [INFO] __main__: 🔍 Fast service check...
+2025-06-27 20:47:58,696 [INFO] __main__: ✅ SQL Server (Default Instance) running
+2025-06-27 20:47:58,732 [WARNING] __main__: ⚠️ SQL Browser Service start failed
+2025-06-27 20:47:58,732 [INFO] __main__: ✅ 1 SQL Server services ready
+2025-06-27 20:47:58,839 [INFO] __main__: ✅ Connected to: .
+2025-06-27 20:47:58,839 [INFO] __main__:    Server: Manh
+2025-06-27 20:47:58,839 [INFO] __main__:    Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8 2022 05:58:25 
+	Cop...
+2025-06-27 20:47:58,839 [INFO] __main__: ✅ EDR_System database found
+2025-06-27 20:47:58,840 [INFO] __main__: 🎯 Using server: .
+2025-06-27 20:48:15,017 [INFO] app.database: 🚀 REALTIME Database Manager initialization (FIXED ANSI_WARNINGS)...
+2025-06-27 20:48:15,048 [INFO] app.database: ✅ Ultra-fast connection with ANSI fix to localhost: 30.6ms
+2025-06-27 20:48:15,084 [INFO] app.database: ✅ REALTIME Database Engine initialized with ANSI_WARNINGS fix
+2025-06-27 20:48:15,085 [INFO] __main__: ⚡ Fast database initialization...
+2025-06-27 20:48:15,086 [INFO] app.database: 🔗 Initializing database connection with ANSI_WARNINGS fix...
+2025-06-27 20:48:15,233 [INFO] app.database: ✅ REALTIME DB connected: Manh / EDR_System (146.7ms) ANSI_WARNINGS: ON
+2025-06-27 20:48:15,260 [INFO] app.database: ✅ Database initialized with ANSI fix: 7 tables found
+2025-06-27 20:48:15,261 [INFO] __main__: ✅ Environment ready
+2025-06-27 20:48:15,262 [INFO] __main__: 📊 Database status check...
+2025-06-27 20:48:15,325 [INFO] __main__: ✅ Server: Manh / EDR_System
+2025-06-27 20:48:15,325 [INFO] __main__: 👤 User: Manh\manhh
+2025-06-27 20:48:15,325 [INFO] __main__: ⚡ Response: 62.14ms
+2025-06-27 20:48:15,326 [INFO] __main__: 📊 Tables: 7, Records: 2,287
+2025-06-27 20:48:15,326 [INFO] __main__: 📋 Key tables: Agents:1, Events:2244, Threats:12, DetectionRules:7, Alerts:0
+2025-06-27 20:48:15,372 [INFO] app.models: ✅ All 7 models imported successfully
+2025-06-27 20:48:15,372 [INFO] __main__: 🧪 Quick schema validation...
+2025-06-27 20:48:15,373 [WARNING] __main__: ⚠️ Schema test failed: 'RealtimeDatabaseManager' object has no attribute 'get_db_session' (continuing anyway)
+2025-06-27 20:48:15,373 [INFO] __main__: 🎯 Starting server...
+2025-06-27 20:48:15,373 [INFO] __main__: 🌐 Binding: 192.168.20.85:5001
+2025-06-27 20:48:15,374 [INFO] __main__: 🔧 SPEED OPTIMIZED MODE READY:
+2025-06-27 20:48:15,374 [INFO] __main__:    ✅ Port conflict resolution
+2025-06-27 20:48:15,374 [INFO] __main__:    ✅ Parallel service detection
+2025-06-27 20:48:15,375 [INFO] __main__:    ✅ Cached database operations
+2025-06-27 20:48:15,375 [INFO] __main__:    ✅ Fast connection pooling
+2025-06-27 20:48:15,375 [INFO] __main__:    ✅ Optimized health checks
+2025-06-27 20:48:15,376 [INFO] __main__: 🚀 Launching EDR Server...
+2025-06-27 20:48:16,206 [INFO] app.services.event_service: 📥 FIXED Event Service - Detection BEFORE Insert
+2025-06-27 20:48:16,208 [INFO] app.services.detection_engine: 🔍 Detection Engine - Raw Data Analysis Mode
+2025-06-27 20:48:16,209 [INFO] app.services.detection_engine: 🔍 Detection Engine singleton created - Raw Data Analysis Mode
+2025-06-27 20:48:16,210 [INFO] alert_management: 🚨 Alert Service singleton created
+2025-06-27 20:48:16,214 [INFO] agent_communication: 📡 FIXED Agent Communication Service - NOTIFICATION SYSTEM READY
+2025-06-27 20:48:16,501 [INFO] agent_communication: 📡 FIXED Agent Communication Service - NOTIFICATION SYSTEM READY
+2025-06-27 20:48:32,894 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-27 20:48:32,898 [WARNING] __main__: 🚫 Port 5000 is already in use!
+2025-06-27 20:48:33,116 [WARNING] __main__:    Process: python3.13.exe (PID: 22004)
+2025-06-27 20:48:40,606 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-27 20:48:40,609 [INFO] __main__: 🛡️ EDR Server - Speed Optimized Mode
+2025-06-27 20:48:40,609 [INFO] __main__: ⚡ Fast environment checks...
+2025-06-27 20:48:40,614 [INFO] __main__: ✅ ODBC drivers ready: 3 found
+2025-06-27 20:48:40,615 [INFO] __main__: 🔍 Fast connection test...
+2025-06-27 20:48:40,615 [INFO] __main__: 🔍 Fast service check...
+2025-06-27 20:48:40,636 [INFO] __main__: ✅ SQL Server (Default Instance) running
+2025-06-27 20:48:40,673 [WARNING] __main__: ⚠️ SQL Browser Service start failed
+2025-06-27 20:48:40,674 [INFO] __main__: ✅ 1 SQL Server services ready
+2025-06-27 20:48:40,794 [INFO] __main__: ✅ Connected to: (local)
+2025-06-27 20:48:40,795 [INFO] __main__:    Server: Manh
+2025-06-27 20:48:40,795 [INFO] __main__:    Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8 2022 05:58:25 
+	Cop...
+2025-06-27 20:48:40,795 [INFO] __main__: ✅ EDR_System database found
+2025-06-27 20:48:40,795 [INFO] __main__: 🎯 Using server: (local)
+2025-06-27 20:48:56,769 [INFO] app.database: 🚀 REALTIME Database Manager initialization (FIXED ANSI_WARNINGS)...
+2025-06-27 20:48:56,802 [INFO] app.database: ✅ Ultra-fast connection with ANSI fix to localhost: 32.5ms
+2025-06-27 20:48:56,819 [INFO] app.database: ✅ REALTIME Database Engine initialized with ANSI_WARNINGS fix
+2025-06-27 20:48:56,820 [INFO] __main__: ⚡ Fast database initialization...
+2025-06-27 20:48:56,821 [INFO] app.database: 🔗 Initializing database connection with ANSI_WARNINGS fix...
+2025-06-27 20:48:56,937 [INFO] app.database: ✅ REALTIME DB connected: Manh / EDR_System (116.1ms) ANSI_WARNINGS: ON
+2025-06-27 20:48:56,964 [INFO] app.database: ✅ Database initialized with ANSI fix: 7 tables found
+2025-06-27 20:48:56,965 [INFO] __main__: ✅ Environment ready
+2025-06-27 20:48:56,966 [INFO] __main__: 📊 Database status check...
+2025-06-27 20:48:57,031 [INFO] __main__: ✅ Server: Manh / EDR_System
+2025-06-27 20:48:57,032 [INFO] __main__: 👤 User: Manh\manhh
+2025-06-27 20:48:57,032 [INFO] __main__: ⚡ Response: 64.41ms
+2025-06-27 20:48:57,032 [INFO] __main__: 📊 Tables: 7, Records: 2,287
+2025-06-27 20:48:57,032 [INFO] __main__: 📋 Key tables: Agents:1, Events:2244, Threats:12, DetectionRules:7, Alerts:0
+2025-06-27 20:48:57,061 [INFO] app.models: ✅ All 7 models imported successfully
+2025-06-27 20:48:57,062 [INFO] __main__: 🧪 Quick schema validation...
+2025-06-27 20:48:57,062 [WARNING] __main__: ⚠️ Schema test failed: 'RealtimeDatabaseManager' object has no attribute 'get_db_session' (continuing anyway)
+2025-06-27 20:48:57,062 [INFO] __main__: 🎯 Starting server...
+2025-06-27 20:48:57,063 [INFO] __main__: 🌐 Binding: 192.168.20.85:5000
+2025-06-27 20:48:57,063 [INFO] __main__: 🔧 SPEED OPTIMIZED MODE READY:
+2025-06-27 20:48:57,063 [INFO] __main__:    ✅ Parallel service detection
+2025-06-27 20:48:57,063 [INFO] __main__:    ✅ Cached database operations
+2025-06-27 20:48:57,064 [INFO] __main__:    ✅ Fast connection pooling
+2025-06-27 20:48:57,064 [INFO] __main__:    ✅ Optimized health checks
+2025-06-27 20:48:57,064 [INFO] __main__: 🚀 Launching EDR Server...
+2025-06-27 20:48:57,458 [INFO] app.services.event_service: 📥 FIXED Event Service - Detection BEFORE Insert
+2025-06-27 20:48:57,460 [INFO] app.services.detection_engine: 🔍 Detection Engine - Raw Data Analysis Mode
+2025-06-27 20:48:57,461 [INFO] app.services.detection_engine: 🔍 Detection Engine singleton created - Raw Data Analysis Mode
+2025-06-27 20:48:57,462 [INFO] alert_management: 🚨 Alert Service singleton created
+2025-06-27 20:48:57,463 [INFO] agent_communication: 📡 FIXED Agent Communication Service - NOTIFICATION SYSTEM READY
+2025-06-27 20:48:57,586 [INFO] agent_communication: 📡 FIXED Agent Communication Service - NOTIFICATION SYSTEM READY
+2025-06-27 20:51:08,618 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-27 20:51:08,622 [INFO] __main__: 🛡️ EDR Server - Speed Optimized Mode
+2025-06-27 20:51:08,622 [INFO] __main__: ⚡ Fast environment checks...
+2025-06-27 20:51:08,628 [INFO] __main__: ✅ ODBC drivers ready: 3 found
+2025-06-27 20:51:08,629 [INFO] __main__: 🔍 Fast connection test...
+2025-06-27 20:51:08,629 [INFO] __main__: 🔍 Fast service check...
+2025-06-27 20:51:08,650 [INFO] __main__: ✅ SQL Server (Default Instance) running
+2025-06-27 20:51:08,685 [WARNING] __main__: ⚠️ SQL Browser Service start failed
+2025-06-27 20:51:08,686 [INFO] __main__: ✅ 1 SQL Server services ready
+2025-06-27 20:51:08,793 [INFO] __main__: ✅ Connected to: localhost
+2025-06-27 20:51:08,793 [INFO] __main__:    Server: Manh
+2025-06-27 20:51:08,794 [INFO] __main__:    Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8 2022 05:58:25 
+	Cop...
+2025-06-27 20:51:08,794 [INFO] __main__: ✅ EDR_System database found
+2025-06-27 20:51:08,794 [INFO] __main__: 🎯 Using server: localhost
+2025-06-27 20:51:24,775 [INFO] app.database: 🚀 REALTIME Database Manager initialization (FIXED ANSI_WARNINGS)...
+2025-06-27 20:51:24,804 [INFO] app.database: ✅ Ultra-fast connection with ANSI fix to localhost: 28.4ms
+2025-06-27 20:51:24,824 [INFO] app.database: ✅ REALTIME Database Engine initialized with ANSI_WARNINGS fix
+2025-06-27 20:51:24,826 [INFO] __main__: ⚡ Fast database initialization...
+2025-06-27 20:51:24,826 [INFO] app.database: 🔗 Initializing database connection with ANSI_WARNINGS fix...
+2025-06-27 20:51:24,940 [INFO] app.database: ✅ REALTIME DB connected: Manh / EDR_System (113.4ms) ANSI_WARNINGS: ON
+2025-06-27 20:51:24,959 [INFO] app.database: ✅ Database initialized with ANSI fix: 7 tables found
+2025-06-27 20:51:24,960 [INFO] __main__: ✅ Environment ready
+2025-06-27 20:51:24,960 [INFO] __main__: 📊 Database status check...
+2025-06-27 20:51:25,004 [INFO] __main__: ✅ Server: Manh / EDR_System
+2025-06-27 20:51:25,004 [INFO] __main__: 👤 User: Manh\manhh
+2025-06-27 20:51:25,005 [INFO] __main__: ⚡ Response: 43.14ms
+2025-06-27 20:51:25,005 [INFO] __main__: 📊 Tables: 7, Records: 2,287
+2025-06-27 20:51:25,005 [INFO] __main__: 📋 Key tables: Agents:1, Events:2244, Threats:12, DetectionRules:7, Alerts:0
+2025-06-27 20:51:25,029 [INFO] app.models: ✅ All 7 models imported successfully
+2025-06-27 20:51:25,030 [INFO] __main__: 🧪 Quick schema validation...
+2025-06-27 20:51:25,030 [WARNING] __main__: ⚠️ Schema test failed: 'RealtimeDatabaseManager' object has no attribute 'get_db_session' (continuing anyway)
+2025-06-27 20:51:25,031 [INFO] __main__: 🎯 Starting server...
+2025-06-27 20:51:25,031 [INFO] __main__: 🌐 Binding: 192.168.20.85:5000
+2025-06-27 20:51:25,031 [INFO] __main__: 🔧 SPEED OPTIMIZED MODE READY:
+2025-06-27 20:51:25,031 [INFO] __main__:    ✅ Parallel service detection
+2025-06-27 20:51:25,032 [INFO] __main__:    ✅ Cached database operations
+2025-06-27 20:51:25,032 [INFO] __main__:    ✅ Fast connection pooling
+2025-06-27 20:51:25,032 [INFO] __main__:    ✅ Optimized health checks
+2025-06-27 20:51:25,032 [INFO] __main__: 🚀 Launching EDR Server...
+2025-06-27 20:51:25,549 [INFO] app.services.event_service: 📥 FIXED Event Service - Detection BEFORE Insert
+2025-06-27 20:51:25,550 [INFO] app.services.detection_engine: 🔍 Detection Engine - Raw Data Analysis Mode
+2025-06-27 20:51:25,550 [INFO] app.services.detection_engine: 🔍 Detection Engine singleton created - Raw Data Analysis Mode
+2025-06-27 20:51:25,551 [INFO] alert_management: 🚨 Alert Service singleton created
+2025-06-27 20:51:25,553 [INFO] agent_communication: 📡 FIXED Agent Communication Service - NOTIFICATION SYSTEM READY
+2025-06-27 20:51:25,703 [INFO] agent_communication: 📡 FIXED Agent Communication Service - NOTIFICATION SYSTEM READY
+2025-06-27 21:01:24,741 [INFO] __main__: 🚀 EDR Server - SPEED OPTIMIZED STARTUP
+2025-06-27 21:01:24,745 [INFO] __main__: 🛡️ EDR Server - Speed Optimized Mode
+2025-06-27 21:01:24,745 [INFO] __main__: ⚡ Fast environment checks...
+2025-06-27 21:01:24,750 [INFO] __main__: ✅ ODBC drivers ready: 3 found
+2025-06-27 21:01:24,751 [INFO] __main__: 🔍 Fast connection test...
+2025-06-27 21:01:24,751 [INFO] __main__: 🔍 Fast service check...
+2025-06-27 21:01:24,770 [INFO] __main__: ✅ SQL Server (Default Instance) running
+2025-06-27 21:01:24,809 [WARNING] __main__: ⚠️ SQL Browser Service start failed
+2025-06-27 21:01:24,810 [INFO] __main__: ✅ 1 SQL Server services ready
+2025-06-27 21:01:24,954 [INFO] __main__: ✅ Connected to: .
+2025-06-27 21:01:24,955 [INFO] __main__:    Server: Manh
+2025-06-27 21:01:24,955 [INFO] __main__:    Version: Microsoft SQL Server 2022 (RTM) - 16.0.1000.6 (X64) 
+	Oct  8 2022 05:58:25 
+	Cop...
+2025-06-27 21:01:24,955 [INFO] __main__: ✅ EDR_System database found
+2025-06-27 21:01:24,956 [INFO] __main__: 🎯 Using server: .
+2025-06-27 21:01:40,923 [INFO] app.database: 🚀 REALTIME Database Manager initialization (FIXED ANSI_WARNINGS)...
+2025-06-27 21:01:40,951 [INFO] app.database: ✅ Ultra-fast connection with ANSI fix to localhost: 27.1ms
+2025-06-27 21:01:40,972 [INFO] app.database: ✅ REALTIME Database Engine initialized with ANSI_WARNINGS fix
+2025-06-27 21:01:40,974 [INFO] __main__: ⚡ Fast database initialization...
+2025-06-27 21:01:40,974 [INFO] app.database: 🔗 Initializing database connection with ANSI_WARNINGS fix...
+2025-06-27 21:01:41,111 [INFO] app.database: ✅ REALTIME DB connected: Manh / EDR_System (136.4ms) ANSI_WARNINGS: ON
+2025-06-27 21:01:41,133 [INFO] app.database: ✅ Database initialized with ANSI fix: 7 tables found
+2025-06-27 21:01:41,134 [INFO] __main__: ✅ Environment ready
+2025-06-27 21:01:41,134 [INFO] __main__: 📊 Database status check...
+2025-06-27 21:01:41,183 [INFO] __main__: ✅ Server: Manh / EDR_System
+2025-06-27 21:01:41,183 [INFO] __main__: 👤 User: Manh\manhh
+2025-06-27 21:01:41,183 [INFO] __main__: ⚡ Response: 47.65ms
+2025-06-27 21:01:41,183 [INFO] __main__: 📊 Tables: 7, Records: 2,287
+2025-06-27 21:01:41,184 [INFO] __main__: 📋 Key tables: Agents:1, Events:2244, Threats:12, DetectionRules:7, Alerts:0
+2025-06-27 21:01:41,215 [INFO] app.models: ✅ All 7 models imported successfully
+2025-06-27 21:01:41,215 [INFO] __main__: 🧪 Quick schema validation...
+2025-06-27 21:01:41,215 [WARNING] __main__: ⚠️ Schema test failed: 'RealtimeDatabaseManager' object has no attribute 'get_db_session' (continuing anyway)
+2025-06-27 21:01:41,215 [INFO] __main__: 🎯 Starting server...
+2025-06-27 21:01:41,216 [INFO] __main__: 🌐 Binding: 192.168.20.85:5000
+2025-06-27 21:01:41,216 [INFO] __main__: 🔧 SPEED OPTIMIZED MODE READY:
+2025-06-27 21:01:41,216 [INFO] __main__:    ✅ Parallel service detection
+2025-06-27 21:01:41,217 [INFO] __main__:    ✅ Cached database operations
+2025-06-27 21:01:41,217 [INFO] __main__:    ✅ Fast connection pooling
+2025-06-27 21:01:41,217 [INFO] __main__:    ✅ Optimized health checks
+2025-06-27 21:01:41,217 [INFO] __main__: 🚀 Launching EDR Server...
+2025-06-27 21:01:41,676 [INFO] app.services.event_service: 📥 FIXED Event Service - Detection BEFORE Insert
+2025-06-27 21:01:41,678 [INFO] app.services.detection_engine: 🔍 Detection Engine - Raw Data Analysis Mode
+2025-06-27 21:01:41,678 [INFO] app.services.detection_engine: 🔍 Detection Engine singleton created - Raw Data Analysis Mode
+2025-06-27 21:01:41,680 [INFO] alert_management: 🚨 Alert Service singleton created
+2025-06-27 21:01:41,682 [INFO] agent_communication: 📡 FIXED Agent Communication Service - NOTIFICATION SYSTEM READY
+2025-06-27 21:01:41,838 [INFO] agent_communication: 📡 FIXED Agent Communication Service - NOTIFICATION SYSTEM READY

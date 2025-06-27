@@ -61324,3 +61324,9 @@
 16:56:54 [PERF] ✅ Clean event processed:
 16:56:54 [PERF]    📋 Event ID: 11549
 16:56:54 [PERF]    ⏱️ Processing Time: 0.041s
+20:52:43 [PERF] 📥 EVENT SUBMISSION:
+20:52:43 [PERF]    🎯 Agent: test-agent
+20:52:43 [PERF]    📋 Type: EventType.SYSTEM
+20:52:43 [PERF]    🔧 Action: Test
+20:52:43 [PERF]    📡 Client: 192.168.20.129
+20:52:43 [PERF] ❌ Event submission failed from 192.168.20.129: Invalid event data
