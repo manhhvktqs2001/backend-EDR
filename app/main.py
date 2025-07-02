@@ -14,11 +14,14 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse, FileResponse
 import uvicorn
 from fastapi.staticfiles import StaticFiles
+import threading
+import time as pytime
 
 from .config import config
-from .database import init_database, get_database_status
+from .database import init_database, get_database_status, SessionLocal
 from .api.v1 import agents, events, alerts, dashboard, threats, detection, agent_response
 from .utils.network_utils import is_internal_ip
+from .services.agent_service import agent_service
 
 # Configure logging
 logging.config.dictConfig(config['logging'])
@@ -43,6 +46,9 @@ async def lifespan(app: FastAPI):
         logger.info(f"🔒 Network access: {config['network']['allowed_agent_network']}")
         logger.info(f"🛡️ Detection engine: {'Enabled' if config['detection']['rules_enabled'] else 'Disabled'}")
         logger.info(f"📊 Threat intelligence: {'Enabled' if config['detection']['threat_intel_enabled'] else 'Disabled'}")
+        
+        # Start agent cleanup job
+        threading.Thread(target=agent_cleanup_job, daemon=True).start()
         
         yield
         
@@ -239,3 +245,15 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 @app.get("/favicon.ico")
 async def favicon():
     return FileResponse("static/favicon.ico")
+
+def agent_cleanup_job():
+    logger = logging.getLogger(__name__)
+    while True:
+        try:
+            with SessionLocal() as session:
+                count, agents = agent_service.cleanup_stale_agents(session, hours=0.1)  # 6 phút không heartbeat thì offline
+                if count > 0:
+                    logger.info(f"[AgentCleanup] Marked {count} agents offline: {agents}")
+        except Exception as e:
+            logger.error(f"[AgentCleanup] Error: {e}")
+        pytime.sleep(60)  # chạy mỗi 1 phút

@@ -1,7 +1,7 @@
-# app/services/detection_engine.py - FIXED: Raw Data Analysis
+# app/services/detection_engine.py - FIXED: Complete Rule Data Mapping
 """
 Detection Engine - FIXED VERSION
-Phân tích RAW event data TRƯỚC khi insert vào DB
+Đảm bảo tất cả dữ liệu từ DetectionRules table được map đầy đủ
 """
 
 import logging
@@ -17,7 +17,7 @@ from ..config import config
 logger = logging.getLogger(__name__)
 
 class DetectionEngine:
-    """Detection engine for raw event data analysis"""
+    """Detection engine with complete DetectionRules data mapping"""
     
     # Database-compliant threat levels
     THREAT_LEVELS = {
@@ -38,7 +38,7 @@ class DetectionEngine:
     def __init__(self):
         self.config = config.get('detection', {})
         self._init_operators()
-        logger.info("🔍 Detection Engine - Raw Data Analysis Mode")
+        logger.info("🔍 Detection Engine - Complete Rule Data Mapping Mode")
         
     def _init_operators(self):
         """Initialize comparison operators"""
@@ -60,12 +60,7 @@ class DetectionEngine:
     
     async def analyze_raw_event_data(self, session: Session, event_data: Dict) -> Dict:
         """
-        FIXED: Analyze RAW event data BEFORE database insert
-        Args:
-            session: Database session
-            event_data: Raw event data from agent
-        Returns:
-            Dictionary with detection results
+        FIXED: Analyze RAW event data with complete DetectionRules mapping
         """
         results = self._init_results(event_data)
         
@@ -78,10 +73,10 @@ class DetectionEngine:
                 
                 # Special logging for notepad.exe
                 if 'notepad.exe' in event_data.get('process_name', '').lower():
-                    logger.warning(f"🎯 NOTEPAD.EXE DETECTED - Running detection...")
+                    logger.warning(f"🎯 NOTEPAD.EXE DETECTED - Running complete rule analysis...")
             
-            # Execute detection phases
-            await self._execute_detection_phases(session, event_data, results)
+            # Execute detection phases with enhanced data mapping
+            await self._execute_detection_phases_enhanced(session, event_data, results)
             
             # Finalize results
             self._finalize_results(results)
@@ -92,24 +87,33 @@ class DetectionEngine:
             logger.info(f"   📋 Rules Matched: {len(results.get('matched_rules', []))}")
             logger.info(f"   🎯 Detection Methods: {results.get('detection_methods', [])}")
             
+            # Enhanced logging for rule details
+            if results.get('rule_details'):
+                logger.warning(f"📝 RULE DETAILS EXTRACTED:")
+                for rule_detail in results['rule_details']:
+                    logger.warning(f"   📋 Rule: {rule_detail.get('rule_name')} (ID: {rule_detail.get('rule_id')})")
+                    logger.warning(f"   📝 Alert: {rule_detail.get('alert_title')}")
+                    logger.warning(f"   ⚡ Severity: {rule_detail.get('alert_severity')}")
+                    logger.warning(f"   🎯 MITRE: {rule_detail.get('mitre_tactic')}/{rule_detail.get('mitre_technique')}")
+            
         except Exception as e:
             logger.error(f"💥 Raw data analysis failed: {str(e)}", exc_info=True)
         
         return results
     
-    async def _execute_detection_phases(self, session: Session, 
-                                       event_data: Dict, results: Dict) -> None:
-        """Execute all detection phases on raw data"""
+    async def _execute_detection_phases_enhanced(self, session: Session, 
+                                               event_data: Dict, results: Dict) -> None:
+        """Execute detection phases with enhanced rule data extraction"""
         
-        # 1. Rule-based detection
+        # 1. Enhanced rule-based detection
         if self.config.get('rules_enabled', True):
-            logger.info("🔍 Running rule-based detection...")
-            rule_results = await self._process_rules_on_raw_data(session, event_data)
+            logger.info("🔍 Running enhanced rule-based detection...")
+            rule_results = await self._process_rules_with_complete_data(session, event_data)
             if rule_results:
                 self._merge_results(results, rule_results)
-                logger.info(f"   📋 Rules checked: {len(rule_results.get('matched_rules', []))}")
+                logger.info(f"   📋 Rules processed: {len(rule_results.get('rule_details', []))}")
         
-        # 2. Threat intelligence
+        # 2. Threat intelligence (unchanged)
         if self.config.get('threat_intel_enabled', True) and event_data.get('process_hash'):
             logger.info("🔍 Running threat intelligence check...")
             threat_results = await self._check_threats_on_raw_data(session, event_data)
@@ -123,16 +127,18 @@ class DetectionEngine:
             results.get('matched_threats')
         )
     
-    async def _process_rules_on_raw_data(self, session: Session, event_data: Dict) -> Dict:
-        """Process all active detection rules against raw data"""
+    async def _process_rules_with_complete_data(self, session: Session, event_data: Dict) -> Dict:
+        """
+        FIXED: Process rules with COMPLETE DetectionRules data extraction
+        """
         
-        # Get platform from agent OS (simplified)
+        # Get platform from agent OS
         platform = self._determine_platform(event_data)
         
         # Get active rules
         rules = DetectionRule.get_active_rules(session, platform)
         
-        logger.info(f"📋 Checking {len(rules)} active rules...")
+        logger.info(f"📋 Checking {len(rules)} active rules with complete data mapping...")
         
         results = {
             'detection_methods': ['rule_engine'],
@@ -147,34 +153,206 @@ class DetectionEngine:
                 
                 results['matched_rules'].append(rule.RuleID)
                 results['risk_score'] += risk_score
-                results['rule_details'].append({
-                    'rule_id': rule.RuleID,
-                    'rule_name': rule.RuleName,
-                    'rule_type': rule.RuleType,
-                    'severity': rule.AlertSeverity,
-                    'alert_title': rule.AlertTitle,
-                    'alert_description': rule.AlertDescription,
-                    'mitre_tactic': rule.MitreTactic,
-                    'mitre_technique': rule.MitreTechnique,
-                    'risk_score': risk_score
-                })
                 
-                logger.warning(f"🚨 RULE MATCHED:")
+                # ENHANCED: Extract COMPLETE rule data from DetectionRules table
+                complete_rule_data = self._extract_complete_rule_data(rule, risk_score)
+                results['rule_details'].append(complete_rule_data)
+                
+                logger.warning(f"🚨 RULE MATCHED WITH COMPLETE DATA:")
                 logger.warning(f"   📝 Rule: {rule.RuleName} (ID: {rule.RuleID})")
-                logger.warning(f"   📋 Type: {rule.RuleType}")
-                logger.warning(f"   ⚡ Severity: {rule.AlertSeverity}")
-                logger.warning(f"   📊 Risk Score: {risk_score}")
-                logger.warning(f"   🎯 Alert Title: {rule.AlertTitle}")
+                logger.warning(f"   📋 Type: {rule.RuleType} | Category: {rule.RuleCategory}")
+                logger.warning(f"   ⚡ Severity: {rule.AlertSeverity} | Priority: {rule.Priority}")
+                logger.warning(f"   📄 Alert: {rule.AlertTitle}")
+                logger.warning(f"   🎯 MITRE: {rule.MitreTactic}/{rule.MitreTechnique}")
+                logger.warning(f"   🖥️ Platform: {rule.Platform} | Test Mode: {rule.TestMode}")
                 
                 # Special logging for notepad.exe detection
                 if event_data.get('process_name') and 'notepad.exe' in event_data.get('process_name', '').lower():
-                    logger.warning(f"🎯 NOTEPAD.EXE RULE MATCHED!")
-                    logger.warning(f"   📝 Rule Name: {rule.RuleName}")
-                    logger.warning(f"   📋 Alert: {rule.AlertTitle}")
-                    logger.warning(f"   🔔 This should trigger notification!")
+                    logger.warning(f"🎯 NOTEPAD.EXE RULE MATCHED - COMPLETE DATA EXTRACTED!")
+                    logger.warning(f"   📝 Full Rule Data: {complete_rule_data}")
         
         return results if results['matched_rules'] else {}
     
+    def _extract_complete_rule_data(self, rule: DetectionRule, risk_score: int) -> Dict:
+        """
+        FIXED: Extract COMPLETE data from DetectionRules table
+        Đảm bảo tất cả columns được map đầy đủ
+        """
+        try:
+            # Get rule condition as dict
+            rule_condition = rule.get_rule_condition()
+            
+            # Extract COMPLETE DetectionRules table data
+            complete_data = {
+                # ===== CORE RULE IDENTIFICATION =====
+                'rule_id': rule.RuleID,                    # DetectionRules.RuleID
+                'rule_name': rule.RuleName,                # DetectionRules.RuleName
+                'rule_type': rule.RuleType,                # DetectionRules.RuleType
+                'rule_category': rule.RuleCategory,        # DetectionRules.RuleCategory
+                'rule_condition': rule_condition,          # DetectionRules.RuleCondition (JSON)
+                
+                # ===== ALERT CONFIGURATION =====
+                'alert_title': rule.AlertTitle,            # DetectionRules.AlertTitle
+                'alert_description': rule.AlertDescription, # DetectionRules.AlertDescription
+                'alert_severity': rule.AlertSeverity,      # DetectionRules.AlertSeverity
+                'alert_type': rule.AlertType,              # DetectionRules.AlertType
+                
+                # ===== MITRE ATT&CK MAPPING =====
+                'mitre_tactic': rule.MitreTactic,          # DetectionRules.MitreTactic
+                'mitre_technique': rule.MitreTechnique,    # DetectionRules.MitreTechnique
+                
+                # ===== RULE METADATA =====
+                'platform': rule.Platform,                # DetectionRules.Platform
+                'priority': rule.Priority,                # DetectionRules.Priority
+                'is_active': rule.IsActive,               # DetectionRules.IsActive
+                'test_mode': rule.TestMode,               # DetectionRules.TestMode
+                
+                # ===== TIMESTAMPS =====
+                'created_at': rule.CreatedAt.isoformat() if rule.CreatedAt else None,  # DetectionRules.CreatedAt
+                'updated_at': rule.UpdatedAt.isoformat() if rule.UpdatedAt else None,  # DetectionRules.UpdatedAt
+                
+                # ===== CALCULATED FIELDS =====
+                'risk_score': risk_score,
+                'condition_summary': rule.get_condition_summary() if hasattr(rule, 'get_condition_summary') else "Rule condition",
+                
+                # ===== ADDITIONAL METADATA =====
+                'detection_timestamp': datetime.now().isoformat(),
+                'rule_matched': True,
+                'confidence': self._calculate_rule_confidence(rule, rule_condition),
+                
+                # ===== DISPLAY CONFIGURATION =====
+                'display_config': self._generate_display_config(rule),
+                
+                # ===== RESPONSE CONFIGURATION =====
+                'response_config': self._generate_response_config(rule)
+            }
+            
+            logger.debug(f"📋 Complete rule data extracted for rule {rule.RuleID}: {len(complete_data)} fields")
+            return complete_data
+            
+        except Exception as e:
+            logger.error(f"💥 Failed to extract complete rule data for rule {rule.RuleID}: {e}")
+            # Return minimal data as fallback
+            return {
+                'rule_id': rule.RuleID,
+                'rule_name': rule.RuleName or 'Unknown Rule',
+                'alert_title': rule.AlertTitle or 'Security Alert',
+                'alert_severity': rule.AlertSeverity or 'Medium',
+                'risk_score': risk_score,
+                'error': 'Failed to extract complete data'
+            }
+    
+    def _calculate_rule_confidence(self, rule: DetectionRule, rule_condition: Dict) -> float:
+        """Calculate confidence score for rule match"""
+        try:
+            base_confidence = 0.8
+            
+            # Increase confidence for specific conditions
+            if rule_condition and isinstance(rule_condition, dict):
+                # More specific conditions = higher confidence
+                if len(rule_condition) > 2:
+                    base_confidence += 0.1
+                
+                # Multiple conditions with AND logic = higher confidence
+                if rule_condition.get('logic') == 'AND' and rule_condition.get('conditions'):
+                    base_confidence += 0.05
+            
+            # Adjust based on rule metadata
+            if rule.Priority and rule.Priority > 75:
+                base_confidence += 0.05
+            
+            if not rule.TestMode:
+                base_confidence += 0.05
+            
+            return min(1.0, base_confidence)
+            
+        except Exception:
+            return 0.8  # Default confidence
+    
+    def _generate_display_config(self, rule: DetectionRule) -> Dict:
+        """Generate display configuration based on rule properties"""
+        try:
+            severity = rule.AlertSeverity or 'Medium'
+            
+            return {
+                'show_popup': True,
+                'auto_display': True,
+                'play_sound': severity in ['High', 'Critical'],
+                'require_acknowledgment': severity in ['High', 'Critical'],
+                'auto_escalate': severity == 'Critical',
+                'highlight_color': self._get_severity_color(severity),
+                'icon_type': self._get_severity_icon(severity),
+                'display_duration': self._get_display_duration(severity),
+                'can_dismiss': severity not in ['Critical'],
+                'show_details': True,
+                'show_mitre_info': bool(rule.MitreTactic or rule.MitreTechnique)
+            }
+        except Exception:
+            return {'show_popup': True, 'auto_display': True}
+    
+    def _generate_response_config(self, rule: DetectionRule) -> Dict:
+        """Generate response configuration based on rule properties"""
+        try:
+            severity = rule.AlertSeverity or 'Medium'
+            
+            available_actions = ['acknowledge', 'investigate']
+            
+            if severity in ['High', 'Critical']:
+                available_actions.extend(['isolate', 'quarantine'])
+            
+            if severity not in ['Critical']:
+                available_actions.append('dismiss')
+            
+            if severity == 'Critical':
+                available_actions.append('escalate')
+            
+            return {
+                'available_actions': available_actions,
+                'default_action': 'investigate' if severity in ['High', 'Critical'] else 'acknowledge',
+                'timeout_seconds': 300 if severity == 'Critical' else 600,
+                'auto_action': None,  # No automatic actions
+                'escalation_enabled': severity == 'Critical',
+                'require_justification': severity in ['High', 'Critical'],
+                'allow_bulk_action': True,
+                'response_required': severity in ['High', 'Critical']
+            }
+        except Exception:
+            return {'available_actions': ['acknowledge'], 'default_action': 'acknowledge'}
+    
+    def _get_severity_color(self, severity: str) -> str:
+        """Get color code for severity"""
+        colors = {
+            'Critical': '#FF0000',  # Red
+            'High': '#FF6600',      # Orange
+            'Medium': '#FFFF00',    # Yellow
+            'Low': '#00FF00',       # Green
+            'Info': '#0099FF'       # Blue
+        }
+        return colors.get(severity, '#FFFF00')
+    
+    def _get_severity_icon(self, severity: str) -> str:
+        """Get icon type for severity"""
+        icons = {
+            'Critical': 'critical_alert',
+            'High': 'warning',
+            'Medium': 'info',
+            'Low': 'notification',
+            'Info': 'info'
+        }
+        return icons.get(severity, 'info')
+    
+    def _get_display_duration(self, severity: str) -> int:
+        """Get display duration in seconds"""
+        durations = {
+            'Critical': 0,    # Persistent
+            'High': 300,      # 5 minutes
+            'Medium': 180,    # 3 minutes
+            'Low': 120,       # 2 minutes
+            'Info': 60        # 1 minute
+        }
+        return durations.get(severity, 180)
+    
+    # Rest of the methods remain unchanged...
     def _evaluate_rule_against_raw_data(self, event_data: Dict, rule: DetectionRule) -> bool:
         """Evaluate a single rule against raw event data"""
         try:
@@ -247,7 +425,7 @@ class DetectionEngine:
         return final_result
     
     def _evaluate_simple_condition_raw_data(self, event_data: Dict, condition: Dict) -> bool:
-        """Evaluate a simple condition against raw data (FIXED: require ALL fields to match for AND logic)"""
+        """Evaluate a simple condition against raw data"""
         logger.debug(f"   🔍 Evaluating simple condition: {condition}")
         
         # Require all fields (except 'logic') to match
@@ -301,7 +479,7 @@ class DetectionEngine:
         }
     
     def _determine_platform(self, agent_data: Dict) -> str:
-        """FIXED: Determine platform from agent OS instead of hostname"""
+        """Determine platform from agent OS"""
         operating_system = agent_data.get('agent_os', '')
         if not operating_system:
             operating_system = agent_data.get('operating_system', '')
@@ -360,7 +538,7 @@ class DetectionEngine:
                 base[key] = value
         return base
     
-    # Operator implementations
+    # Operator implementations (unchanged)
     def _op_equals(self, a: Any, b: Any) -> bool:
         if a is None or b is None:
             return a == b
@@ -418,40 +596,6 @@ class DetectionEngine:
     
     def _op_not_exists(self, a: Any, _: Any) -> bool:
         return not self._op_exists(a, _)
-    
-    # Legacy method for backward compatibility
-    async def analyze_event_and_create_alerts(self, session: Session, event) -> Dict:
-        """Legacy method - converts Event object to raw data and analyzes"""
-        try:
-            # Convert Event object to raw data format
-            event_data = {
-                'agent_id': str(event.AgentID),
-                'event_type': event.EventType,
-                'event_action': event.EventAction,
-                'event_timestamp': event.EventTimestamp,
-                'severity': event.Severity,
-                'process_name': event.ProcessName,
-                'process_path': event.ProcessPath,
-                'command_line': event.CommandLine,
-                'process_hash': event.ProcessHash,
-                'file_name': event.FileName,
-                'file_path': event.FilePath,
-                'file_hash': event.FileHash
-            }
-            
-            # Run analysis on converted data
-            return await self.analyze_raw_event_data(session, event_data)
-            
-        except Exception as e:
-            logger.error(f"Legacy analysis failed: {e}")
-            return {
-                'threat_detected': False,
-                'threat_level': 'None',
-                'risk_score': 0,
-                'detection_methods': [],
-                'matched_rules': [],
-                'error': str(e)
-            }
 
 # =============================================================================
 # SINGLETON INSTANCE
@@ -465,7 +609,7 @@ def get_detection_service() -> DetectionEngine:
     global _detection_engine_instance
     if _detection_engine_instance is None:
         _detection_engine_instance = DetectionEngine()
-        logger.info("🔍 Detection Engine singleton created - Raw Data Analysis Mode")
+        logger.info("🔍 Detection Engine singleton created - Complete Rule Data Mapping Mode")
     return _detection_engine_instance
 
 # Also create the detection_engine instance for backward compatibility

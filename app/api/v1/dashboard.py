@@ -301,12 +301,12 @@ async def get_alerts_overview(
         
         # Get alert timeline (hourly)
         alert_timeline = session.query(
-            func.date_part('hour', Alert.FirstDetected).label('hour'),
+            func.DATEPART(text('hour'), Alert.FirstDetected).label('hour'),
             func.count(Alert.AlertID).label('count')
         ).filter(
             Alert.FirstDetected >= cutoff_time
         ).group_by(
-            func.date_part('hour', Alert.FirstDetected)
+            func.DATEPART(text('hour'), Alert.FirstDetected)
         ).order_by('hour').all()
         
         return AlertOverviewResponse(
@@ -355,9 +355,9 @@ async def get_events_timeline(
         
         # Use appropriate date part function based on granularity
         if granularity == "hour":
-            time_part = func.date_part('hour', Event.EventTimestamp)
+            time_part = func.DATEPART(text('hour'), Event.EventTimestamp)
         else:  # minute
-            time_part = func.date_part('minute', Event.EventTimestamp)
+            time_part = func.DATEPART(text('minute'), Event.EventTimestamp)
         
         # Get timeline data
         timeline_data = session.query(

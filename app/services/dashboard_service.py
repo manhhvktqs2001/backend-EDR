@@ -379,7 +379,7 @@ class DashboardService:
         elif score >= 60:
             return "Fair"
         elif score >= 40:
-            return "Poor"
+            return "Warning"
         else:
             return "Critical"
     

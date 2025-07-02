@@ -76,7 +76,13 @@ SECURITY_CONFIG = {
     'agent_auth_required': True,
     'agent_auth_token': 'edr_agent_auth_2024',
     'api_key_header': 'X-Agent-Token',
-    'cors_origins': ['http://localhost:3000', 'http://192.168.20.85:3000'],
+    'cors_origins': [
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'http://192.168.20.85:3000',
+        'http://192.168.20.85:5173',
+        'http://localhost:5174',  # Added for Vite dev server
+    ],
     'rate_limiting_enabled': True,
     'rate_limit_burst': True,  # Allow burst traffic
     

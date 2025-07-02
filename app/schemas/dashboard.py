@@ -50,7 +50,7 @@ class EventTimelineResponse(BaseModel):
 
 class ThreatOverviewResponse(BaseModel):
     """Schema for threat overview dashboard"""
-    summary: Dict[str, int] = Field(..., description="Threat summary statistics")
+    summary: Dict[str, Any] = Field(..., description="Threat summary statistics")
     recent_detections: List[Dict[str, Any]] = Field(..., description="Recent threat detections")
     category_distribution: Dict[str, int] = Field(..., description="Distribution by category")
     mitre_tactics: List[Dict[str, Any]] = Field(..., description="MITRE tactics from threats")
