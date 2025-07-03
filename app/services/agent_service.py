@@ -282,8 +282,8 @@ class AgentService:
             summary = Agent.get_agents_summary(session)
             
             # Get agents by connection status
-            online_agents = Agent.get_online_agents(session, timeout_minutes=5)
-            offline_agents = Agent.get_offline_agents(session, timeout_minutes=30)
+            online_agents = Agent.get_online_agents(session, timeout_minutes=1)
+            offline_agents = Agent.get_offline_agents(session, timeout_minutes=1)
             
             # Performance analysis
             unhealthy_agents = []
@@ -311,7 +311,7 @@ class AgentService:
     def cleanup_stale_agents(self, session: Session, hours: int = 24) -> Tuple[int, List[str]]:
         """Mark agents as offline if they haven't sent heartbeat in specified hours"""
         try:
-            cutoff_time = datetime.now() - timedelta(hours=hours)
+            cutoff_time = datetime.now() - timedelta(minutes=1)
             stale_agents = session.query(Agent).filter(
                 Agent.LastHeartbeat < cutoff_time,
                 Agent.Status != 'Offline'

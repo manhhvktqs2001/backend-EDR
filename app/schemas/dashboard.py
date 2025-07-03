@@ -43,6 +43,7 @@ class EventTimelineResponse(BaseModel):
     """Schema for event timeline dashboard"""
     timeline: List[Dict[str, Any]] = Field(..., description="Event timeline data")
     threat_timeline: List[Dict[str, Any]] = Field(..., description="Threat event timeline")
+    events_by_type: Dict[str, int] = Field(..., description="Event count breakdown by type")
     granularity: str = Field(..., description="Timeline granularity (hour/minute)")
     time_range_hours: int = Field(..., description="Time range for timeline")
     total_events: int = Field(..., description="Total events in timeline")

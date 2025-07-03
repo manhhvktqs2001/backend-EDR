@@ -101,25 +101,23 @@ async def get_agent_config(
 @router.get("/list", response_model=AgentListResponse)
 async def list_agents(
     request: Request,
+    all: bool = False,
+    limit: int = None,
     session: Session = Depends(get_db)
 ):
-    """List all agents"""
+    """List all agents, hỗ trợ lấy toàn bộ nếu all=true hoặc limit=0"""
     try:
         # Get agent summaries
         agents_summary = Agent.get_agents_summary(session)
-        
-        # Get detailed agent list
-        agents = session.query(Agent).order_by(Agent.LastHeartbeat.desc()).all()
-        
-        agent_summaries = []
-        for agent in agents:
-            summary_data = agent.to_summary()
-            agent_summaries.append(summary_data)
-        
+        # Lấy agents theo all/limit
+        query = session.query(Agent).order_by(Agent.LastHeartbeat.desc())
+        if not all and limit not in (None, 0):
+            query = query.limit(limit)
+        agents = query.all()
+        agent_summaries = [agent.to_summary() for agent in agents]
         # Calculate counts
         online_count = sum(1 for agent in agents if agent.is_online())
         offline_count = len(agents) - online_count
-        
         return AgentListResponse(
             agents=agent_summaries,
             total_count=len(agents),
@@ -127,7 +125,6 @@ async def list_agents(
             offline_count=offline_count,
             summary=agents_summary
         )
-        
     except Exception as e:
         logger.error(f"List agents error: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to list agents")
@@ -477,8 +474,7 @@ async def get_pending_alerts(
         raise
     except Exception as e:
         logger.error(f"💥 Get pending alerts failed: {str(e)}")
-        raise HTTPException(status_code=500, detail="Failed to get pending alerts")(f"💥 Agent registration error: {str(e)}")
-        raise HTTPException(status_code=500, detail="Agent registration failed")
+        raise HTTPException(status_code=500, detail="Failed to get pending alerts")
 
 @router.post("/heartbeat", response_model=AgentHeartbeatResponse)
 async def heartbeat(
@@ -686,4 +682,5 @@ async def get_agent_status(
     except HTTPException:
         raise
     except Exception as e:
-        logger.error
+        logger.error(f"💥 Get agent status failed: {str(e)}")
+        raise HTTPException(status_code=500, detail="Failed to get agent status")

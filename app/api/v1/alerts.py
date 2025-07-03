@@ -49,7 +49,7 @@ async def list_alerts(
     agent_id: Optional[str] = Query(None, description="Filter by agent ID"),
     alert_type: Optional[str] = Query(None, description="Filter by alert type"),
     hours: int = Query(24, description="Time range in hours"),
-    limit: int = Query(100, le=1000, description="Maximum alerts to return"),
+    limit: int = Query(100, ge=0, le=1000000, description="Maximum alerts to return (0 = unlimited)"),
     offset: int = Query(0, ge=0, description="Offset for pagination"),
     realtime: Optional[bool] = Query(None, description="Realtime mode flag"),
     session: Session = Depends(get_db)
@@ -121,7 +121,10 @@ async def list_alerts_implementation(
         total_count = query.count()
         
         # Apply pagination and get results
-        alerts = query.order_by(Alert.FirstDetected.desc()).offset(offset).limit(limit).all()
+        if limit and limit > 0:
+            alerts = query.order_by(Alert.FirstDetected.desc()).offset(offset).limit(limit).all()
+        else:
+            alerts = query.order_by(Alert.FirstDetected.desc()).offset(offset).all()
         
         # Convert to summary format and add agent info
         alert_summaries = []

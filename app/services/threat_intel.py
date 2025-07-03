@@ -1,6 +1,6 @@
-# app/services/threat_intel.py - HOÀN CHỈNH
+# app/services/threat_intel.py - FIXED VERSION
 """
-Threat Intelligence Service
+Threat Intelligence Service - FIXED IMPORT
 External threat intelligence lookup and integration
 """
 
@@ -13,7 +13,6 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 
 from ..models.threat import Threat
-from ..database import db_manager
 from ..config import config
 
 logger = logging.getLogger('threat_intelligence')

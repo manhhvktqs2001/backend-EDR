@@ -382,6 +382,17 @@ async def get_events_timeline(
             Event.ThreatLevel.in_(['Suspicious', 'Malicious'])
         ).group_by(time_part).order_by('time_unit').all()
         
+        # Get events breakdown by type for pie chart
+        events_by_type = session.query(
+            Event.EventType,
+            func.count(Event.EventID).label('count')
+        ).filter(
+            Event.EventTimestamp >= cutoff_time
+        ).group_by(Event.EventType).all()
+        
+        # Convert to dictionary format
+        events_by_type_dict = {event_type: count for event_type, count in events_by_type}
+        
         # Format timeline data
         timeline = []
         for row in timeline_data:
@@ -403,6 +414,7 @@ async def get_events_timeline(
         return EventTimelineResponse(
             timeline=timeline,
             threat_timeline=threat_timeline_formatted,
+            events_by_type=events_by_type_dict,
             granularity=granularity,
             time_range_hours=hours,
             total_events=sum(row['count'] for row in timeline),

@@ -419,12 +419,11 @@ class Agent(Base):
             }
     
     @classmethod
-    def get_online_agents(cls, session, timeout_minutes: int = 5) -> List['Agent']:
-        """Get currently online agents"""
+    def get_online_agents(cls, session, timeout_seconds: int = 10) -> List['Agent']:
+        """Get currently online agents: chỉ cần LastHeartbeat < timeout_seconds là online"""
         try:
-            cutoff_time = datetime.now() - timedelta(minutes=timeout_minutes)
+            cutoff_time = datetime.now() - timedelta(seconds=timeout_seconds)
             return session.query(cls).filter(
-                cls.Status == 'Active',
                 cls.LastHeartbeat >= cutoff_time
             ).all()
         except Exception as e:

@@ -191,64 +191,42 @@ async def list_events(
     event_type: Optional[str] = Query(None, description="Filter by event type"),
     severity: Optional[str] = Query(None, description="Filter by severity"),
     threat_level: Optional[str] = Query(None, description="Filter by threat level"),
-    hours: int = Query(24, description="Time range in hours"),
-    limit: int = Query(100, le=1000, description="Maximum events to return"),
-    offset: int = Query(0, ge=0, description="Offset for pagination"),
+    hours: Optional[int] = Query(None, description="Time range in hours (None = all time)"),
     session: Session = Depends(get_db)
 ):
-    """List events with filtering and pagination"""
+    """List all events in database, không phân trang, không giới hạn"""
     try:
-        # Build optimized query
         query = session.query(Event)
-        
-        # Apply filters
         filters_applied = {}
-        
         if agent_id:
             query = query.filter(Event.AgentID == agent_id)
             filters_applied['agent_id'] = agent_id
-        
         if event_type:
             query = query.filter(Event.EventType == event_type)
             filters_applied['event_type'] = event_type
-        
         if severity:
             query = query.filter(Event.Severity == severity)
             filters_applied['severity'] = severity
-        
         if threat_level:
             query = query.filter(Event.ThreatLevel == threat_level)
             filters_applied['threat_level'] = threat_level
-        
-        # Time range filter
-        if hours:
+        if hours is not None and hours > 0:
             from datetime import datetime, timedelta
             cutoff_time = datetime.now() - timedelta(hours=hours)
             query = query.filter(Event.EventTimestamp >= cutoff_time)
             filters_applied['hours'] = hours
-        
-        # Get total count efficiently
-        total_count = query.count()
-        
-        # Apply pagination and get results with optimized ordering
-        events = query.order_by(Event.EventTimestamp.desc()).offset(offset).limit(limit).all()
-        
-        # Convert to summary format efficiently
+        events = query.order_by(Event.EventTimestamp.desc()).all()
+        total_count = len(events)
         event_summaries = [event.to_summary() for event in events]
-        
-        # Calculate page info
-        page = (offset // limit) + 1 if limit > 0 else 1
-        
-        logger.debug(f"📋 Listed {len(event_summaries)} events (total: {total_count})")
-        
+        logger.debug(f"📋 Listed {len(event_summaries)} events (total: {total_count}) - Time filter: {'Last ' + str(hours) + ' hours' if hours else 'All time'}")
         return EventListResponse(
             events=event_summaries,
             total_count=total_count,
-            page=page,
-            page_size=limit,
-            filters_applied=filters_applied
+            page=1,
+            page_size=total_count,
+            filters_applied=filters_applied,
+            total_pages=1
         )
-        
     except Exception as e:
         logger.error(f"List events failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to list events")

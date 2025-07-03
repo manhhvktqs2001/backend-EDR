@@ -265,6 +265,7 @@ async def update_detection_rule(
 async def delete_detection_rule(
     request: Request,
     rule_id: int,
+    force: bool = Query(False),
     session: Session = Depends(get_db),
     _: bool = Depends(require_detection_engine)
 ):
@@ -280,13 +281,11 @@ async def delete_detection_rule(
         from ...models.alert import Alert
         alerts_count = session.query(Alert).filter(Alert.RuleID == rule_id).count()
         
-        if alerts_count > 0:
-            # Disable instead of delete if alerts exist
+        if alerts_count > 0 and not force:
+            # Disable instead of delete if alerts exist and not force
             rule.disable()
             session.commit()
-            
             logger.info(f"Detection rule {rule_id} disabled (has {alerts_count} alerts)")
-            
             return {
                 "success": True,
                 "message": f"Detection rule disabled (has {alerts_count} existing alerts)",
@@ -295,12 +294,10 @@ async def delete_detection_rule(
                 "action": "disabled"
             }
         else:
-            # Safe to delete
+            # Safe to delete (force or no alerts)
             session.delete(rule)
             session.commit()
-            
             logger.info(f"Detection rule {rule_id} deleted: {rule_name}")
-            
             return {
                 "success": True,
                 "message": "Detection rule deleted successfully",
