@@ -8,7 +8,7 @@ import logging
 import logging.config
 import time
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Request, HTTPException, status
+from fastapi import FastAPI, Request, HTTPException, status, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse, FileResponse
@@ -16,16 +16,44 @@ import uvicorn
 from fastapi.staticfiles import StaticFiles
 import threading
 import time as pytime
+from datetime import datetime
+import sys
+import asyncio
 
 from .config import config
 from .database import init_database, get_database_status, SessionLocal
-from .api.v1 import agents, events, alerts, dashboard, threats, detection, agent_response
+from .api.v1 import agents, events, alerts, dashboard, threats, detection, agent_response, router as v1_router
 from .utils.network_utils import is_internal_ip
 from .services.agent_service import agent_service
+from .models.agent import Agent
 
 # Configure logging
 logging.config.dictConfig(config['logging'])
 logger = logging.getLogger(__name__)
+
+active_ws_connections = {}
+
+if sys.platform.startswith("win"):
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+
+def warmup_queries():
+    from .database import SessionLocal
+    from .models.agent import Agent
+    from .models.event import Event
+    from .models.alert import Alert
+    from .models.threat import Threat
+    from .models.detection_rule import DetectionRule
+    session = SessionLocal()
+    try:
+        session.query(Agent).count()
+        session.query(Event).count()
+        session.query(Alert).count()
+        session.query(Threat).count()
+        session.query(DetectionRule).count()
+    except Exception as e:
+        print(f"Warmup error: {e}")
+    finally:
+        session.close()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -39,6 +67,9 @@ async def lifespan(app: FastAPI):
             raise RuntimeError("Database initialization failed")
         
         logger.info("✅ Database initialized successfully")
+        
+        # Warm-up query để khởi tạo pool/cache/ORM mapping
+        threading.Thread(target=warmup_queries, daemon=True).start()
         
         # Log server configuration
         server_config = config['server']
@@ -58,6 +89,17 @@ async def lifespan(app: FastAPI):
     
     # Shutdown
     logger.info("👋 Shutting down EDR Agent Communication Server...")
+    
+    # Close all WebSocket connections gracefully
+    try:
+        for agent_id, websocket in active_ws_connections.items():
+            try:
+                await websocket.close()
+            except:
+                pass
+        active_ws_connections.clear()
+    except Exception as e:
+        logger.error(f"Error during WebSocket cleanup: {e}")
 
 # Create FastAPI application
 app = FastAPI(
@@ -187,6 +229,7 @@ app.include_router(dashboard.router, prefix="/api/v1/dashboard", tags=["dashboar
 app.include_router(threats.router, prefix="/api/v1/threats", tags=["threats"])
 app.include_router(detection.router, prefix="/api/v1/detection", tags=["detection"])
 app.include_router(agent_response.router, prefix="/api/v1/agent-response", tags=["agent-response"])
+app.include_router(v1_router, prefix="/api/v1")
 
 # Global exception handlers
 @app.exception_handler(Exception)
@@ -214,6 +257,9 @@ async def value_error_handler(request: Request, exc: ValueError):
         content={"error": "Bad request", "detail": str(exc)}
     )
 
+# Mount static files
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 # Development server runner
 if __name__ == "__main__":
     server_config = config['server']
@@ -231,16 +277,19 @@ if __name__ == "__main__":
    • NO automatic alert creation by server
     """)
     
-    uvicorn.run(
-        "app.main:app",
-        host=server_config['bind_host'],
-        port=server_config['bind_port'],
-        reload=server_config['reload'],
-        log_level="info"
-    )
-
-# Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
+    try:
+        uvicorn.run(
+            "app.main:app",
+            host=server_config['bind_host'],
+            port=server_config['bind_port'],
+            reload=server_config['reload'],
+            log_level="info",
+            loop="asyncio"
+        )
+    except KeyboardInterrupt:
+        print("\n👋 Server shutdown requested")
+    except Exception as e:
+        print(f"❌ Server error: {e}")
 
 @app.get("/favicon.ico")
 async def favicon():
@@ -257,3 +306,47 @@ def agent_cleanup_job():
         except Exception as e:
             logger.error(f"[AgentCleanup] Error: {e}")
         pytime.sleep(60)  # chạy mỗi 1 phút
+
+@app.websocket("/ws/agent/{agent_id}")
+async def agent_ws(websocket: WebSocket, agent_id: str):
+    await websocket.accept()
+    db = SessionLocal()
+    try:
+        # Khi agent kết nối, cập nhật trạng thái online
+        agent = db.query(Agent).filter(Agent.AgentID == agent_id).first()
+        if agent:
+            agent.Status = "Active"
+            agent.LastHeartbeat = datetime.now()
+            db.commit()
+        active_ws_connections[agent_id] = websocket
+        while True:
+            # Đợi tin nhắn từ agent (có thể là heartbeat hoặc dữ liệu khác)
+            data = await websocket.receive_text()
+            # Có thể xử lý thêm nếu muốn
+    except WebSocketDisconnect:
+        # Khi agent disconnect, cập nhật trạng thái offline NGAY LẬP TỨC
+        agent = db.query(Agent).filter(Agent.AgentID == agent_id).first()
+        if agent:
+            agent.Status = "Offline"
+            db.commit()
+        active_ws_connections.pop(agent_id, None)
+    except Exception as e:
+        logger.error(f"WebSocket error for agent {agent_id}: {e}")
+    finally:
+        try:
+            db.close()
+        except:
+            pass
+
+@app.websocket("/ws/dashboard")
+async def dashboard_ws(websocket: WebSocket):
+    await websocket.accept()
+    try:
+        while True:
+            await asyncio.sleep(60)  # giữ kết nối, có thể gửi dữ liệu sau
+    except WebSocketDisconnect:
+        pass
+
+@app.get("/status")
+def status():
+    return {"status": "ok"}

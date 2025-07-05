@@ -44,72 +44,26 @@ async def submit_event(
     session: Session = Depends(get_db),
     _: bool = Depends(verify_agent_token)
 ):
-    """FIXED: Submit single event với REALTIME detection for notepad.exe"""
-    start_time = time.time()
-    client_ip = request.client.host
-    
+    """Submit event from agent with detection engine processing"""
     try:
-        logger.info(f"📥 EVENT SUBMISSION:")
-        logger.info(f"   🎯 Agent: {event_data.agent_id}")
-        logger.info(f"   📋 Type: {event_data.event_type}")
-        logger.info(f"   🔧 Action: {event_data.event_action}")
-        logger.info(f"   📡 Client: {client_ip}")
-        
-        if event_data.event_type == 'Process' and event_data.process_name:
-            logger.info(f"   🖥️ Process: {event_data.process_name}")
-            logger.info(f"   📂 Path: {event_data.process_path}")
-            logger.info(f"   ⚡ Command: {event_data.command_line}")
-            
-            # Special logging for notepad.exe để track detection
-            if 'notepad.exe' in event_data.process_name.lower():
-                logger.warning(f"🎯 NOTEPAD.EXE DETECTED IN EVENT:")
-                logger.warning(f"   📋 Process: {event_data.process_name}")
-                logger.warning(f"   📂 Path: {event_data.process_path}")
-                logger.warning(f"   🎯 Agent: {event_data.agent_id}")
-                logger.warning(f"   🔔 This should trigger rule detection!")
-        
-        # Process event với detection engine
+        # Get agent_id from request
+        agent_id = event_data.agent_id
+        if not agent_id:
+            raise HTTPException(status_code=400, detail="agent_id is required")
+        client_ip = request.client.host
+        # GỌI detection engine submit_event
         success, response, error = await event_service.submit_event(session, event_data, client_ip)
-        
         if not success:
-            logger.warning(f"❌ Event submission failed from {client_ip}: {error}")
-            raise HTTPException(status_code=400, detail=error)
-        
-        # Calculate processing time
-        processing_time = time.time() - start_time
-        
-        # Enhanced logging for detection results
-        if response.threat_detected:
-            logger.warning(f"🚨 THREAT DETECTED & PROCESSED:")
-            logger.warning(f"   📋 Event ID: {response.event_id}")
-            logger.warning(f"   🎯 Risk Score: {response.risk_score}")
-            logger.warning(f"   📊 Alerts Generated: {len(response.alerts_generated)}")
-            logger.warning(f"   ⏱️ Processing Time: {processing_time:.3f}s")
-            logger.warning(f"   📡 Client: {client_ip}")
-            
-            # Log alert details
-            for alert in response.alerts_generated:
-                logger.warning(f"     📋 Alert: {alert.id} - {alert.title} (Severity: {alert.severity})")
-            
-            # Verify notification was sent
-            if hasattr(response, 'notifications_sent'):
-                logger.warning(f"   📤 Notifications: {len(response.notifications_sent) if response.notifications_sent else 0}")
-        else:
-            logger.info(f"✅ Clean event processed:")
-            logger.info(f"   📋 Event ID: {response.event_id}")
-            logger.info(f"   ⏱️ Processing Time: {processing_time:.3f}s")
-        
-        # Add performance metrics to response
-        response.message += f" (Processed in {processing_time:.3f}s)"
-        
+            raise HTTPException(status_code=400, detail=error or "Event processing failed")
+        # Store event in database (đã được xử lý detection)
+        background_tasks.add_task(event_service.store_event, session, event_data.dict())
+        logger.info(f"📊 Event submitted: {event_data.event_type} from agent {agent_id}")
+        logger.info(f"   🎯 Response: threat_detected={response.threat_detected}, alerts_generated={len(response.alerts_generated)}")
         return response
-        
     except HTTPException:
         raise
     except Exception as e:
-        processing_time = time.time() - start_time
-        error_msg = f"Event submission error after {processing_time:.3f}s: {str(e)}"
-        logger.error(f"💥 {error_msg}")
+        logger.error(f"Event submission failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Event submission failed")
 
 @router.post("/batch", response_model=EventBatchResponse)

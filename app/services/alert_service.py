@@ -10,6 +10,9 @@ from datetime import datetime, timedelta
 from typing import Optional, Dict, List, Tuple, Any
 from sqlalchemy.orm import Session
 from sqlalchemy import func, and_, or_
+import os
+import redis
+import json
 
 from ..models.alert import Alert
 from ..models.agent import Agent
@@ -19,6 +22,11 @@ from ..models.detection_rule import DetectionRule
 from ..config import config
 
 logger = logging.getLogger('alert_management')
+
+REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
+REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
+REDIS_DB = int(os.getenv('REDIS_DB', 0))
+redis_client = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, decode_responses=True)
 
 class AlertService:
     """Service for managing EDR alerts"""
@@ -513,6 +521,12 @@ class AlertService:
             return "Low"
         else:
             return "Low"  # Changed from "Info" to "Low" to match valid severities
+
+    def push_alert_to_agent_queue(self, agent_id: str, alert_data: dict):
+        """Push alert vào Redis queue cho agent (thay vì lưu DB ngay)"""
+        queue_key = f"pending_alerts:{agent_id}"
+        redis_client.rpush(queue_key, json.dumps(alert_data))
+        return True
 
 
 # =============================================================================

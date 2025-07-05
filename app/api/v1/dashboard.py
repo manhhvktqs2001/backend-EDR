@@ -89,10 +89,7 @@ async def get_dashboard_stats(
         # Agent statistics
         total_agents = session.query(Agent).count()
         active_agents = session.query(Agent).filter(Agent.Status == 'Active').count()
-        online_agents = session.query(Agent).filter(
-            Agent.Status == 'Active',
-            Agent.LastHeartbeat >= now - timedelta(minutes=5)
-        ).count()
+        online_agents = session.query(Agent).filter(Agent.Status == 'Active').count()
         
         # Event statistics
         events_last_24h = session.query(Event).filter(Event.EventTimestamp >= last_24h).count()

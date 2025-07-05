@@ -131,14 +131,14 @@ class DetectionEngine:
         """
         FIXED: Process rules with COMPLETE DetectionRules data extraction
         """
-        
         # Get platform from agent OS
         platform = self._determine_platform(event_data)
-        
         # Get active rules
         rules = DetectionRule.get_active_rules(session, platform)
-        
         logger.info(f"📋 Checking {len(rules)} active rules with complete data mapping...")
+        logger.info(f"   🎯 Platform: {platform}")
+        logger.info(f"   📊 Event type: {event_data.get('event_type')}")
+        logger.info(f"   🖥️ Process name: {event_data.get('process_name')}")
         
         results = {
             'detection_methods': ['rule_engine'],
@@ -148,28 +148,21 @@ class DetectionEngine:
         }
         
         for rule in rules:
+            logger.debug(f"🔍 Checking rule: {rule.RuleName} (ID: {rule.RuleID})")
+            
             if self._evaluate_rule_against_raw_data(event_data, rule):
                 risk_score = self.SEVERITY_SCORES.get(rule.AlertSeverity, 50)
-                
                 results['matched_rules'].append(rule.RuleID)
                 results['risk_score'] += risk_score
-                
-                # ENHANCED: Extract COMPLETE rule data from DetectionRules table
                 complete_rule_data = self._extract_complete_rule_data(rule, risk_score)
                 results['rule_details'].append(complete_rule_data)
-                
-                logger.warning(f"🚨 RULE MATCHED WITH COMPLETE DATA:")
-                logger.warning(f"   📝 Rule: {rule.RuleName} (ID: {rule.RuleID})")
-                logger.warning(f"   📋 Type: {rule.RuleType} | Category: {rule.RuleCategory}")
-                logger.warning(f"   ⚡ Severity: {rule.AlertSeverity} | Priority: {rule.Priority}")
-                logger.warning(f"   📄 Alert: {rule.AlertTitle}")
-                logger.warning(f"   🎯 MITRE: {rule.MitreTactic}/{rule.MitreTechnique}")
-                logger.warning(f"   🖥️ Platform: {rule.Platform} | Test Mode: {rule.TestMode}")
-                
-                # Special logging for notepad.exe detection
-                if event_data.get('process_name') and 'notepad.exe' in event_data.get('process_name', '').lower():
-                    logger.warning(f"🎯 NOTEPAD.EXE RULE MATCHED - COMPLETE DATA EXTRACTED!")
-                    logger.warning(f"   📝 Full Rule Data: {complete_rule_data}")
+                logger.warning(f"🚨 RULE MATCHED: {rule.RuleName} (ID: {rule.RuleID}) for event: {event_data}")
+            else:
+                logger.debug(f"   ❌ Rule {rule.RuleName} (ID: {rule.RuleID}) did not match")
+        
+        logger.info(f"📊 Rule evaluation complete:")
+        logger.info(f"   ✅ Matched rules: {len(results['matched_rules'])}")
+        logger.info(f"   📊 Risk score: {results['risk_score']}")
         
         return results if results['matched_rules'] else {}
     
@@ -352,34 +345,42 @@ class DetectionEngine:
         }
         return durations.get(severity, 180)
     
-    # Rest of the methods remain unchanged...
     def _evaluate_rule_against_raw_data(self, event_data: Dict, rule: DetectionRule) -> bool:
         """Evaluate a single rule against raw event data"""
         try:
             condition = rule.get_rule_condition()
             if not condition:
-                logger.debug(f"Rule {rule.RuleID} has no condition")
+                logger.debug(f"   ❌ Rule {rule.RuleID} has no condition")
                 return False
             
-            logger.debug(f"🔍 Evaluating rule: {rule.RuleName}")
-            logger.debug(f"   Condition: {condition}")
+            logger.debug(f"   🔍 Evaluating rule {rule.RuleName} (ID: {rule.RuleID})")
+            logger.debug(f"   📋 Condition: {condition}")
+            logger.debug(f"   📊 Event data: {event_data}")
             
-            # Check if rule applies to this event type
-            if not rule.is_applicable_to_event_type(event_data.get('event_type', '')):
-                logger.debug(f"   ❌ Rule not applicable to event type: {event_data.get('event_type')}")
-                return False
-            
+            # BỎ QUA RULE QUÁ RỘNG: chỉ có event_type hoặc event_type + logic
             if isinstance(condition, dict):
-                # Handle different condition formats
+                keys = set(condition.keys())
+                if keys == {"event_type"} or keys == {"event_type", "logic"}:
+                    logger.warning(f"[SECURITY] Bỏ qua rule quá rộng (RuleID={rule.RuleID}): chỉ có event_type")
+                    return False
+            
+            # Kiểm tra rule có áp dụng cho event_type không
+            if not rule.is_applicable_to_event_type(event_data.get('event_type', '')):
+                logger.debug(f"   ❌ Rule {rule.RuleID} not applicable to event type: {event_data.get('event_type')}")
+                return False
+            
+            # Đánh giá condition
+            if isinstance(condition, dict):
                 if 'conditions' in condition:
                     result = self._evaluate_condition_group_raw_data(event_data, condition)
+                    logger.debug(f"   📊 Condition group result: {result}")
+                    return result
                 else:
                     result = self._evaluate_simple_condition_raw_data(event_data, condition)
-                
-                logger.debug(f"   📊 Rule evaluation result: {result}")
-                return result
+                    logger.debug(f"   📊 Simple condition result: {result}")
+                    return result
             
-            logger.debug(f"   ❌ Invalid condition format")
+            logger.debug(f"   ❌ Rule {rule.RuleID} condition is not a dict: {type(condition)}")
             return False
             
         except Exception as e:
@@ -425,25 +426,77 @@ class DetectionEngine:
         return final_result
     
     def _evaluate_simple_condition_raw_data(self, event_data: Dict, condition: Dict) -> bool:
-        """Evaluate a simple condition against raw data"""
-        logger.debug(f"   🔍 Evaluating simple condition: {condition}")
-        
-        # Require all fields (except 'logic') to match
-        for field, expected_value in condition.items():
-            if field == 'logic':
-                continue
-            event_value = event_data.get(field)
-            # Default to case-insensitive equals
-            if isinstance(expected_value, str) and isinstance(event_value, str):
-                if expected_value.lower() != event_value.lower():
-                    logger.debug(f"     ❌ Field: {field}, Event: {event_value}, Expected: {expected_value}, Result: False")
-                    return False
-            else:
-                if str(expected_value) != str(event_value):
-                    logger.debug(f"     ❌ Field: {field}, Event: {event_value}, Expected: {expected_value}, Result: False")
-                    return False
-        logger.debug(f"     ✅ All fields matched for AND logic")
-        return True
+        """FIXED: Evaluate simple condition with proper logic handling"""
+        try:
+            # Get logic operator (default to case-insensitive equals)
+            logic = condition.get('logic', 'EQUALS').upper()
+            
+            # Process each field except logic
+            for field, expected_value in condition.items():
+                if field == 'logic':
+                    continue
+                
+                event_value = event_data.get(field)
+                
+                # Handle different logic operators
+                if logic == 'EQUALS':
+                    if isinstance(expected_value, str) and isinstance(event_value, str):
+                        if expected_value.lower() != event_value.lower():
+                            logger.debug(f"   ❌ {field}: '{event_value}' != '{expected_value}' (EQUALS)")
+                            return False
+                    else:
+                        if str(expected_value) != str(event_value):
+                            logger.debug(f"   ❌ {field}: '{event_value}' != '{expected_value}' (EQUALS)")
+                            return False
+                
+                elif logic == 'CONTAINS':
+                    if isinstance(expected_value, str) and isinstance(event_value, str):
+                        if expected_value.lower() not in event_value.lower():
+                            logger.debug(f"   ❌ {field}: '{event_value}' does not contain '{expected_value}' (CONTAINS)")
+                            return False
+                    else:
+                        if str(expected_value) not in str(event_value):
+                            logger.debug(f"   ❌ {field}: '{event_value}' does not contain '{expected_value}' (CONTAINS)")
+                            return False
+                
+                elif logic == 'STARTS_WITH':
+                    if isinstance(expected_value, str) and isinstance(event_value, str):
+                        if not event_value.lower().startswith(expected_value.lower()):
+                            logger.debug(f"   ❌ {field}: '{event_value}' does not start with '{expected_value}' (STARTS_WITH)")
+                            return False
+                    else:
+                        if not str(event_value).startswith(str(expected_value)):
+                            logger.debug(f"   ❌ {field}: '{event_value}' does not start with '{expected_value}' (STARTS_WITH)")
+                            return False
+                
+                elif logic == 'ENDS_WITH':
+                    if isinstance(expected_value, str) and isinstance(event_value, str):
+                        if not event_value.lower().endswith(expected_value.lower()):
+                            logger.debug(f"   ❌ {field}: '{event_value}' does not end with '{expected_value}' (ENDS_WITH)")
+                            return False
+                    else:
+                        if not str(event_value).endswith(str(expected_value)):
+                            logger.debug(f"   ❌ {field}: '{event_value}' does not end with '{expected_value}' (ENDS_WITH)")
+                            return False
+                
+                else:
+                    # Default case-insensitive comparison
+                    if isinstance(expected_value, str) and isinstance(event_value, str):
+                        if expected_value.lower() != event_value.lower():
+                            logger.debug(f"   ❌ {field}: '{event_value}' != '{expected_value}' (DEFAULT)")
+                            return False
+                    else:
+                        if str(expected_value) != str(event_value):
+                            logger.debug(f"   ❌ {field}: '{event_value}' != '{expected_value}' (DEFAULT)")
+                            return False
+                
+                logger.debug(f"   ✅ {field}: '{event_value}' matches '{expected_value}' (logic: {logic})")
+            
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error evaluating simple condition: {e}")
+            return False
     
     async def _check_threats_on_raw_data(self, session: Session, event_data: Dict) -> Dict:
         """Check raw event data against threat intelligence"""

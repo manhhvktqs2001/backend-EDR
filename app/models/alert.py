@@ -248,7 +248,7 @@ class Alert(Base):
                 Title=title,
                 Severity=severity,
                 DetectionMethod=detection_method,
-                **{k: v for k, v in kwargs.items() if hasattr(cls, k)}  # Only valid attributes
+                **{k: v for k, v in kwargs.items() if hasattr(cls, k) and v is not None}  # Only valid attributes and non-None values
             )
             
             # Set defaults for computed fields

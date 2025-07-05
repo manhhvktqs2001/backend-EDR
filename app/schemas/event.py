@@ -135,11 +135,12 @@ class EventListResponse(BaseModel):
 class EventSubmissionResponse(BaseModel):
     """Schema for event submission response"""
     success: bool
+    event_id: str
+    threat_detected: bool
+    risk_score: int
+    alerts_generated: List[Dict[str, Any]] = []
+    action_command: Optional[Dict[str, Any]] = None
     message: str
-    event_id: int
-    threat_detected: bool = False
-    risk_score: int = 0
-    alerts_generated: List[GeneratedAlert] = []
 
 class EventBatchResponse(BaseModel):
     """Schema for batch event submission response"""

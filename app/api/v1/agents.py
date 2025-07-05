@@ -7,11 +7,12 @@ Handle agents with "unknown" hostname and provide helpful error messages
 import logging
 import asyncio
 from typing import List, Optional, Dict
-from fastapi import APIRouter, Depends, HTTPException, Request, Header, Query, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, Request, Header, Query, BackgroundTasks, Body
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from datetime import datetime, timedelta
 import json
+import redis
 
 from ...database import get_db
 from ...models.agent import Agent
@@ -24,6 +25,8 @@ from ...schemas.agent import (
     AgentConfigResponse, AgentStatsResponse
 )
 from ...services.agent_service import agent_service
+from ...services.agent_communication_service import agent_communication_service
+from ...services.action_settings_service import action_settings_service
 
 logger = logging.getLogger('agent_communication')
 router = APIRouter()
@@ -601,8 +604,6 @@ async def get_detection_notifications(
         logger.info(f"   📡 Client IP: {request.client.host}")
         
         # Get notifications using the communication service
-        from ...services.agent_communication_service import agent_communication_service
-        
         notifications = agent_communication_service.get_pending_notifications(session, agent_id)
         
         if notifications:
@@ -684,3 +685,160 @@ async def get_agent_status(
     except Exception as e:
         logger.error(f"💥 Get agent status failed: {str(e)}")
         raise HTTPException(status_code=500, detail="Failed to get agent status")
+
+@router.post("/{agent_id}/action-settings")
+async def update_action_settings(
+    agent_id: str,
+    action_settings: dict = Body(...),
+    session: Session = Depends(get_db)
+):
+    """Nhận và lưu action_settings từ frontend cho agent."""
+    try:
+        print(f"[SERVER][ACTION_SETTINGS] Nhận từ agent_id={agent_id}: {action_settings}")
+        key = f"action_settings:{agent_id}"
+        success, message = action_settings_service.update_action_settings(agent_id, action_settings)
+        if success:
+            updated_settings = action_settings_service.get_action_settings(agent_id)
+            print(f"[SERVER][ACTION_SETTINGS] Đã lưu: {updated_settings}")
+            global_action_mode = updated_settings.get('globalActionMode', 'alert_only')
+            event_actions = updated_settings.get('eventActions', [])
+            enabled_count = len([ea for ea in event_actions if ea.get('enabled')])
+            return {
+                "success": True, 
+                "message": message,
+                "global_action_mode": global_action_mode,
+                "enabled_actions": enabled_count
+            }
+        else:
+            return {"success": False, "message": message}
+    except Exception as e:
+        logger.error(f"Failed to update action settings for agent {agent_id}: {str(e)}")
+        print(f"[SERVER][ACTION_SETTINGS] Exception: {e}")
+        return {"success": False, "message": str(e)}
+
+@router.get("/{agent_id}/action-settings")
+async def get_action_settings(agent_id: str):
+    """Trả về action_settings đã lưu cho agent_id."""
+    try:
+        key = f"action_settings:{agent_id}"
+        settings = action_settings_service.get_action_settings(agent_id)
+        print(f"[DEBUG][API] Return GET: agent_id={agent_id}, key={key}, value={settings}")
+        return settings
+    except Exception as e:
+        logger.error(f"Failed to get action settings for agent {agent_id}: {str(e)}")
+        return {"error": str(e)}
+
+@router.delete("/{agent_id}/action-settings")
+async def delete_action_settings(agent_id: str):
+    """Xóa action_settings cho agent_id"""
+    try:
+        success, message = action_settings_service.delete_action_settings(agent_id)
+        return {"success": success, "message": message}
+    except Exception as e:
+        logger.error(f"Failed to delete action settings for agent {agent_id}: {str(e)}")
+        return {"success": False, "message": str(e)}
+
+@router.get("/{agent_id}/action-status")
+async def get_action_status(agent_id: str):
+    """Lấy trạng thái action settings và thống kê"""
+    try:
+        status = action_settings_service.get_action_status(agent_id)
+        return status
+    except Exception as e:
+        logger.error(f"Failed to get action status for agent {agent_id}: {str(e)}")
+        return {"error": str(e)}
+
+@router.post("/{agent_id}/action-command")
+async def send_action_command(
+    agent_id: str,
+    action_command: dict = Body(...),
+    session: Session = Depends(get_db)
+):
+    """Gửi lệnh hành động trực tiếp cho agent (kill_process, block_network, etc.)"""
+    try:
+        print(f"[SERVER][ACTION_COMMAND] Nhận lệnh cho agent_id={agent_id}: {action_command}")
+        
+        # Validate action command
+        required_fields = ['type', 'process_id', 'process_name']
+        if action_command.get('type') == 'kill_process':
+            for field in required_fields:
+                if field not in action_command:
+                    raise HTTPException(status_code=400, detail=f"Missing required field: {field}")
+        
+        # Send action command to agent
+        from ...services.agent_communication_service import agent_communication_service
+        success = await agent_communication_service.send_action_command(
+            session=session,
+            agent_id=agent_id,
+            action=action_command
+        )
+        
+        if success:
+            logger.info(f"[ACTION_COMMAND] Successfully sent action command to agent {agent_id}")
+            return {
+                "success": True,
+                "message": f"Action command sent to agent {agent_id}",
+                "action_type": action_command.get('type'),
+                "timestamp": datetime.now().isoformat()
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Failed to send action command")
+            
+    except Exception as e:
+        logger.error(f"Failed to send action command to agent {agent_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Action command failed: {str(e)}")
+
+@router.post("/{agent_id}/kill-process")
+async def kill_process_command(
+    agent_id: str,
+    kill_request: dict = Body(...),
+    session: Session = Depends(get_db)
+):
+    """Gửi lệnh kill process cho agent"""
+    try:
+        process_id = kill_request.get('process_id')
+        process_name = kill_request.get('process_name', 'Unknown')
+        force_kill = kill_request.get('force_kill', True)
+        
+        if not process_id:
+            raise HTTPException(status_code=400, detail="process_id is required")
+        
+        # Create kill process action command
+        action_command = {
+            'type': 'kill_process',
+            'process_id': process_id,
+            'process_name': process_name,
+            'force_kill': force_kill,
+            'timeout_seconds': 30,
+            'event_id': kill_request.get('event_id', 'manual'),
+            'event_type': 'Process',
+            'timestamp': datetime.now().isoformat(),
+            'agent_id': agent_id
+        }
+        
+        print(f"[SERVER][KILL_PROCESS] Sending kill command for PID={process_id} to agent {agent_id}")
+        
+        # Send action command
+        from ...services.agent_communication_service import agent_communication_service
+        success = await agent_communication_service.send_action_command(
+            session=session,
+            agent_id=agent_id,
+            action=action_command
+        )
+        
+        if success:
+            logger.warning(f"[KILL_PROCESS] Successfully queued kill command for PID={process_id}")
+            return {
+                "success": True,
+                "message": f"Kill process command sent for PID {process_id}",
+                "process_id": process_id,
+                "process_name": process_name,
+                "force_kill": force_kill,
+                "timestamp": datetime.now().isoformat()
+            }
+        else:
+            raise HTTPException(status_code=500, detail="Failed to send kill process command")
+            
+    except Exception as e:
+        logger.error(f"Failed to send kill process command to agent {agent_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Kill process command failed: {str(e)}")

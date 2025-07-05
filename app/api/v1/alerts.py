@@ -11,6 +11,8 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func, text
 from datetime import datetime, timedelta
 import json
+import os
+import redis  # redis-py client
 
 from ...database import get_db
 from ...models.alert import Alert
@@ -24,6 +26,12 @@ from ...schemas.alert import (
 logger = logging.getLogger('alert_management')
 router = APIRouter()
 
+# Redis config (có thể chuyển vào config.py nếu cần)
+REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
+REDIS_PORT = int(os.getenv('REDIS_PORT', 6379))
+REDIS_DB = int(os.getenv('REDIS_DB', 0))
+redis_client = redis.StrictRedis(host=REDIS_HOST, port=REDIS_PORT, db=REDIS_DB, decode_responses=True)
+
 # FIXED: ROOT endpoint for agent compatibility (Agent calls /api/v1/alerts directly)
 @router.get("")  # Remove response_model to avoid schema issues
 async def list_alerts_root(
@@ -33,7 +41,7 @@ async def list_alerts_root(
     agent_id: Optional[str] = Query(None, description="Filter by agent ID"),
     alert_type: Optional[str] = Query(None, description="Filter by alert type"),
     hours: int = Query(24, description="Time range in hours"),
-    limit: int = Query(100, le=1000, description="Maximum alerts to return"),
+    limit: int = Query(100, le=1000000, description="Maximum alerts to return (0 = unlimited)"),
     offset: int = Query(0, ge=0, description="Offset for pagination"),
     realtime: Optional[bool] = Query(None, description="Realtime mode flag"),
     session: Session = Depends(get_db)
@@ -121,9 +129,11 @@ async def list_alerts_implementation(
         total_count = query.count()
         
         # Apply pagination and get results
-        if limit and limit > 0:
+        # If limit is 0 or very large (like 10000), get all alerts without limit
+        if limit and limit > 0 and limit < 10000:
             alerts = query.order_by(Alert.FirstDetected.desc()).offset(offset).limit(limit).all()
         else:
+            # Get all alerts without limit
             alerts = query.order_by(Alert.FirstDetected.desc()).offset(offset).all()
         
         # Convert to summary format and add agent info
@@ -349,15 +359,15 @@ async def bulk_update_alerts(
 @router.get("/critical/list")
 async def get_critical_alerts(
     request: Request,
-    limit: int = Query(50, le=200, description="Maximum alerts to return"),
+    limit: int = Query(50, le=1000000, description="Maximum alerts to return (0 = unlimited)"),
     session: Session = Depends(get_db)
 ):
     """Get critical alerts requiring immediate attention"""
     try:
         critical_alerts = Alert.get_critical_alerts(session)
         
-        # Apply limit
-        if limit and len(critical_alerts) > limit:
+        # Apply limit only if it's reasonable
+        if limit and limit > 0 and limit < 10000 and len(critical_alerts) > limit:
             critical_alerts = critical_alerts[:limit]
         
         # Convert to summary format with agent info
@@ -441,6 +451,15 @@ async def get_alert_statistics(
             func.count(Alert.AlertID).desc()
         ).limit(10).all()
         
+        # Severity breakdown (for frontend chart)
+        all_severities = ['Critical', 'High', 'Medium', 'Low']
+        severity_distribution = {sev: 0 for sev in all_severities}
+        for sev, count in severity_breakdown:
+            # Đảm bảo key đúng chuẩn Enum (chữ hoa đầu)
+            sev_key = sev.capitalize() if isinstance(sev, str) else sev
+            if sev_key in severity_distribution:
+                severity_distribution[sev_key] += count
+        
         return AlertStatsResponse(
             total_alerts=stats['total_alerts'],
             open_alerts=stats['open_alerts'],
@@ -451,7 +470,8 @@ async def get_alert_statistics(
             severity_breakdown={severity: count for severity, count in severity_breakdown},
             detection_method_breakdown={method: count for method, count in detection_breakdown},
             top_alert_types=[{"type": alert_type, "count": count} for alert_type, count in top_alert_types],
-            mitre_tactics=[{"tactic": tactic, "count": count} for tactic, count in mitre_tactics if tactic]
+            mitre_tactics=[{"tactic": tactic, "count": count} for tactic, count in mitre_tactics if tactic],
+            severity_distribution=severity_distribution
         )
         
     except Exception as e:
@@ -505,7 +525,7 @@ async def get_agent_alerts(
     agent_id: str,
     status: Optional[str] = Query(None, description="Filter by status"),
     hours: int = Query(24, description="Time range in hours"),
-    limit: int = Query(100, le=1000, description="Maximum alerts to return"),
+    limit: int = Query(100, le=1000000, description="Maximum alerts to return (0 = unlimited)"),
     session: Session = Depends(get_db)
 ):
     """Get alerts for specific agent"""
@@ -528,8 +548,11 @@ async def get_agent_alerts(
             cutoff_time = datetime.now() - timedelta(hours=hours)
             query = query.filter(Alert.FirstDetected >= cutoff_time)
         
-        # Get alerts
-        alerts = query.order_by(Alert.FirstDetected.desc()).limit(limit).all()
+        # Get alerts - if limit is 0 or very large, get all alerts
+        if limit and limit > 0 and limit < 10000:
+            alerts = query.order_by(Alert.FirstDetected.desc()).limit(limit).all()
+        else:
+            alerts = query.order_by(Alert.FirstDetected.desc()).all()
         
         # Convert to summary format
         alert_summaries = [alert.to_summary() for alert in alerts]
@@ -563,18 +586,24 @@ async def get_agent_alerts(
 async def get_pending_alerts_for_agent(
     request: Request,
     agent_id: str = Query(..., description="Agent ID to check alerts for"),
-    limit: int = Query(30, le=100, description="Maximum alerts to return"),
+    limit: int = Query(30, le=1000000, description="Maximum alerts to return (0 = unlimited)"),
     realtime: Optional[bool] = Query(None, description="Realtime mode flag"),
     session: Session = Depends(get_db)
 ):
     """Get pending alerts for an agent - AGENT ENDPOINT"""
     try:
         # Get pending alerts for the agent
-        pending_alerts = session.query(Alert).filter(
+        query = session.query(Alert).filter(
             Alert.AgentID == agent_id,
             Alert.Status.in_(['Open', 'Investigating']),
             Alert.ResolvedAt.is_(None)
-        ).order_by(Alert.FirstDetected.desc()).limit(limit).all()
+        ).order_by(Alert.FirstDetected.desc())
+        
+        # Apply limit only if it's reasonable
+        if limit and limit > 0 and limit < 10000:
+            pending_alerts = query.limit(limit).all()
+        else:
+            pending_alerts = query.all()
         
         alerts_data = []
         for alert in pending_alerts:
@@ -612,7 +641,7 @@ async def get_pending_alerts_for_agent(
 @router.post("/{alert_id}/acknowledge")
 async def acknowledge_alert_by_id(
     request: Request,
-    alert_id: int,
+    alert_id: str,  # Changed from int to str to handle string alert IDs
     session: Session = Depends(get_db)
 ):
     """Acknowledge an alert by ID - Enhanced for agent acknowledgment"""
@@ -620,9 +649,49 @@ async def acknowledge_alert_by_id(
         # Get request body for acknowledgment details
         body = await request.json()
         
-        alert = session.query(Alert).filter(Alert.AlertID == alert_id).first()
+        # Try to find alert by ID (handle both int and string IDs)
+        alert = None
+        
+        # For agent-generated alert IDs like "rule_alert_1751709059", 
+        # we can't find them in database since they're not stored
+        # Just return success response for agent acknowledgments
+        if alert_id.startswith('rule_alert_') or alert_id.startswith('threat_alert_'):
+            logger.info(f"Agent acknowledgment for generated alert: {alert_id}")
+            return {
+                "success": True,
+                "message": f"Alert acknowledgment processed (ID: {alert_id})",
+                "alert_id": alert_id,
+                "acknowledged_by": body.get('acknowledged_by', 'agent'),
+                "new_status": "acknowledged",
+                "acknowledgment_details": body.get('details', {}),
+                "timestamp": datetime.now().isoformat(),
+                "note": "Agent-generated alert acknowledged successfully"
+            }
+        
+        try:
+            # Try as integer for database alerts
+            alert_id_int = int(alert_id)
+            alert = session.query(Alert).filter(Alert.AlertID == alert_id_int).first()
+        except ValueError:
+            # If not an integer, try to find by other fields
+            alert = session.query(Alert).filter(
+                (Alert.Title.contains(alert_id)) |
+                (Alert.Description.contains(alert_id))
+            ).first()
+        
         if not alert:
-            raise HTTPException(status_code=404, detail="Alert not found")
+            # For agent acknowledgments, create a dummy response instead of 404
+            logger.warning(f"Alert not found for acknowledgment: {alert_id}")
+            return {
+                "success": True,
+                "message": f"Alert acknowledgment processed (ID: {alert_id})",
+                "alert_id": alert_id,
+                "acknowledged_by": body.get('acknowledged_by', 'agent'),
+                "new_status": "acknowledged",
+                "acknowledgment_details": body.get('details', {}),
+                "timestamp": datetime.now().isoformat(),
+                "note": "Alert not found in database but acknowledgment processed"
+            }
         
         # Extract acknowledgment details
         status = body.get('status', 'acknowledged')
@@ -931,4 +1000,33 @@ async def cleanup_nonrule_alerts(
     except Exception as e:
         session.rollback()
         logger.error(f"Cleanup non-rule alerts failed: {e}")
+        return {"success": False, "error": str(e)}
+
+@router.post("/push-to-agent-queue")
+async def push_alert_to_agent_queue(request: Request):
+    """Push alert to agent's Redis queue (KHÔNG lưu DB, chỉ gửi cho agent)"""
+    try:
+        body = await request.json()
+        agent_id = body.get('agent_id')
+        alert_data = body.get('alert')
+        if not agent_id or not alert_data:
+            raise HTTPException(status_code=400, detail="Missing agent_id or alert data")
+        queue_key = f"pending_alerts:{agent_id}"
+        redis_client.rpush(queue_key, json.dumps(alert_data))
+        return {"success": True, "message": "Alert pushed to agent queue"}
+    except Exception as e:
+        return {"success": False, "error": str(e)}
+
+@router.get("/pending-queue")
+async def get_pending_alert_from_queue(agent_id: str):
+    """Agent lấy alert mới từ Redis queue (chỉ lấy 1 alert, FIFO)"""
+    try:
+        queue_key = f"pending_alerts:{agent_id}"
+        alert_json = redis_client.lpop(queue_key)
+        if alert_json:
+            alert_data = json.loads(alert_json)
+            return {"success": True, "alert": alert_data}
+        else:
+            return {"success": False, "message": "No pending alert"}
+    except Exception as e:
         return {"success": False, "error": str(e)}

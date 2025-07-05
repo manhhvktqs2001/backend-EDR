@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 import json
 import asyncio
 import uuid
+import redis
 
 from ..models.alert import Alert
 from ..models.agent import Agent
@@ -635,6 +636,18 @@ class AgentCommunicationService:
                                              alert: Alert, rule_details: Dict) -> bool:
         """Legacy method - redirects to enhanced version"""
         return await self.send_enhanced_rule_violation_notification(session, agent_id, alert, rule_details)
+
+    async def send_action_command(self, session: Session, agent_id: str, action: Dict) -> bool:
+        """Gửi lệnh hành động (kill_process, block_network, ...) cho agent. Demo: lưu vào Redis queue."""
+        try:
+            redis_client = redis.Redis(host='localhost', port=6379, db=0)
+            queue_key = f"pending_actions:{agent_id}"
+            redis_client.rpush(queue_key, json.dumps(action))
+            logger.warning(f"[ACTION] Queued action for agent {agent_id}: {action}")
+            return True
+        except Exception as e:
+            logger.error(f"[ACTION] Failed to queue action for agent {agent_id}: {e}")
+            return False
 
 # Global service instance
 agent_communication_service = AgentCommunicationService()

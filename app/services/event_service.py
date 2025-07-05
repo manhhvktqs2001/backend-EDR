@@ -13,6 +13,7 @@ from sqlalchemy import func
 import time
 import json
 import uuid
+import redis
 
 from ..models.event import Event
 from ..models.agent import Agent
@@ -22,6 +23,10 @@ from ..schemas.event import (
     GeneratedAlert
 )
 from ..config import config
+from ..models.alert import Alert
+from ..services.agent_communication_service import agent_communication_service
+from ..services.action_settings_service import action_settings_service
+from ..services.rule_engine import rule_engine
 
 logger = logging.getLogger(__name__)
 
@@ -50,108 +55,137 @@ class EventService:
                           client_ip: str) -> Tuple[bool, EventSubmissionResponse, Optional[str]]:
         """FIXED: Event processing với detection TRƯỚC insert"""
         start_time = time.time()
-        
         try:
             # 1. FAST VALIDATION
             if not self._validate_event_fast(event_data):
                 return False, None, "Invalid event data"
-            
             # 2. GET AGENT (with caching)
             agent = self._get_agent_fast(session, event_data.agent_id)
             if not agent:
                 return False, None, f"Agent {event_data.agent_id} not found"
-            
             logger.info(f"📥 EVENT RECEIVED:")
             logger.info(f"   🎯 Agent: {agent.HostName}")
             logger.info(f"   📋 Type: {event_data.event_type}")
             logger.info(f"   🔧 Action: {event_data.event_action}")
             if event_data.process_name:
                 logger.info(f"   🖥️ Process: {event_data.process_name}")
-            
             # 3. ⚡ RUN DETECTION FIRST (BEFORE DB INSERT)
             logger.info("🔍 RUNNING DETECTION ENGINE...")
             detection_result = await self._run_detection_on_raw_data(session, event_data, agent)
-            
             # 4. CREATE EVENT OBJECT (with detection results)
             event = self._create_event_with_detection_results(event_data, agent, detection_result)
             if not event:
                 return False, None, "Event creation failed"
-            
             # 5. INSERT TO DATABASE (AFTER detection)
             session.add(event)
             session.flush()  # Get EventID
-            
-            # 6. CREATE ALERTS if detected
+            session.commit()  # Commit the event
             alerts_generated = []
-            if detection_result.get('threat_detected', False):
-                alert = await self._create_alert_from_detection(session, event, detection_result)
-                if alert:
-                    generated_alert = GeneratedAlert(
-                        id=alert.AlertID,
-                        title=alert.Title,
-                        description=alert.Description or f"Alert generated for {event_data.event_type} event",
-                        severity=alert.Severity,
-                        risk_score=alert.RiskScore,
-                        timestamp=alert.FirstDetected.isoformat() if alert.FirstDetected else datetime.now().isoformat(),
-                        detection_method=alert.DetectionMethod
+            action_command = None
+            # Chỉ tạo alert nếu có rule_details (tức là match rule)
+            if detection_result.get('rule_details'):
+                rule_info = detection_result['rule_details'][0]
+                
+                # Ensure we have valid values for all required fields
+                alert_title = rule_info.get('alert_title')
+                if not alert_title:
+                    alert_title = 'Security Alert'
+                
+                alert_description = rule_info.get('alert_description')
+                if not alert_description:
+                    alert_description = 'Suspicious activity detected'
+                
+                alert_severity = rule_info.get('alert_severity')
+                if not alert_severity:
+                    alert_severity = 'Medium'
+                
+                alert_risk_score = rule_info.get('risk_score')
+                if alert_risk_score is None:
+                    alert_risk_score = 80
+                
+                # Debug logging for GeneratedAlert creation
+                logger.debug(f"Creating GeneratedAlert:")
+                logger.debug(f"  Title: {alert_title}")
+                logger.debug(f"  Description: {alert_description}")
+                logger.debug(f"  Severity: {alert_severity}")
+                logger.debug(f"  Risk Score: {alert_risk_score}")
+                
+                try:
+                    alert = GeneratedAlert(
+                        id=event.EventID,
+                        title=alert_title,
+                        description=alert_description,
+                        severity=alert_severity,
+                        risk_score=alert_risk_score,
+                        timestamp=datetime.now().isoformat(),
+                        detection_method='rule_engine'
                     )
-                    alerts_generated.append(generated_alert)
+                    alerts_generated.append(alert)
+                    logger.debug(f"✅ GeneratedAlert created successfully")
+                except Exception as e:
+                    logger.error(f"❌ Failed to create GeneratedAlert: {e}")
+                    logger.error(f"  Title: {alert_title}")
+                    logger.error(f"  Description: {alert_description}")
+                    logger.error(f"  Severity: {alert_severity}")
+                    logger.error(f"  Risk Score: {alert_risk_score}")
+                    # Create a fallback alert with safe values
+                    fallback_alert = GeneratedAlert(
+                        id=event.EventID,
+                        title="Security Alert",
+                        description="Suspicious activity detected",
+                        severity="Medium",
+                        risk_score=80,
+                        timestamp=datetime.now().isoformat(),
+                        detection_method='rule_engine'
+                    )
+                    alerts_generated.append(fallback_alert)
+            # 7. Nếu không match rule, không trả về alert/action
+            # Convert GeneratedAlert objects to dictionaries for response
+            alerts_dict = []
+            for alert in alerts_generated:
+                alert_dict = {
+                    'id': alert.id,
+                    'title': alert.title,
+                    'description': alert.description,
+                    'severity': alert.severity,
+                    'risk_score': alert.risk_score,
+                    'timestamp': alert.timestamp,
+                    'detection_method': alert.detection_method
+                }
+                alerts_dict.append(alert_dict)
+                logger.debug(f"✅ Converted alert to dict: {alert_dict}")
             
-            # 7. SEND NOTIFICATIONS (if threats detected)
-            if detection_result.get('threat_detected', False):
-                await self._send_detection_notifications(session, agent, detection_result, alerts_generated)
+            logger.info(f"📊 Final response: {len(alerts_dict)} alerts, threat_detected={bool(alerts_generated)}")
             
-            # 8. COMMIT ALL CHANGES
-            session.commit()
-            
-            # 9. UPDATE STATS
+            try:
+                response = EventSubmissionResponse(
+                    success=True,
+                    event_id=str(event.EventID),  # Convert to string
+                    threat_detected=bool(alerts_generated),
+                    risk_score=detection_result.get('risk_score', 0),
+                    alerts_generated=alerts_dict,
+                    action_command=action_command,
+                    message="Event processed with detection engine"
+                )
+                logger.debug(f"✅ EventSubmissionResponse created successfully")
+            except Exception as e:
+                logger.error(f"❌ Failed to create EventSubmissionResponse: {e}")
+                logger.error(f"  event_id: {event.EventID} (type: {type(event.EventID)})")
+                logger.error(f"  alerts_dict: {alerts_dict}")
+                raise
             processing_time = time.time() - start_time
-            self.stats['events_processed'] += 1
-            self.stats['processing_time_total'] += processing_time
-            
-            if detection_result.get('threat_detected', False):
-                self.stats['events_detected'] += 1
-                self.stats['rules_matched'] += len(detection_result.get('matched_rules', []))
-                self.stats['alerts_created'] += len(alerts_generated)
-            
-            # 10. RESPONSE
-            threat_detected = detection_result.get('threat_detected', False)
-            risk_score = detection_result.get('risk_score', 0)
-            
-            logger.info(f"✅ EVENT PROCESSED:")
-            logger.info(f"   📋 Event ID: {event.EventID}")
-            logger.info(f"   🚨 Threat Detected: {threat_detected}")
-            logger.info(f"   📊 Risk Score: {risk_score}")
-            logger.info(f"   📋 Alerts: {len(alerts_generated)}")
-            logger.info(f"   ⏱️ Time: {processing_time*1000:.1f}ms")
-            
-            response = EventSubmissionResponse(
-                success=True,
-                event_id=event.EventID,
-                message=f"Event processed successfully",
-                threat_detected=threat_detected,
-                risk_score=risk_score,
-                alerts_generated=alerts_generated
-            )
-            
+            logger.info(f"✅ Event processed in {processing_time:.3f}s")
             return True, response, None
-            
         except Exception as e:
-            session.rollback()
             processing_time = time.time() - start_time
-            error_msg = f"Event processing failed after {processing_time:.3f}s: {str(e)}"
-            logger.error(f"❌ {error_msg}")
-            return False, None, error_msg
+            logger.error(f"Event submission failed after {processing_time:.3f}s: {e}")
+            return False, None, str(e)
     
     async def _run_detection_on_raw_data(self, session: Session, 
                                         event_data: EventSubmissionRequest, 
                                         agent: Agent) -> Dict:
-        """FIXED: Run detection on RAW event data (before DB insert)"""
+        """INTEGRATED: Run detection on RAW event data using RuleEngine"""
         try:
-            # Import detection service
-            from .detection_engine import get_detection_service
-            detection_service = get_detection_service()
-            
             # Convert raw event data to detection format
             detection_data = {
                 'agent_id': str(agent.AgentID),
@@ -204,24 +238,60 @@ class EventService:
                 'raw_event_data': event_data.raw_event_data
             }
             
-            # Run detection on raw data
-            logger.info("🔍 Analyzing raw event data...")
-            result = await detection_service.analyze_raw_event_data(session, detection_data)
+            # Run INTEGRATED RuleEngine on raw data
+            logger.info("🔍 Running INTEGRATED RuleEngine on raw event data...")
+            logger.info(f"   📋 Event: {detection_data.get('event_type')} - {detection_data.get('process_name', 'N/A')}")
+            logger.info(f"   🎯 Agent: {agent.HostName} ({agent.OperatingSystem})")
+            
+            alerts = await rule_engine.process_event(session, detection_data)
+            
+            # Convert alerts to detection result format
+            result = {
+                'threat_detected': len(alerts) > 0,
+                'threat_level': 'Malicious' if alerts else 'None',
+                'risk_score': max([alert.RiskScore for alert in alerts], default=0),
+                'detection_methods': ['rule_engine'] if alerts else [],
+                'matched_rules': [alert.RuleID for alert in alerts if alert.RuleID],
+                'rule_details': []
+            }
+            
+            # Add rule details for each alert
+            for alert in alerts:
+                # Debug logging
+                logger.debug(f"Creating rule detail for alert {alert.AlertID}:")
+                logger.debug(f"  Title: {alert.Title}")
+                logger.debug(f"  Description: {alert.Description}")
+                logger.debug(f"  Severity: {alert.Severity}")
+                
+                rule_detail = {
+                    'rule_id': alert.RuleID,
+                    'rule_name': f"Rule {alert.RuleID}",
+                    'alert_title': alert.Title,
+                    'alert_description': alert.Description if alert.Description else f"Rule {alert.RuleID} triggered",
+                    'alert_severity': alert.Severity,
+                    'alert_type': alert.AlertType,
+                    'risk_score': alert.RiskScore,
+                    'mitre_tactic': alert.MitreTactic,
+                    'mitre_technique': alert.MitreTechnique
+                }
+                result['rule_details'].append(rule_detail)
             
             if result.get('threat_detected', False):
-                logger.warning(f"🚨 THREAT DETECTED in raw data:")
+                logger.warning(f"🚨 THREAT DETECTED by INTEGRATED RuleEngine:")
                 logger.warning(f"   📊 Risk Score: {result.get('risk_score', 0)}")
                 logger.warning(f"   📋 Rules Matched: {len(result.get('matched_rules', []))}")
-                logger.warning(f"   🎯 Detection Methods: {result.get('detection_methods', [])}")
+                logger.warning(f"   🎯 Alerts Generated: {len(alerts)}")
                 
                 # Log rule details
                 for rule_detail in result.get('rule_details', []):
-                    logger.warning(f"     📝 Rule: {rule_detail.get('rule_name')} (Severity: {rule_detail.get('severity')})")
+                    logger.warning(f"     📝 Rule: {rule_detail.get('rule_name')} (Severity: {rule_detail.get('alert_severity')})")
+            else:
+                logger.info(f"✅ No threats detected by RuleEngine")
             
             return result
             
         except Exception as e:
-            logger.error(f"💥 Detection on raw data failed: {str(e)}")
+            logger.error(f"💥 INTEGRATED RuleEngine detection failed: {str(e)}")
             return {
                 'threat_detected': False,
                 'threat_level': 'None',
@@ -305,7 +375,7 @@ class EventService:
         """Create alert from detection results"""
         try:
             from .alert_service import get_alert_service
-            
+            from ..services.agent_communication_service import agent_communication_service
             alert_service = get_alert_service()
             alert = await alert_service.create_alert_from_detection(
                 session=session,
@@ -314,18 +384,271 @@ class EventService:
                 agent_id=str(event.AgentID)
             )
             
-            if alert:
-                logger.warning(f"🚨 ALERT CREATED:")
-                logger.warning(f"   📋 Alert ID: {alert.AlertID}")
-                logger.warning(f"   📝 Title: {alert.Title}")
-                logger.warning(f"   ⚡ Severity: {alert.Severity}")
-                logger.warning(f"   📊 Risk Score: {alert.RiskScore}")
+            # --- ĐIỀU KIỆN KIÊN QUYẾT: chỉ khi match rule mới thực hiện action hoặc alert ---
+            rule_matched = False
+            if hasattr(detection_result, 'get'):
+                if detection_result.get('matched_rules') or detection_result.get('rule_details'):
+                    rule_matched = True
+            if not rule_matched:
+                logger.debug(f"[ACTION] No rule matched for event {event.EventID}, skipping action processing")
+                return alert
+            # --- END: chỉ khi match rule mới thực hiện action hoặc alert ---
+            
+            # Lấy action_settings mới nhất từ Redis
+            action_settings = self.get_action_settings_for_agent(str(event.AgentID))
+            mode = action_settings.get('globalActionMode', 'alert_only')
+            logger.warning(f"[ACTION] Action mode for agent {event.AgentID}: {mode}")
+            
+            if mode == 'alert_only':
+                logger.warning(f"[ACTION] Alert-only mode: only creating alert, no action will be performed.")
+                return alert
+            
+            # Nếu alert_and_action, xác định loại event và thực hiện action phù hợp
+            event_actions = action_settings.get('eventActions', [])
+            logger.warning(f"[ACTION] Processing {len(event_actions)} event actions for agent {event.AgentID}")
+            
+            # Xác định event type từ event data
+            event_type = self._determine_event_type(event)
+            logger.warning(f"[ACTION] Determined event type: {event_type}")
+            
+            # Tìm action settings cho event type này
+            matching_action = None
+            for ea in event_actions:
+                if ea.get('event_type') == event_type and ea.get('enabled', False):
+                    matching_action = ea
+                    break
+            
+            if not matching_action:
+                logger.warning(f"[ACTION] No enabled action found for event type {event_type}")
+                return alert
+            
+            # Kiểm tra severity
+            event_severity = self._get_event_severity(event, detection_result)
+            allowed_severities = matching_action.get('severity', [])
+            
+            if allowed_severities and event_severity not in allowed_severities:
+                logger.warning(f"[ACTION] Event severity {event_severity} not in allowed severities {allowed_severities} for {event_type}")
+                return alert
+            
+            # Thực hiện action dựa trên event type và action type
+            action_type = matching_action.get('action')
+            action_config = matching_action.get('config', {})
+            
+            logger.warning(f"[ACTION] Executing action: {action_type} for {event_type} with severity {event_severity}")
+            
+            success = await self._execute_action(
+                session=session,
+                agent_id=str(event.AgentID),
+                event=event,
+                action_type=action_type,
+                action_config=action_config,
+                event_type=event_type
+            )
+            
+            if success:
+                logger.warning(f"[ACTION] Successfully executed {action_type} for {event_type}")
+            else:
+                logger.error(f"[ACTION] Failed to execute {action_type} for {event_type}")
             
             return alert
             
         except Exception as e:
-            logger.error(f"💥 Alert creation failed: {str(e)}")
-            return None
+            logger.error(f"[ACTION] Error in _create_alert_from_detection: {str(e)}")
+            return alert
+    
+    def _determine_event_type(self, event: Event) -> str:
+        """Determine event type from event data"""
+        try:
+            # Check process-related fields
+            if (hasattr(event, 'ProcessID') and event.ProcessID) or \
+               (hasattr(event, 'process_id') and event.process_id) or \
+               (hasattr(event, 'ProcessName') and event.ProcessName) or \
+               (hasattr(event, 'process_name') and event.process_name):
+                return 'Process'
+            
+            # Check network-related fields
+            if (hasattr(event, 'SourceIP') and event.SourceIP) or \
+               (hasattr(event, 'source_ip') and event.source_ip) or \
+               (hasattr(event, 'DestinationIP') and event.DestinationIP) or \
+               (hasattr(event, 'destination_ip') and event.destination_ip) or \
+               (hasattr(event, 'SourcePort') and event.SourcePort) or \
+               (hasattr(event, 'source_port') and event.source_port):
+                return 'Network'
+            
+            # Check file-related fields
+            if (hasattr(event, 'FilePath') and event.FilePath) or \
+               (hasattr(event, 'file_path') and event.file_path) or \
+               (hasattr(event, 'FileName') and event.FileName) or \
+               (hasattr(event, 'file_name') and event.file_name):
+                return 'File'
+            
+            # Check registry-related fields (Windows)
+            if (hasattr(event, 'RegistryKey') and event.RegistryKey) or \
+               (hasattr(event, 'registry_key') and event.registry_key):
+                return 'Registry'
+            
+            # Default based on event type
+            event_type = getattr(event, 'EventType', '').lower()
+            if 'process' in event_type:
+                return 'Process'
+            elif 'network' in event_type:
+                return 'Network'
+            elif 'file' in event_type:
+                return 'File'
+            elif 'registry' in event_type:
+                return 'Registry'
+            
+            # Fallback to Process if uncertain
+            return 'Process'
+            
+        except Exception as e:
+            logger.error(f"[ACTION] Error determining event type: {str(e)}")
+            return 'Process'
+    
+    def _get_event_severity(self, event: Event, detection_result: Dict) -> str:
+        """Get event severity from event or detection result"""
+        try:
+            # Try to get from detection result first
+            if detection_result.get('rule_details'):
+                primary_rule = detection_result['rule_details'][0]
+                severity = primary_rule.get('alert_severity')
+                if severity:
+                    return severity
+            
+            # Try to get from event
+            severity = getattr(event, 'Severity', None) or getattr(event, 'severity', None)
+            if severity:
+                return severity
+            
+            # Try to get from detection result risk score
+            risk_score = detection_result.get('risk_score', 0)
+            if risk_score >= 90:
+                return 'Critical'
+            elif risk_score >= 70:
+                return 'High'
+            elif risk_score >= 50:
+                return 'Medium'
+            else:
+                return 'Low'
+                
+        except Exception as e:
+            logger.error(f"[ACTION] Error getting event severity: {str(e)}")
+            return 'Medium'
+    
+    async def _execute_action(self, session: Session, agent_id: str, event: Event, 
+                            action_type: str, action_config: Dict, event_type: str) -> bool:
+        """Execute specific action based on action type"""
+        try:
+            from ..services.agent_communication_service import agent_communication_service
+            
+            action_cmd = None
+            
+            if event_type == 'Process' and action_type == 'kill_process':
+                process_id = (
+                    getattr(event, 'ProcessID', None) or
+                    getattr(event, 'process_id', None) or
+                    (event.RawData.get('process_id') if hasattr(event, 'RawData') and isinstance(event.RawData, dict) else None)
+                )
+                process_name = (
+                    getattr(event, 'ProcessName', None) or
+                    getattr(event, 'process_name', None) or
+                    (event.RawData.get('process_name') if hasattr(event, 'RawData') and isinstance(event.RawData, dict) else None)
+                )
+                
+                if not process_id:
+                    logger.warning(f"[ACTION] No process_id found for kill_process action")
+                    return False
+                
+                action_cmd = {
+                    'type': 'kill_process',
+                    'process_id': process_id,
+                    'process_name': process_name,
+                    'force_kill': action_config.get('force_kill', True),
+                    'timeout_seconds': action_config.get('timeout_seconds', 30)
+                }
+                
+            elif event_type == 'Network' and action_type == 'block_network':
+                ip = (
+                    getattr(event, 'DestinationIP', None) or
+                    getattr(event, 'destination_ip', None) or
+                    getattr(event, 'SourceIP', None) or
+                    getattr(event, 'source_ip', None)
+                )
+                
+                if not ip:
+                    logger.warning(f"[ACTION] No IP found for block_network action")
+                    return False
+                
+                action_cmd = {
+                    'type': 'block_network',
+                    'ip': ip,
+                    'block_duration_hours': action_config.get('block_duration_hours', 24),
+                    'block_direction': action_config.get('block_direction', 'both')
+                }
+                
+            elif event_type == 'File' and action_type == 'quarantine_file':
+                file_path = (
+                    getattr(event, 'FilePath', None) or
+                    getattr(event, 'file_path', None) or
+                    (event.RawData.get('file_path') if hasattr(event, 'RawData') and isinstance(event.RawData, dict) else None)
+                )
+                
+                if not file_path:
+                    logger.warning(f"[ACTION] No file_path found for quarantine_file action")
+                    return False
+                
+                action_cmd = {
+                    'type': 'quarantine_file',
+                    'file_path': file_path,
+                    'backup': action_config.get('backup', False),
+                    'quarantine_location': action_config.get('quarantine_location', '/var/quarantine')
+                }
+                
+            elif event_type == 'Registry' and action_type == 'block_registry':
+                registry_key = (
+                    getattr(event, 'RegistryKey', None) or
+                    getattr(event, 'registry_key', None)
+                )
+                
+                if not registry_key:
+                    logger.warning(f"[ACTION] No registry_key found for block_registry action")
+                    return False
+                
+                action_cmd = {
+                    'type': 'block_registry',
+                    'registry_key': registry_key,
+                    'block_duration_hours': action_config.get('block_duration_hours', 24)
+                }
+            
+            if action_cmd:
+                # Add metadata to action command
+                action_cmd.update({
+                    'event_id': event.EventID,
+                    'event_type': event_type,
+                    'timestamp': datetime.now().isoformat(),
+                    'agent_id': agent_id
+                })
+                
+                # Send action command to agent
+                success = await agent_communication_service.send_action_command(
+                    session=session,
+                    agent_id=agent_id,
+                    action=action_cmd
+                )
+                
+                if success:
+                    logger.warning(f"[ACTION] Successfully queued action command: {action_cmd}")
+                    return True
+                else:
+                    logger.error(f"[ACTION] Failed to queue action command: {action_cmd}")
+                    return False
+            else:
+                logger.warning(f"[ACTION] Unsupported action type: {action_type} for event type: {event_type}")
+                return False
+                
+        except Exception as e:
+            logger.error(f"[ACTION] Error executing action {action_type}: {str(e)}")
+            return False
     
     async def _send_detection_notifications(self, session: Session, agent: Agent, 
                                           detection_result: Dict, alerts: List[GeneratedAlert]):
@@ -511,6 +834,215 @@ class EventService:
             'last_reset': datetime.now()
         }
         logger.info("📊 Statistics reset")
+
+    def get_action_settings_for_agent(self, agent_id):
+        """Get action settings for agent using the new service"""
+        try:
+            from .action_settings_service import action_settings_service
+            return action_settings_service.get_action_settings(agent_id)
+        except Exception as e:
+            logger.error(f"Failed to get action settings for agent {agent_id}: {str(e)}")
+            # Return default settings
+            return {
+                'globalActionMode': 'alert_only',
+                'eventActions': []
+            }
+
+    async def process_event_with_action_settings(self, session: Session, event_data: Dict, agent_id: str) -> Dict[str, Any]:
+        """Process event with action settings from Redis cache"""
+        try:
+            # Get action settings from Redis cache
+            action_settings = action_settings_service.get_action_settings(agent_id)
+            
+            # Extract event information
+            event_type = event_data.get('event_type', 'Unknown')
+            severity = event_data.get('severity', 'Medium')
+            
+            # Check conditions: enabled AND event_type match AND severity match
+            conditions_met = False
+            action_command = None
+            rule_matched = False
+            matched_rule = None
+            
+            # --- NEW: Check for matched rule in event_data (from detection engine) ---
+            rule_details = event_data.get('rule_details')
+            if rule_details and isinstance(rule_details, list) and len(rule_details) > 0:
+                rule_matched = True
+                matched_rule = rule_details[0]
+            
+            if action_settings:
+                global_action_mode = action_settings.get('globalActionMode', 'alert_only')
+                event_actions = action_settings.get('eventActions', [])
+                
+                # Check if any event action matches current event
+                for event_action in event_actions:
+                    if (event_action.get('enabled', False) and 
+                        event_action.get('eventType') == event_type and
+                        event_action.get('severity') == severity):
+                        conditions_met = True
+                        break
+                
+                # If conditions met, create action command
+                if conditions_met:
+                    action_command = {
+                        'type': 'kill_process',  # Default action type
+                        'event_type': event_type,
+                        'event_id': event_data.get('event_id', 'unknown'),
+                        'severity': severity,
+                        'conditions_met': True,
+                        'global_mode': global_action_mode,
+                        'timestamp': datetime.now().isoformat()
+                    }
+                    # Add specific action data based on event type
+                    if event_type == 'Process':
+                        action_command.update({
+                            'type': 'kill_process',
+                            'process_id': event_data.get('process_id'),
+                            'process_name': event_data.get('process_name', 'Unknown'),
+                            'force_kill': True,
+                            'timeout_seconds': 30
+                        })
+                    elif event_type == 'Network':
+                        action_command.update({
+                            'type': 'block_network',
+                            'ip': event_data.get('remote_ip'),
+                            'block_duration_hours': 24,
+                            'block_direction': 'both'
+                        })
+                    elif event_type == 'File':
+                        action_command.update({
+                            'type': 'quarantine_file',
+                            'file_path': event_data.get('file_path'),
+                            'backup': True,
+                            'quarantine_location': 'C:\\EDR_Quarantine'
+                        })
+                    elif event_type == 'Registry':
+                        action_command.update({
+                            'type': 'block_registry',
+                            'registry_key': event_data.get('registry_key'),
+                            'block_duration_hours': 24
+                        })
+            # --- END NEW ---
+            response = {
+                'success': True,
+                'threat_detected': rule_matched,
+                'risk_score': event_data.get('risk_score', 80),
+            }
+            # Chỉ gửi alert nếu match rule
+            if rule_matched and matched_rule:
+                response['alerts_generated'] = [
+                    {
+                        'title': matched_rule.get('alert_title', f'Threat Detected: {event_type}'),
+                        'description': matched_rule.get('alert_description', f'Suspicious {event_type} activity detected'),
+                        'severity': matched_rule.get('alert_severity', severity),
+                        'risk_score': event_data.get('risk_score', 80),
+                        'timestamp': datetime.now().isoformat(),
+                        'event_type': event_type,
+                        'event_id': event_data.get('event_id', 'unknown')
+                    }
+                ]
+            # Add action command if conditions met
+            if action_command:
+                response['action_command'] = action_command
+                logger.warning(f"🚨 THREAT DETECTED WITH ACTION: {event_type} - Severity: {severity}")
+                logger.warning(f"   🎯 Agent: {agent_id}")
+                logger.warning(f"   🔧 Action: {action_command.get('type')}")
+                logger.warning(f"   ✅ Conditions Met: {conditions_met}")
+            elif rule_matched:
+                logger.warning(f"🚨 THREAT DETECTED (ALERT ONLY): {event_type} - Severity: {severity}")
+                logger.warning(f"   🎯 Agent: {agent_id}")
+                logger.warning(f"   ℹ️ No action conditions met")
+            return response
+        except Exception as e:
+            logger.error(f"Error processing event with action settings: {e}")
+            return {
+                'success': True,
+                'threat_detected': False,
+                'risk_score': 0,
+                'error': str(e)
+            }
+
+    async def store_event(self, session: Session, event_data: Dict) -> bool:
+        """Store event in database"""
+        try:
+            # Convert all datetime values in event_data to string before dumping
+            def convert_dt(obj):
+                if isinstance(obj, dict):
+                    return {k: convert_dt(v) for k, v in obj.items()}
+                elif isinstance(obj, list):
+                    return [convert_dt(i) for i in obj]
+                elif isinstance(obj, datetime):
+                    return obj.isoformat()
+                else:
+                    return obj
+            event_data_serializable = convert_dt(event_data)
+
+            # Map network fields if present
+            source_ip = event_data.get('source_ip') or event_data.get('SourceIP')
+            destination_ip = event_data.get('destination_ip') or event_data.get('DestinationIP')
+            source_port = event_data.get('source_port') or event_data.get('SourcePort')
+            destination_port = event_data.get('destination_port') or event_data.get('DestinationPort')
+            protocol = event_data.get('protocol') or event_data.get('Protocol')
+            direction = event_data.get('direction') or event_data.get('Direction')
+
+            # Parse EventTimestamp
+            ts = event_data.get('timestamp') or event_data.get('event_timestamp')
+            if ts:
+                try:
+                    event_timestamp = datetime.fromisoformat(ts)
+                except Exception:
+                    event_timestamp = datetime.now()
+            else:
+                event_timestamp = datetime.now()
+
+            event = Event(
+                AgentID=event_data.get('agent_id'),
+                EventType=event_data.get('event_type'),
+                EventAction=event_data.get('event_action'),
+                EventTimestamp=event_timestamp,
+                Severity=event_data.get('severity', 'Info'),
+                ProcessID=event_data.get('process_id'),
+                ProcessName=event_data.get('process_name'),
+                ProcessPath=event_data.get('process_path'),
+                CommandLine=event_data.get('command_line'),
+                ParentPID=event_data.get('parent_pid'),
+                ParentProcessName=event_data.get('parent_process_name'),
+                ProcessUser=event_data.get('process_user'),
+                ProcessHash=event_data.get('process_hash'),
+                FilePath=event_data.get('file_path'),
+                FileName=event_data.get('file_name'),
+                FileSize=event_data.get('file_size'),
+                FileHash=event_data.get('file_hash'),
+                FileExtension=event_data.get('file_extension'),
+                FileOperation=event_data.get('file_operation'),
+                SourceIP=source_ip,
+                DestinationIP=destination_ip,
+                SourcePort=source_port,
+                DestinationPort=destination_port,
+                Protocol=protocol,
+                Direction=direction,
+                RegistryKey=event_data.get('registry_key'),
+                RegistryValueName=event_data.get('registry_value_name'),
+                RegistryValueData=event_data.get('registry_value_data'),
+                RegistryOperation=event_data.get('registry_operation'),
+                LoginUser=event_data.get('login_user'),
+                LoginType=event_data.get('login_type'),
+                LoginResult=event_data.get('login_result'),
+                ThreatLevel=event_data.get('threat_level', 'None'),
+                RiskScore=event_data.get('risk_score', 0),
+                Analyzed=event_data.get('analyzed', False),
+                AnalyzedAt=None,
+                RawEventData=json.dumps(event_data_serializable),
+                CreatedAt=datetime.now()
+            )
+            session.add(event)
+            session.commit()
+            logger.info(f"✅ Event stored in database: {event.EventID}")
+            return True
+        except Exception as e:
+            logger.error(f"Error storing event: {e}")
+            session.rollback()
+            return False
 
 def get_event_service() -> EventService:
     """Get the global event service instance"""
